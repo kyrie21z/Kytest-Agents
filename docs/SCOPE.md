@@ -30,11 +30,13 @@
 
 | 来源 | 题数 | 层 | bug 变体 |
 |---|---|---|---|
-| BigCodeBench-Hard（Apache-2.0） | 4 | T2 规格丰富的函数 | 手写，标注 synthetic |
+| BigCodeBench-Hard（Apache-2.0） | 2 | T2 ×1、T5 ×1 | 手写，标注 synthetic |
 | ClassEval（代码 MIT，数据 CC-BY-NC-4.0） | 4 | T3 有状态类 ×3，T5 规格含糊 ×1 | 手写，标注 synthetic |
-| QuixBugs（MIT） | 3 | T2 算法 | 自带人写缺陷 |
-| BugsInPy（youtube-dl `match_str`） | 1 | T4 模块 | 真实缺陷；时间不够最先砍 |
-| 原创 | 2 | T5 ×1、未公开对照 ×1 | 手写 |
+| QuixBugs（MIT） | 6 | T2 算法 | 自带人写缺陷 + 手写 |
+| 原创 | 2 | T2 未公开对照 ×1、T5 ×1 | 手写 |
+
+实际执行与计划的差异：BigCodeBench-Hard 只有 2 题是纯标准库、无文件操作的函数（其余依赖 pandas/matplotlib 或需要 `tmp_path`，
+而 H1 的 TestGen 禁止测试使用 fixture），缺口由 QuixBugs 补足；BugsInPy 按计划最先砍掉。
 
 - 划分：开发集 5 题用于调提示词；测试集 9 题冻结，不在测试集上调参。
 - 合法替代实现：每题 1–2 个，必须通过官方测试。
