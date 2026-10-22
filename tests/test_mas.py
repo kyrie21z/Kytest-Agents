@@ -126,3 +126,55 @@ def test_real_run_without_model_config_fails_cleanly_before_creating_a_run(tmp_p
     assert kytest.main([str(kytest.Path(__file__).parent.parent / "mas" / "demo" / "classify.py"), "--runs", str(runs)]) == 2
     assert "--mock" in capsys.readouterr().err
     assert not runs.exists()
+
+
+def test_accept_without_any_artifact_is_not_trusted(tmp_path, monkeypatch):
+    from mas import mock
+    wrong = mock.case("test_p2_below", "classify(0, 1, 10)", 1)
+    again = mock.case("test_p2_below_again", "classify(0, 1, 10)", 1)
+    verdict = lambda name: [{"test": name, "judgement": "test_wrong", "reason": "Expects 1 below low."}]
+
+    def scripted(name):
+        scenario = mock.Scenario("revise")
+        scenario.rounds = [mock.MockLLM(responses=mock.submit([wrong], "One test.")),
+                           mock.MockLLM(responses=mock.submit([again], "One test."))]
+        scenario.roles["reviewer"] = mock.Scripted([mock.review("accept", verdict("test_p2_below")),
+                                                    mock.review("accept", verdict("test_p2_below_again"))])
+        return scenario
+    monkeypatch.setattr(kytest, "Scenario", scripted)
+    state, run_dir = run_mock(tmp_path, "revise")
+    # Both reviews said accept, but no test passed and no bug was reported.
+    assert [r["decision"] for r in state["reviews"]] == ["accept", "accept"]
+    assert state["round"] == 2 and state["status"] == "failed"
+    assert state["reviews"][0]["overridden"]
+    assert "none was judged a suspected bug" in nodes.testgen_prompt({**state, "reviews": state["reviews"][:1]})
+    assert not (run_dir / "test_solution.py").exists()
+
+
+def test_after_reviewer_accepts_a_run_that_only_reports_bugs():
+    state = {"reviews": [{"decision": "accept", "instructions": []}], "verification": [{"tests": 0}],
+             "suspected_bugs": [{"name": "test_x"}], "round": 1, "config": {"max_rounds": 2}}
+    assert nodes.after_reviewer(state) == nodes.END and state["status"] == "accepted"
+
+
+def test_suspected_bug_export_keeps_each_tests_imports(tmp_path):
+    from mas.engine import write_artifacts
+    ws = tmp_path / "ws"
+    ws.mkdir()
+    (ws / "solution.py").write_text("def f():\n    return 'f'\n\ndef g():\n    return 'g'\n")
+    bugs = [{"name": f"test_{n}", "code": f"from solution import {n} as target\n\ndef test_{n}():\n"
+             f"    assert target() == '{n}'\n", "plan_ids": [], "reason": "", "diagnostic": ""} for n in "fg"]
+    write_artifacts({"workspace": str(ws), "plan": None, "suspected_bugs": bugs}, tmp_path)
+    exported = (tmp_path / "test_suspected_bugs.py").read_text()
+    (ws / "test_export.py").write_text(exported)
+    import subprocess
+    out = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "test_export.py"],
+                         cwd=ws, capture_output=True, text=True)
+    assert "2 passed" in out.stdout, out.stdout
+
+
+def test_a_broken_sandbox_stops_the_run_before_it_starts(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(kytest, "sandbox_preflight", lambda base: "bwrap: execvp python: No such file")
+    assert kytest.main(["--mock", "pass", "--runs", str(tmp_path)]) == 2
+    assert "sandbox cannot start" in capsys.readouterr().err
+    assert not list(tmp_path.iterdir())

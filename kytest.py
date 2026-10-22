@@ -21,6 +21,7 @@ sys.path.insert(0, str(ROOT))
 from code_agent.assembly import build_llm  # noqa: E402
 from code_agent.config import Settings  # noqa: E402
 from code_agent.errors import ConfigError  # noqa: E402
+from code_agent.sandbox import sandbox_preflight  # noqa: E402
 from mas.engine import Context, new_state, run  # noqa: E402
 from mas.mock import SCENARIOS, Scenario  # noqa: E402
 
@@ -82,6 +83,10 @@ def main(argv=None) -> int:
             print("No model configured: copy .env.example to .env and set LLM_API_KEY, LLM_BASE_URL and "
                   "LLM_MODEL, or run an offline scenario: python kytest.py --mock bug", file=sys.stderr)
             return 2
+    problem = sandbox_preflight(a.resume.resolve().parent if a.resume else a.runs.resolve())
+    if problem:  # otherwise every test run fails inside the sandbox and the run ends with zero tests
+        print(f"The command sandbox cannot start this Python interpreter: {problem}", file=sys.stderr)
+        return 2
     if a.resume:
         run_dir = a.resume.resolve()
         state = json.loads((run_dir / "state.json").read_text(encoding="utf-8"))

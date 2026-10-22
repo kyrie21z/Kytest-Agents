@@ -26,9 +26,9 @@ flowchart LR
     T --> V[Verifier<br/>无 LLM: pytest / 覆盖率 / 变异]
     V -->|config.reviewer| R[Reviewer<br/>LLM, 逐个裁决失败测试]
     V -->|--no-reviewer| E1([END: completed])
-    R -->|accept| E2([END: accepted])
-    R -->|revise 且 round < max_rounds| T
-    R -->|revise 且 round = max_rounds| E3([END: forced])
+    R -->|accept 且有产物| E2([END: accepted])
+    R -->|revise 或无产物的 accept, round < max_rounds| T
+    R -->|未接受, round = max_rounds| E3([END: forced / 无产物则 failed])
 
     P -. 两次失败 .-> T
     T -. 两次失败, 已有上一轮测试 .-> E3
@@ -42,6 +42,7 @@ flowchart LR
 - **顺序**：Planner → TestGen → Verifier → Reviewer。
 - **循环**：Reviewer 判 `revise` 时带着修订意见回到 TestGen，最多 `--rounds`（默认 2）轮。
 - **条件分支**：`accept` / 达到轮数上限 / 消融开关 / 错误恢复。
+- **完成条件**：`accept` 只有在留下产物时才生效，即至少一个在实现上通过的测试或一条疑似缺陷；否则转移表把它当作修订，附上说明回到 TestGen，轮数用完仍无产物则为 `failed`。
 - **错误处理与恢复**：每个节点失败自动重试一次（`ATTEMPTS_PER_NODE = 2`），仍失败则走 `ON_ERROR`
   降级路径并记入 `state["degraded"]`；每个节点结束后写检查点，`--resume runs/<id>` 从中断处继续。
 
@@ -167,7 +168,7 @@ H1 的基准（MBPP 20 题、单函数、算子替换故障）针对单 Agent �
 
 ## 9. 局限
 
-- 每个配置每题只跑 1 次，样本小，只做描述性报告与区间，不声称显著。
+- 每格重复次数少（开发集 1 次，测试集 2 次；测试集共 144 次运行），样本小，只做描述性报告与区间，不声称显著。
 - 合成缺陷与替代实现由同一作者编写，可能偏向作者能想到的错误类型。
 - 同一个模型（qwen3.7-flash）担任所有角色；角色独立性来自信息隔离，不来自模型差异。
 - `single` 配置复用了本工作流的 TestGen 提示词，不完全等同于 H1 的 A4 实验条件。

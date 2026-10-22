@@ -301,3 +301,20 @@ def test_evaluation_cannot_report_pass_when_isolation_is_missing(tmp_path, monke
     monkeypatch.setattr(sandbox.shutil, "which", lambda _: None)
     result = _run_pytest(tmp_path)
     assert result["status"] == "FAIL" and result["passed"] == 0
+
+
+def test_interpreter_reached_through_a_directory_symlink_runs_in_the_sandbox(sandbox_workspace, monkeypatch):
+    # uv venvs point at cpython-3.12-… -> cpython-3.12.15-…; only the real directory is mounted.
+    from code_agent.sandbox import interpreter_links, sandbox_command
+    real = Path(sys.base_prefix).resolve()
+    python = real / "bin" / f"python{sys.version_info.major}.{sys.version_info.minor}"
+    if not python.exists():
+        pytest.skip("no versioned interpreter under the base prefix")
+    alias = sandbox_workspace.parent / "cpython-alias"
+    alias.symlink_to(real, target_is_directory=True)
+    monkeypatch.setattr(sys, "executable", str(alias / "bin" / python.name))
+    assert interpreter_links([real])[alias] == str(real)
+    argv = sandbox_command([sys.executable, "-c", "print('alias works')"],
+                           workspace=sandbox_workspace, cwd=sandbox_workspace, allow_write=False)
+    out = run_process(argv, cwd=sandbox_workspace, timeout=30)
+    assert "alias works" in str(out), out

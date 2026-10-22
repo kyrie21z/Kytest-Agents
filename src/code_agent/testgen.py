@@ -96,6 +96,54 @@ def check_literal_inputs(tree: ast.Module, contracts: Dict[str, Dict[str, Any]])
     return analyze(tree, contracts)
 
 
+def isolate_aliases(code: str, prefix: str) -> str:
+    """Rename the test case's imported aliases to prefix_<alias>, so several
+    cases can share one module without one import rebinding another's name."""
+    tree = ast.parse(code)
+    aliases = {}
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                if alias.name == "*":
+                    raise ToolError("Wildcard imports are not supported")
+                old = alias.asname or alias.name
+                alias.asname = f"{prefix}_{old}"
+                aliases[old] = alias.asname
+    class Rename(ast.NodeTransformer):
+        protected = set()
+        def visit_FunctionDef(self, node):
+            from .test_contracts import local_bindings
+            previous = self.protected
+            self.protected = local_bindings(node)
+            self.generic_visit(node)
+            self.protected = previous
+            return node
+        def visit_ListComp(self, node):
+            previous = self.protected
+            # The outermost iterable evaluates in the enclosing scope.
+            node.generators[0].iter = self.visit(node.generators[0].iter)
+            self.protected = previous | {n.id for g in node.generators for n in ast.walk(g.target) if isinstance(n, ast.Name)}
+            for index, generator in enumerate(node.generators):
+                if index:
+                    generator.iter = self.visit(generator.iter)
+                generator.ifs = [self.visit(n) for n in generator.ifs]
+            if isinstance(node, ast.DictComp):
+                node.key, node.value = self.visit(node.key), self.visit(node.value)
+            else:
+                node.elt = self.visit(node.elt)
+            self.protected = previous
+            return node
+        visit_SetComp = visit_ListComp
+        visit_DictComp = visit_ListComp
+        visit_GeneratorExp = visit_ListComp
+        def visit_Name(self, node):
+            if node.id in aliases and node.id not in self.protected:
+                node.id = aliases[node.id]
+            return node
+    tree = Rename().visit(tree)
+    return ast.unparse(tree)
+
+
 class TestGeneration:
     """Own the immutable target, accepted suite, execution and development lifecycle."""
     _fields = ('name', 'code', 'contract_quote', 'input_domain', 'oracle_reason', 'fault_hypothesis')
@@ -240,50 +288,7 @@ class TestGeneration:
         cases = list(self.accepted.values()) + ([extra] if extra else [])
         chunks = [self.previous_tests] if self.previous_tests else []
         prefix = "_new" + hashlib.sha256(self.previous_tests.encode()).hexdigest()[:8] if self.previous_tests else "_case"
-        for index, case in enumerate(cases):
-            tree = ast.parse(case["code"])
-            aliases = {}
-            for node in tree.body:
-                if isinstance(node, (ast.Import, ast.ImportFrom)):
-                    for alias in node.names:
-                        if alias.name == "*":
-                            raise ToolError("Wildcard imports are not supported")
-                        old = alias.asname or alias.name
-                        alias.asname = f"{prefix}{index}_{old}"
-                        aliases[old] = alias.asname
-            class Rename(ast.NodeTransformer):
-                protected = set()
-                def visit_FunctionDef(self, node):
-                    from .test_contracts import local_bindings
-                    previous = self.protected
-                    self.protected = local_bindings(node)
-                    self.generic_visit(node)
-                    self.protected = previous
-                    return node
-                def visit_ListComp(self, node):
-                    previous = self.protected
-                    # The outermost iterable evaluates in the enclosing scope.
-                    node.generators[0].iter = self.visit(node.generators[0].iter)
-                    self.protected = previous | {n.id for g in node.generators for n in ast.walk(g.target) if isinstance(n, ast.Name)}
-                    for index, generator in enumerate(node.generators):
-                        if index:
-                            generator.iter = self.visit(generator.iter)
-                        generator.ifs = [self.visit(n) for n in generator.ifs]
-                    if isinstance(node, ast.DictComp):
-                        node.key, node.value = self.visit(node.key), self.visit(node.value)
-                    else:
-                        node.elt = self.visit(node.elt)
-                    self.protected = previous
-                    return node
-                visit_SetComp = visit_ListComp
-                visit_DictComp = visit_ListComp
-                visit_GeneratorExp = visit_ListComp
-                def visit_Name(self, node):
-                    if node.id in aliases and node.id not in self.protected:
-                        node.id = aliases[node.id]
-                    return node
-            tree = Rename().visit(tree)
-            chunks.append(ast.unparse(tree))
+        chunks += [isolate_aliases(case["code"], f"{prefix}{index}") for index, case in enumerate(cases)]
         return "# Accepted by submit_tests; explanations in testgen_report.json.\n\n" + "\n\n".join(chunks) + "\n"
 
     def publish(self) -> Dict[str, bool]:

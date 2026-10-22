@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict
 
+from code_agent.testgen import isolate_aliases
+
 from .nodes import END, NODES, ON_ERROR, TESTS, TRANSITIONS
 
 ATTEMPTS_PER_NODE = 2
@@ -117,7 +119,8 @@ def write_artifacts(state, run_dir: Path):
         return
     (run_dir / "test_suspected_bugs.py").write_text(
         "# Tests the Reviewer judged correct against the specification; they FAIL on the implementation.\n\n"
-        + "\n\n".join(b["code"].strip() for b in bugs) + "\n", encoding="utf-8")
+        + "\n\n".join(isolate_aliases(b["code"], f"_bug{i}") for i, b in enumerate(bugs)) + "\n",
+        encoding="utf-8")
     lines = ["# Suspected implementation bugs", ""]
     plan = {i["id"]: i for i in (state["plan"] or {}).get("items", [])}
     for b in bugs:

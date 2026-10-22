@@ -144,7 +144,8 @@ def testgen_prompt(state):
     text = TASK
     if state.get("plan"):
         text += PLAN_RULES.format(plan=json.dumps(state["plan"]["items"], ensure_ascii=False, indent=1))
-    if state["reviews"] and state["reviews"][-1]["decision"] == "revise":
+    # TestGen only follows a review the transition sent back: a revise, or an overridden accept.
+    if state["reviews"]:
         notes = "\n".join(f"- {i}" for i in state["reviews"][-1]["instructions"])
         text += ("\nThis is a revision. Accepted tests in test_solution.py are kept. "
                  "Submit only new or corrected tests, under new names. Reviewer instructions:\n" + notes + "\n")
@@ -282,12 +283,21 @@ def after_verifier(state):
 
 
 def after_reviewer(state):
-    if state["reviews"][-1]["decision"] == "accept":
+    # "accept" must leave something behind: tests that pass, or a reported bug.
+    # Otherwise the Reviewer's word alone would mark an empty run as accepted.
+    produced = state["verification"][-1]["tests"] or state["suspected_bugs"]
+    if state["reviews"][-1]["decision"] == "accept" and produced:
         state["status"] = "accepted"
         return END
     if state["round"] >= state["config"]["max_rounds"]:
-        state["status"] = "forced"  # round cap reached: keep the last suite, flagged
+        state["status"] = "forced" if produced else "failed"  # round cap: keep the last suite, flagged
         return END
+    review = state["reviews"][-1]
+    if review["decision"] == "accept":
+        review["overridden"] = "no passing test and no suspected bug"
+        review["instructions"] = review["instructions"] + [
+            "No test passed on the implementation and none was judged a suspected bug; "
+            "write tests the specification decides, for the plan items not covered yet."]
     return "testgen"
 
 
