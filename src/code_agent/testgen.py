@@ -51,6 +51,13 @@ def _normalized(text: str) -> str:
     return " ".join(text.split())
 
 
+def all_docstrings(source: str) -> List[str]:
+    """Every docstring a contract quote may cite: module, classes, functions, methods."""
+    nodes = ast.walk(ast.parse(source))
+    kinds = (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
+    return [_normalized(doc) for node in nodes if isinstance(node, kinds) and (doc := ast.get_docstring(node))]
+
+
 def explicit_constraints(source: str) -> Dict[str, Dict[str, Any]]:
     """Recognize explicit ranges/positive/nonempty preconditions, never invent raises."""
     contracts = {}
@@ -71,6 +78,15 @@ def explicit_constraints(source: str) -> Dict[str, Dict[str, Any]]:
                               "types": {a.arg: a.annotation.id for a in fn.args.posonlyargs + fn.args.args if isinstance(a.annotation, ast.Name)},
                               "side_effects": bool(re.search(r"in[- ]place|modif(?:y|ies).*?(?:input|list|array)", doc, re.I)),
                               "permutation_grid": names[0] if names and re.search(r"N rows and N columns.*?N\s*>=\s*2", doc, re.S) and "exactly once" in doc and re.search(r"\[1,\s*N\s*\*\s*N\]", doc) else None}
+    for cls in ast.parse(source).body:
+        # Classes carry no value preconditions; they only make constructor and
+        # method calls count as target calls, statically and at runtime.
+        if isinstance(cls, ast.ClassDef) and not cls.name.startswith("_"):
+            methods = [m.name for m in cls.body if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef))
+                       and (m.name == "__init__" or not m.name.startswith("_"))]
+            contracts[cls.name] = {"doc": ast.get_docstring(cls) or "", "names": [], "ranges": [], "positive": [],
+                                   "nonempty": [], "positive_elements": [], "types": {}, "side_effects": False,
+                                   "permutation_grid": None, "kind": "class", "methods": methods}
     return contracts
 
 
@@ -91,6 +107,7 @@ class TestGeneration:
             raise ToolError("solution.py exceeds MAX_FILE_BYTES; use a bounded standalone target")
         self.source = source_path.read_text(encoding="utf-8")
         self.contracts = explicit_constraints(self.source)
+        self.docstrings = all_docstrings(self.source)
         self.accepted: Dict[str, Dict[str, str]] = {}
         self.attempts: List[Dict[str, Any]] = []
         # Candidates that failed on the SUT, kept out of model feedback. A failure may
@@ -130,10 +147,10 @@ class TestGeneration:
         if len(name) > 120 or not re.fullmatch(r"test_[A-Za-z0-9_]+", name):
             raise ToolError("name must be a test_* Python identifier")
         quote = _normalized(candidate["contract_quote"])
-        if not any(quote in _normalized(c["doc"]) for c in self.contracts.values()):
+        if not any(quote in doc for doc in self.docstrings):
             if len(quote) >= 2 and (quote[0], quote[-1]) in (("\"", "\""), ("'", "'"), ("“", "”"), ("‘", "’"), ("`", "`")):
                 quote = quote[1:-1].strip()
-        if len(quote) < 12 or not any(quote in _normalized(c["doc"]) for c in self.contracts.values()):
+        if len(quote) < 12 or not any(quote in doc for doc in self.docstrings):
             raise ToolError("contract_quote must quote at least 12 characters verbatim from a solution.py docstring")
         try:
             tree = ast.parse(candidate["code"])

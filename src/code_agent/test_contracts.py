@@ -136,7 +136,16 @@ class CandidateAnalysis(ast.NodeVisitor):
             return name if name in self.contracts else None
         if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name) and self.bindings.get(call.func.value.id) == "@solution":
             return call.func.attr if call.func.attr in self.contracts else None
+        if isinstance(call.func, ast.Attribute):
+            owner = call.func.value
+            if isinstance(owner, ast.Name) and self.bindings.get(owner.id) == "@instance" \
+                    or isinstance(owner, ast.Call) and self.is_constructor(owner):
+                return "@method"
         return None
+
+    def is_constructor(self, call):
+        target = self.target(call)
+        return bool(target) and target != "@method" and self.contracts[target].get("kind") == "class"
 
     def depends(self, node):
         return any(isinstance(n, ast.Call) and self.target(n) or isinstance(n, ast.Name) and n.id in self.dependent for n in ast.walk(node))
@@ -190,6 +199,8 @@ class CandidateAnalysis(ast.NodeVisitor):
         value, dependent = constant(node.value, self.values), self.depends(node.value)
         effective = self.effective_depends(node.value)
         binding = self.bindings.get(node.value.id) if isinstance(node.value, ast.Name) else None
+        if isinstance(node.value, ast.Call) and self.is_constructor(node.value):
+            binding = "@instance"
         for target in node.targets:
             if isinstance(target, ast.Name):
                 self.values[target.id] = value
@@ -234,7 +245,10 @@ class CandidateAnalysis(ast.NodeVisitor):
 
     def visit_Call(self, node):
         target = self.target(node)
-        if target:
+        if target == "@method":
+            self.calls += 1
+            self.unknown += 1
+        elif target:
             self.calls += 1
             contract = self.contracts[target]
             values = {name: constant(value, self.values) for name, value in zip(contract["names"], node.args)}
@@ -249,7 +263,7 @@ class CandidateAnalysis(ast.NodeVisitor):
     def visit_Expr(self, node):
         if isinstance(node.value, ast.Call):
             target = self.target(node.value)
-            if target and self.contracts[target].get("side_effects"):
+            if target and target != "@method" and self.contracts[target].get("side_effects"):
                 names = {n.id for value in node.value.args for n in ast.walk(value) if isinstance(n, ast.Name)}
                 self.dependent.update(names)
                 self.effective_dependent.update(names)
@@ -318,6 +332,27 @@ def install_guards(module, contracts, max_calls=MAX_TARGET_CALLS):
     for name, contract in contracts.items():
         function = getattr(module, name, None)
         if not callable(function):
+            continue
+        if contract.get("kind") == "class":
+            # Wrap methods, never the class: isinstance and subclassing keep working.
+            for method_name in contract["methods"]:
+                method = function.__dict__.get(method_name)
+                if not inspect.isfunction(method):
+                    continue
+                def count(method=method):
+                    @functools.wraps(method)
+                    def counted(*args, **kwargs):
+                        state["calls"] += 1
+                        state["total_calls"] += 1
+                        state["unchecked_calls"] += 1
+                        if state["calls"] > max_calls:
+                            message = f"resource limit: maximum {max_calls} target calls per test"
+                            if len(state["violations"]) < 5:
+                                state["violations"].append(message)
+                            raise ValueError(message)
+                        return method(*args, **kwargs)
+                    return counted
+                setattr(function, method_name, count())
             continue
         signature = inspect.signature(function)
         def wrap(function=function, contract=contract, signature=signature, name=name):

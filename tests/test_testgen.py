@@ -334,3 +334,44 @@ def test_deferred_measurement_runs_once_after_generation(tmp_path, monkeypatch):
     assert outcome.final["all_pass"] is True
     assert outcome.agent["measurement_deferred"] is True
     assert outcome.agent["testgen"]["accepted"][0]["name"] == "test_two"
+
+
+def test_contract_quote_may_cite_class_and_method_docstrings(tmp_path):
+    (tmp_path / "solution.py").write_text('''class Counter:
+    """A counter that starts at zero."""
+
+    def __init__(self):
+        self.value = 0
+
+    def bump(self, step):
+        """Increase the value by step and return the new value."""
+        self.value += step
+        return self.value
+''')
+    gen = Generation(Settings(workspace=tmp_path, allow_code_execution=True))
+    code = "from solution import Counter\ndef test_bump():\n    c = Counter()\n    assert c.bump(2) == 2\n    assert c.bump(3) == 5\n"
+    method = case("test_bump", code, contract_quote="Increase the value by step and return the new value")
+    klass = case("test_start", code.replace("test_bump", "test_start"), contract_quote="A counter that starts at zero")
+    unknown = case("test_other", code.replace("test_bump", "test_other"), contract_quote="decrease the value by step")
+    report = results(gen, [method, klass, unknown])
+    assert [r["status"] for r in report][:2] == ["ACCEPTED", "ACCEPTED"]
+    assert report[2]["status"] != "ACCEPTED" and "verbatim" in json.dumps(report[2])
+
+
+def test_class_targets_count_chained_calls_and_keep_isinstance(tmp_path):
+    (tmp_path / "solution.py").write_text('''class Counter:
+    """A counter that starts at zero."""
+
+    def bump(self, step):
+        """Increase the value by step and return the new value."""
+        self.value = getattr(self, "value", 0) + step
+        return self.value
+''')
+    gen = Generation(Settings(workspace=tmp_path, allow_code_execution=True))
+    chained = case("test_chain", "from solution import Counter\ndef test_chain():\n    assert Counter().bump(4) == 4\n",
+                   contract_quote="Increase the value by step and return the new value")
+    kind = case("test_kind", "from solution import Counter\ndef test_kind():\n    c = Counter()\n    assert isinstance(c, Counter)\n    assert c.bump(1) == 1\n",
+                contract_quote="A counter that starts at zero")
+    wrong = case("test_wrong", "from solution import Counter\ndef test_wrong():\n    assert Counter().bump(4) == 5\n",
+                 contract_quote="Increase the value by step and return the new value")
+    assert [r["status"] for r in results(gen, [chained, kind, wrong])] == ["ACCEPTED", "ACCEPTED", "FAIL"]
