@@ -81,7 +81,7 @@ def test_split_command_matches_what_the_child_process_actually_receives(tmp_path
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text("import sys; print(repr(sys.argv[1:]))", encoding="utf-8")
 
-    command = f'{sys.executable} "{target}" --flag "a b" plain'
+    command = f'"{sys.executable}" "{target}" --flag "a b" plain'
     parts = split_command(command)
 
     import subprocess

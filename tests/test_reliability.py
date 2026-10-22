@@ -216,6 +216,7 @@ def test_readonly_sandbox_denies_command_writes(sandbox_workspace):
     assert tool.run(command("print('read-only command works')")).ok
 
 
+@pytest.mark.skipif(" " in sys.executable, reason="a shebang line cannot name an interpreter path with spaces")
 def test_workspace_relative_executable_runs_in_the_selected_directory(sandbox_workspace):
     path = sandbox_workspace / "local-script"
     path.write_text(f"#!{sys.executable}\nprint('workspace executable works')\n")
