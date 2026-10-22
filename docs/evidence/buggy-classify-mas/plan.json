@@ -1,0 +1,83 @@
+{
+ "summary": "Classifies a numeric value relative to an inclusive interval [low, high], returning -1, 0, or 1 based on its position.",
+ "input_domain": "Three numeric arguments (integers or floats): value, low, high. Valid inputs satisfy the precondition low <= high.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Value strictly inside interval",
+   "input": "classify(5, 1, 10)",
+   "expected": "0",
+   "rationale": "Docstring specifies returning 0 'inside the inclusive interval'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Value strictly below interval",
+   "input": "classify(0, 1, 10)",
+   "expected": "-1",
+   "rationale": "Docstring specifies returning -1 'below low'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Value strictly above interval",
+   "input": "classify(11, 1, 10)",
+   "expected": "1",
+   "rationale": "Docstring specifies returning 1 'above high'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Value equals lower bound",
+   "input": "classify(1, 1, 10)",
+   "expected": "0",
+   "rationale": "Docstring defines an 'inclusive interval', meaning low <= value <= high yields 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Value equals upper bound",
+   "input": "classify(10, 1, 10)",
+   "expected": "0",
+   "rationale": "Docstring defines an 'inclusive interval', covering the upper bound.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Degenerate interval where low equals high",
+   "input": "classify(5, 5, 5)",
+   "expected": "0",
+   "rationale": "When low == high, the interval contains only one point. Since it's inclusive, the value matches the interval bounds, yielding 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Negative numeric values",
+   "input": "classify(-5, -10, -1)",
+   "expected": "0",
+   "rationale": "The specification uses comparative operators which apply naturally to negative numbers; -5 is inside [-10, -1].",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Floating point exact match at lower bound",
+   "input": "classify(0.0, 0.0, 1.0)",
+   "expected": "0",
+   "rationale": "Inclusive interval semantics apply to floats; exact equality at low should return 0.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Precondition violation: The docstring begins with 'For low <= high', implying this is a required precondition. The behavior when low > high is undefined.",
+  "Type constraints: The spec does not specify supported numeric types (e.g., ints, floats, Decimals) or how non-numeric inputs should be handled.",
+  "Return type contract: The spec guarantees integer returns (-1, 0, 1), but does not explicitly state whether the function should raise TypeError on invalid types or attempt coercion."
+ ]
+}
