@@ -1,0 +1,48 @@
+{
+ "id": "qb_get_factors",
+ "source": {
+  "name": "QuixBugs",
+  "url": "https://github.com/jkoppel/QuixBugs",
+  "license": "MIT",
+  "upstream_id": "get_factors"
+ },
+ "tier": "T2",
+ "split": "test",
+ "entry": "get_factors",
+ "primary_bug": "upstream",
+ "bugs": {
+  "upstream": {
+   "origin": "human (QuixBugs upstream)",
+   "desc": "returns [] instead of [n] when the remaining n is prime",
+   "file": "bugs/upstream.py"
+  },
+  "sqrt_bound": {
+   "origin": "synthetic",
+   "desc": "trial division stops before sqrt(n), so squares of primes are reported as prime",
+   "patch": [
+    [
+     "range(2, int(n ** 0.5) + 1)",
+     "range(2, int(n ** 0.5))"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "validating": {
+   "desc": "raises ValueError for n < 1, which is outside the precondition",
+   "patch": [
+    [
+     "    if n == 1:\n",
+     "    if n < 1:\n        raise ValueError('n must be >= 1')\n    if n == 1:\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "n = 1 gives []",
+  "prime n gives [n]",
+  "repeated factors listed with repetition",
+  "factors in sorted order",
+  "perfect square of a prime"
+ ]
+}

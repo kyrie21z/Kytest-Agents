@@ -1,0 +1,9 @@
+import pytest
+from solution import find_first_in_sorted
+
+CASES = [[[[3, 4, 5, 5, 5, 5, 6], 5], 2], [[[3, 4, 5, 5, 5, 5, 6], 7], -1], [[[3, 4, 5, 5, 5, 5, 6], 2], -1], [[[3, 6, 7, 9, 9, 10, 14, 27], 14], 6], [[[0, 1, 6, 8, 13, 14, 67, 128], 80], -1], [[[0, 1, 6, 8, 13, 14, 67, 128], 67], 6], [[[0, 1, 6, 8, 13, 14, 67, 128], 128], 7]]
+
+
+@pytest.mark.parametrize('args, expected', CASES)
+def test_upstream(args, expected):
+    assert find_first_in_sorted(*args) == expected

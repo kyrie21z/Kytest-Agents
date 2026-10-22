@@ -1,0 +1,53 @@
+{
+ "id": "bcb_bigram_counts",
+ "source": {
+  "name": "BigCodeBench-Hard v0.1.4",
+  "url": "https://huggingface.co/datasets/bigcode/bigcodebench-hard",
+  "license": "Apache-2.0",
+  "upstream_id": "BigCodeBench/928"
+ },
+ "tier": "T2",
+ "split": "dev",
+ "entry": "bigram_counts",
+ "primary_bug": "no_doubles",
+ "bugs": {
+  "no_doubles": {
+   "origin": "synthetic",
+   "desc": "doubled letters such as 'aa' are missing from the dictionary",
+   "patch": [
+    [
+     "combinations = permutations + [x*2 for x in ALPHABETS]",
+     "combinations = permutations"
+    ]
+   ]
+  },
+  "non_overlapping": {
+   "origin": "synthetic",
+   "desc": "counts non-overlapping occurrences, so 'aaa' gives aa = 1",
+   "patch": [
+    [
+     "return {key: word_counter.get(key, 0) for key in combinations}",
+     "return {key: word.count(key) for key in combinations}"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "casefold_input": {
+   "desc": "lower-cases the word first; behaviour on uppercase input is unspecified",
+   "patch": [
+    [
+     "    word_combinations = [",
+     "    word = word.lower()\n    word_combinations = ["
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "all 676 keys present",
+  "doubled letters counted",
+  "overlapping occurrences counted",
+  "absent bigram is 0",
+  "empty word"
+ ]
+}

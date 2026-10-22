@@ -1,0 +1,47 @@
+{
+ "id": "qb_to_base",
+ "source": {
+  "name": "QuixBugs",
+  "url": "https://github.com/jkoppel/QuixBugs",
+  "license": "MIT",
+  "upstream_id": "to_base"
+ },
+ "tier": "T2",
+ "split": "dev",
+ "entry": "to_base",
+ "primary_bug": "upstream",
+ "bugs": {
+  "upstream": {
+   "origin": "human (QuixBugs upstream)",
+   "desc": "digits are appended instead of prepended, so the result is reversed",
+   "file": "bugs/upstream.py"
+  },
+  "lowercase": {
+   "origin": "synthetic",
+   "desc": "uses lowercase letters for digits above 9 ('1f' instead of '1F')",
+   "patch": [
+    [
+     "string.digits + string.ascii_uppercase",
+     "string.digits + string.ascii_lowercase"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "zero": {
+   "desc": "returns '0' for num == 0, which is outside the precondition num > 0",
+   "patch": [
+    [
+     "    result = ''\n",
+     "    if num == 0:\n        return '0'\n    result = ''\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "single-digit result",
+  "letters for digits >= 10 are uppercase",
+  "base 2 and base 36 extremes",
+  "most significant digit first"
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "id": "qb_shunting_yard",
+ "source": {
+  "name": "QuixBugs",
+  "url": "https://github.com/jkoppel/QuixBugs",
+  "license": "MIT",
+  "upstream_id": "shunting_yard"
+ },
+ "tier": "T2",
+ "split": "test",
+ "entry": "shunting_yard",
+ "primary_bug": "upstream",
+ "bugs": {
+  "upstream": {
+   "origin": "human (QuixBugs upstream)",
+   "desc": "operators are never pushed onto the operator stack, so they vanish",
+   "file": "bugs/upstream.py"
+  },
+  "right_assoc": {
+   "origin": "synthetic",
+   "desc": "pops only strictly higher precedence, making - and / right-associative",
+   "patch": [
+    [
+     "precedence[token] <= precedence[opstack[-1]]",
+     "precedence[token] < precedence[opstack[-1]]"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "strict_tokens": {
+   "desc": "raises ValueError on tokens outside the precondition instead of KeyError",
+   "patch": [
+    [
+     "        else:\n            while opstack",
+     "        elif token not in precedence:\n            raise ValueError(token)\n        else:\n            while opstack"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "empty input",
+  "single number",
+  "left associativity of - and /",
+  "* and / bind tighter than + and -",
+  "input list not modified"
+ ]
+}

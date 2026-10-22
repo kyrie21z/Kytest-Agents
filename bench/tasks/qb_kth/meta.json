@@ -1,0 +1,48 @@
+{
+ "id": "qb_kth",
+ "source": {
+  "name": "QuixBugs",
+  "url": "https://github.com/jkoppel/QuixBugs",
+  "license": "MIT",
+  "upstream_id": "kth"
+ },
+ "tier": "T2",
+ "split": "dev",
+ "entry": "kth",
+ "primary_bug": "upstream",
+ "bugs": {
+  "upstream": {
+   "origin": "human (QuixBugs upstream)",
+   "desc": "recursing into the upper partition keeps k instead of k - num_lessoreq",
+   "file": "bugs/upstream.py"
+  },
+  "pivot_tie": {
+   "origin": "synthetic",
+   "desc": "elements equal to the pivot are dropped from the count, breaking duplicates",
+   "patch": [
+    [
+     "num_lessoreq = len(arr) - len(above)",
+     "num_lessoreq = num_less + 1"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "sorted": {
+   "desc": "plain sorted(arr)[k]; differs only for k outside 0 <= k < len(arr)",
+   "patch": [
+    [
+     "    pivot = arr[0]\n",
+     "    return sorted(arr)[k]\n    pivot = arr[0]\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "k = 0 gives the minimum",
+  "k = len-1 gives the maximum",
+  "duplicates counted with multiplicity",
+  "unsorted input",
+  "input list not required sorted"
+ ]
+}

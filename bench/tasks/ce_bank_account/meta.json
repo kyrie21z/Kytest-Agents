@@ -1,0 +1,63 @@
+{
+ "id": "ce_bank_account",
+ "source": {
+  "name": "ClassEval",
+  "url": "https://github.com/FudanSELab/ClassEval",
+  "license": "code MIT; data CC-BY-NC-4.0",
+  "upstream_id": "ClassEval_8"
+ },
+ "tier": "T3",
+ "split": "test",
+ "entry": "BankAccount",
+ "primary_bug": "withdraw_all_rejected",
+ "bugs": {
+  "withdraw_all_rejected": {
+   "origin": "synthetic",
+   "desc": "withdrawing exactly the balance is refused",
+   "patch": [
+    [
+     "if amount > self.balance:",
+     "if amount >= self.balance:"
+    ]
+   ]
+  },
+  "transfer_deposit_first": {
+   "origin": "synthetic",
+   "desc": "transfer deposits before withdrawing, so a failed transfer still credits the other account",
+   "patch": [
+    [
+     "        self.withdraw(amount)\n        other_account.deposit(amount)",
+     "        other_account.deposit(amount)\n        self.withdraw(amount)"
+    ]
+   ]
+  },
+  "zero_deposit_rejected": {
+   "origin": "synthetic",
+   "desc": "deposit of 0 is rejected as invalid",
+   "patch": [
+    [
+     "        if amount < 0:\n            raise ValueError('Invalid amount')\n        self.balance += amount",
+     "        if amount <= 0:\n            raise ValueError('Invalid amount')\n        self.balance += amount"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "transfer_returns": {
+   "desc": "transfer returns the new balance of the source account; spec says nothing about a return value",
+   "patch": [
+    [
+     "        self.withdraw(amount)\n        other_account.deposit(amount)",
+     "        self.withdraw(amount)\n        other_account.deposit(amount)\n        return self.balance"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "initial balance default 0",
+  "negative deposit raises ValueError('Invalid amount')",
+  "overdraw raises ValueError('Insufficient balance.')",
+  "withdraw exact balance allowed",
+  "failed transfer leaves both accounts unchanged"
+ ]
+}

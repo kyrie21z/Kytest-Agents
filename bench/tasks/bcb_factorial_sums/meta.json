@@ -1,0 +1,63 @@
+{
+ "id": "bcb_factorial_sums",
+ "source": {
+  "name": "BigCodeBench-Hard v0.1.4",
+  "url": "https://huggingface.co/datasets/bigcode/bigcodebench-hard",
+  "license": "Apache-2.0",
+  "upstream_id": "BigCodeBench/854"
+ },
+ "tier": "T2",
+ "split": "test",
+ "entry": "factorial_sums",
+ "primary_bug": "zero_rejected",
+ "bugs": {
+  "zero_rejected": {
+   "origin": "synthetic",
+   "desc": "0 is rejected as negative",
+   "patch": [
+    [
+     "if not all(number >= 0 for number in numbers):",
+     "if not all(number > 0 for number in numbers):"
+    ]
+   ]
+  },
+  "value_error_for_types": {
+   "origin": "synthetic",
+   "desc": "non-integer elements raise ValueError instead of TypeError",
+   "patch": [
+    [
+     "    if not all(isinstance(number, int) for number in numbers):\n        raise TypeError",
+     "    if not all(isinstance(number, int) for number in numbers):\n        raise ValueError"
+    ]
+   ]
+  },
+  "empty_single_list": {
+   "origin": "synthetic",
+   "desc": "an empty input returns a single [] instead of two empty lists",
+   "patch": [
+    [
+     "        return [], []",
+     "        return []"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "reversed_order": {
+   "desc": "lists permutations in reverse lexicographic order; the order is not specified",
+   "patch": [
+    [
+     "all_permutations = list(permutations(numbers))",
+     "all_permutations = list(permutations(numbers))[::-1]"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "empty list returns two empty lists",
+  "0 is allowed (0! = 1)",
+  "negative raises ValueError",
+  "non-list or non-int raises TypeError",
+  "one sum per permutation"
+ ]
+}

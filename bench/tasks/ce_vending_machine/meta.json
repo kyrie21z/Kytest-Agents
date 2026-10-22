@@ -1,0 +1,65 @@
+{
+ "id": "ce_vending_machine",
+ "source": {
+  "name": "ClassEval",
+  "url": "https://github.com/FudanSELab/ClassEval",
+  "license": "code MIT; data CC-BY-NC-4.0",
+  "upstream_id": "ClassEval_94"
+ },
+ "tier": "T5",
+ "split": "test",
+ "entry": "VendingMachine",
+ "primary_bug": "no_balance_check",
+ "bugs": {
+  "no_balance_check": {
+   "origin": "synthetic",
+   "desc": "purchase succeeds even when the balance is below the price",
+   "patch": [
+    [
+     "if item['quantity'] > 0 and self.balance >= item['price']:",
+     "if item['quantity'] > 0:"
+    ]
+   ]
+  },
+  "stock_not_decremented": {
+   "origin": "synthetic",
+   "desc": "purchase does not reduce the item quantity",
+   "patch": [
+    [
+     "                item['quantity'] -= 1\n",
+     ""
+    ]
+   ]
+  },
+  "restock_unknown": {
+   "origin": "synthetic",
+   "desc": "restock_item adds unknown products and reports True",
+   "patch": [
+    [
+     "        if item_name in self.inventory:\n            self.inventory[item_name]['quantity'] += quantity\n            return True\n        else:\n            return False",
+     "        self.inventory.setdefault(item_name, {'price': 0, 'quantity': 0})['quantity'] += quantity\n        return True"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "two_decimals": {
+   "desc": "prints prices with two decimals ('$1.50'); the spec only shows $1.25",
+   "patch": [
+    [
+     "${item_info['price']}",
+     "${item_info['price']:.2f}"
+    ]
+   ]
+  }
+ },
+ "ambiguity": "display_items says it returns 'a list of the products ... str' but the example and reference return one newline-joined string; price formatting beyond the single example is unspecified.",
+ "behaviours": [
+  "purchase needs enough balance",
+  "purchase reduces stock",
+  "out-of-stock purchase returns False",
+  "unknown item purchase returns False",
+  "restock unknown returns False",
+  "display on empty machine is False"
+ ]
+}

@@ -1,0 +1,63 @@
+{
+ "id": "ce_shopping_cart",
+ "source": {
+  "name": "ClassEval",
+  "url": "https://github.com/FudanSELab/ClassEval",
+  "license": "code MIT; data CC-BY-NC-4.0",
+  "upstream_id": "ClassEval_75"
+ },
+ "tier": "T3",
+ "split": "dev",
+ "entry": "ShoppingCart",
+ "primary_bug": "total_ignores_quantity",
+ "bugs": {
+  "total_ignores_quantity": {
+   "origin": "synthetic",
+   "desc": "total_price sums unit prices and ignores quantity",
+   "patch": [
+    [
+     "sum([item['quantity'] * item['price'] for",
+     "sum([item['price'] for"
+    ]
+   ]
+  },
+  "remove_adds": {
+   "origin": "synthetic",
+   "desc": "remove_item increases the quantity instead of subtracting",
+   "patch": [
+    [
+     "self.items[item]['quantity'] -= quantity",
+     "self.items[item]['quantity'] += quantity"
+    ]
+   ]
+  },
+  "default_quantity": {
+   "origin": "synthetic",
+   "desc": "default quantity of add_item is 0 instead of 1",
+   "patch": [
+    [
+     "def add_item(self, item, price, quantity=1):",
+     "def add_item(self, item, price, quantity=0):"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "copy_view": {
+   "desc": "view_items returns a copy; equal to the internal items",
+   "patch": [
+    [
+     "        return self.items\n",
+     "        return {k: dict(v) for k, v in self.items.items()}\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "empty cart total is 0",
+  "default quantity 1",
+  "remove reduces quantity",
+  "remove unknown item is a no-op",
+  "total multiplies price by quantity"
+ ]
+}

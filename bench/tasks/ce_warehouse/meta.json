@@ -1,0 +1,64 @@
+{
+ "id": "ce_warehouse",
+ "source": {
+  "name": "ClassEval",
+  "url": "https://github.com/FudanSELab/ClassEval",
+  "license": "code MIT; data CC-BY-NC-4.0",
+  "upstream_id": "ClassEval_95"
+ },
+ "tier": "T3",
+ "split": "test",
+ "entry": "Warehouse",
+ "primary_bug": "order_keeps_stock",
+ "bugs": {
+  "order_keeps_stock": {
+   "origin": "synthetic",
+   "desc": "create_order does not reduce inventory",
+   "patch": [
+    [
+     "            self.update_product_quantity(product_id, -quantity)\n",
+     ""
+    ]
+   ]
+  },
+  "add_overwrites": {
+   "origin": "synthetic",
+   "desc": "adding an existing product overwrites its quantity instead of adding",
+   "patch": [
+    [
+     "        else:\n            self.inventory[product_id]['quantity'] += quantity",
+     "        else:\n            self.inventory[product_id]['quantity'] = quantity"
+    ]
+   ]
+  },
+  "exact_stock_rejected": {
+   "origin": "synthetic",
+   "desc": "an order for exactly the available quantity is refused",
+   "patch": [
+    [
+     "if self.get_product_quantity(product_id) >= quantity:",
+     "if self.get_product_quantity(product_id) > quantity:"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "order_returns_true": {
+   "desc": "create_order returns True on success; spec only fixes the failure value",
+   "patch": [
+    [
+     "'status': 'Shipped'}\n",
+     "'status': 'Shipped'}\n            return True\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "add existing product accumulates",
+  "unknown product quantity is False",
+  "order reduces stock",
+  "order larger than stock returns False",
+  "status default Shipped",
+  "unknown order returns False"
+ ]
+}

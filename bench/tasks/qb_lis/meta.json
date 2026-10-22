@@ -1,0 +1,47 @@
+{
+ "id": "qb_lis",
+ "source": {
+  "name": "QuixBugs",
+  "url": "https://github.com/jkoppel/QuixBugs",
+  "license": "MIT",
+  "upstream_id": "lis"
+ },
+ "tier": "T2",
+ "split": "dev",
+ "entry": "lis",
+ "primary_bug": "upstream",
+ "bugs": {
+  "upstream": {
+   "origin": "human (QuixBugs upstream)",
+   "desc": "longest is overwritten with length + 1 instead of max(longest, length + 1)",
+   "file": "bugs/upstream.py"
+  },
+  "nonincreasing_end": {
+   "origin": "synthetic",
+   "desc": "replaces a tail only when the new value is larger, keeping stale large tails",
+   "patch": [
+    [
+     "val < arr[ends[length + 1]]",
+     "val > arr[ends[length + 1]]"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "quadratic": {
+   "desc": "O(n^2) dynamic programming; same results for unique ints",
+   "patch": [
+    [
+     "    ends = {}\n",
+     "    best = [1] * len(arr)\n    for i in range(len(arr)):\n        for j in range(i):\n            if arr[j] < arr[i]:\n                best[i] = max(best[i], best[j] + 1)\n    return max(best, default=0)\n    ends = {}\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "empty sequence gives 0",
+  "strictly decreasing gives 1",
+  "subsequence need not be contiguous",
+  "later shorter run does not reduce answer"
+ ]
+}

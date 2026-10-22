@@ -1,0 +1,48 @@
+{
+ "id": "qb_find_first_in_sorted",
+ "source": {
+  "name": "QuixBugs",
+  "url": "https://github.com/jkoppel/QuixBugs",
+  "license": "MIT",
+  "upstream_id": "find_first_in_sorted"
+ },
+ "tier": "T2",
+ "split": "test",
+ "entry": "find_first_in_sorted",
+ "primary_bug": "upstream",
+ "bugs": {
+  "upstream": {
+   "origin": "human (QuixBugs upstream)",
+   "desc": "loop condition lo <= hi reads past the end when x is larger than every element",
+   "file": "bugs/upstream.py"
+  },
+  "any_match": {
+   "origin": "synthetic",
+   "desc": "returns the first match found by binary search, not the lowest index",
+   "patch": [
+    [
+     "if x == arr[mid] and (mid == 0 or x != arr[mid - 1]):",
+     "if x == arr[mid]:"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "linear": {
+   "desc": "linear scan; same results, different complexity",
+   "patch": [
+    [
+     "    lo = 0\n",
+     "    for i, value in enumerate(arr):\n        if value == x:\n            return i\n    return -1\n    lo = 0\n"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "x absent and smaller than all",
+  "x absent and larger than all",
+  "duplicates return the lowest index",
+  "empty list",
+  "x at index 0"
+ ]
+}

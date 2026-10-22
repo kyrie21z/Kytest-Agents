@@ -1,0 +1,73 @@
+{
+ "id": "orig_normalize_tags",
+ "source": {
+  "name": "original (Kytest-Agents)",
+  "url": "",
+  "license": "Apache-2.0"
+ },
+ "tier": "T5",
+ "split": "test",
+ "entry": "normalize_tags",
+ "primary_bug": "sorted_output",
+ "note": "Never published before this benchmark; the spec leaves internal whitespace and Unicode case handling open.",
+ "bugs": {
+  "sorted_output": {
+   "origin": "synthetic",
+   "desc": "deduplicates via a set and returns sorted tags, losing the original order",
+   "patch": [
+    [
+     "    return seen",
+     "    return sorted(set(seen))"
+    ]
+   ]
+  },
+  "dedupe_before_lower": {
+   "origin": "synthetic",
+   "desc": "duplicates are detected before lower-casing, so 'A' and 'a' both survive",
+   "patch": [
+    [
+     "        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)",
+     "        tag = raw.strip()\n        if tag and tag not in seen:\n            seen.append(tag)\n    seen = [t.lower() for t in seen]"
+    ]
+   ]
+  },
+  "keeps_blank": {
+   "origin": "synthetic",
+   "desc": "whitespace-only tags are kept as empty strings",
+   "patch": [
+    [
+     "        tag = raw.strip().lower()\n        if tag and tag not in seen:",
+     "        tag = raw.strip().lower()\n        if raw and tag not in seen:"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "collapse_inner": {
+   "desc": "also collapses runs of internal whitespace; unspecified by the docstring",
+   "patch": [
+    [
+     "tag = raw.strip().lower()",
+     "tag = ' '.join(raw.split()).lower()"
+    ]
+   ]
+  },
+  "casefold": {
+   "desc": "uses casefold() instead of lower(); differs only for characters like 'ß'",
+   "patch": [
+    [
+     "tag = raw.strip().lower()",
+     "tag = raw.strip().casefold()"
+    ]
+   ]
+  }
+ },
+ "ambiguity": "Internal whitespace, Unicode case folding and non-comma separators are unspecified.",
+ "behaviours": [
+  "order of first occurrence kept",
+  "case-insensitive dedupe",
+  "blank tags dropped",
+  "surrounding whitespace stripped",
+  "empty string gives []"
+ ]
+}

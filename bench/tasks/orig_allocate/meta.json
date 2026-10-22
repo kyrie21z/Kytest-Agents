@@ -1,0 +1,65 @@
+{
+ "id": "orig_allocate",
+ "source": {
+  "name": "original (Kytest-Agents)",
+  "url": "",
+  "license": "Apache-2.0"
+ },
+ "tier": "T2",
+ "split": "test",
+ "entry": "allocate",
+ "primary_bug": "tie_to_last",
+ "note": "Never published before this benchmark; controls for pretraining exposure.",
+ "bugs": {
+  "tie_to_last": {
+   "origin": "synthetic",
+   "desc": "ties in the remainder go to the higher index",
+   "patch": [
+    [
+     "key=lambda i: (-remainders[i], i)",
+     "key=lambda i: (-remainders[i], -i)"
+    ]
+   ]
+  },
+  "float_division": {
+   "origin": "synthetic",
+   "desc": "float division loses precision for large totals",
+   "patch": [
+    [
+     "shares = [total * w // whole for w in weights]",
+     "shares = [int(total * w / whole) for w in weights]"
+    ]
+   ]
+  },
+  "by_weight": {
+   "origin": "synthetic",
+   "desc": "leftover units go to the largest weights, not the largest remainders",
+   "patch": [
+    [
+     "key=lambda i: (-remainders[i], i)",
+     "key=lambda i: (-weights[i], i)"
+    ]
+   ]
+  }
+ },
+ "alts": {
+  "message": {
+   "desc": "different ValueError message and validation order",
+   "patch": [
+    [
+     "raise ValueError(\"invalid allocation request\")",
+     "raise ValueError(\"bad request: check total and weights\")"
+    ]
+   ]
+  }
+ },
+ "behaviours": [
+  "shares sum to total",
+  "largest remainder gets leftover",
+  "ties to lower index",
+  "zero weight gets 0",
+  "large integers exact",
+  "invalid inputs raise ValueError",
+  "input not mutated"
+ ]
+}
