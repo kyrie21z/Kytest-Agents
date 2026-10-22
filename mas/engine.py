@@ -74,6 +74,7 @@ def run(state, ctx: Context) -> Dict[str, Any]:
     if state["next"] == "START":
         state["next"] = TRANSITIONS["START"](state)
         ctx.log("start", next=state["next"], config=state["config"])
+        save(state, ctx.run_dir)  # visible (and resumable) before the first node finishes
     ctx.usage = state["usage"]
     while state["next"] != END:
         node = state["next"]

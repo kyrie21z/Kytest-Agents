@@ -83,6 +83,10 @@ test_solution.py         最终接受的测试
 plan.json  test_suspected_bugs.py  bug_report.md
 ```
 
+**可观测性。** `board.py` 是一个只读看板：轮询运行目录的 `log.jsonl`（带游标增量读取）与 `state.json`，
+把 `node_start` / `node_end` / `agent_tool` / `recovered` / `end` 事件映射为架构图上节点的点亮和连线的流动。
+它不参与编排，也不需要改动任何节点；引擎在 `start` 时就写一次检查点，所以新运行一开始就能被看板发现。
+
 ## 5. 可扩展性：新增一个节点
 
 新增节点不需要改其他节点。以一个“Linter”节点为例（在 TestGen 之后检查测试风格）：

@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Kytest-Agents · live board</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    color-scheme: dark;
+    --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #222220; --line: #3a3a37; --line-soft: #2c2c2a;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8d8c84;
+    --accent: #3987e5;                       /* "running now" */
+    --series-1: #3987e5; --series-2: #d95926;  /* verdict bar: validated pair (dark) */
+    --good: #0ca30c; --warning: #fab219; --critical: #d03b3b;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--surface-0); color: var(--text-primary); font: 14px/1.45 var(--sans); }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  .live { font: 12px var(--mono); color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+  .dot.on { background: var(--good); box-shadow: 0 0 6px var(--good); }
+  .controls { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  select, button { background: var(--surface-2); color: var(--text-primary); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font: 13px var(--sans); }
+  button { cursor: pointer; } button:hover { border-color: var(--accent); }
+  label.chk { font-size: 12px; color: var(--text-secondary); display: flex; gap: 4px; align-items: center; }
+  main { padding: 18px 24px 40px; display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
+  .section-title { font: 600 11px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); margin: 18px 0 8px; }
+  .section-title:first-child { margin-top: 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .tile { background: var(--surface-1); border: 1px solid var(--line-soft); border-radius: 8px; padding: 10px 12px; }
+  .tile .value { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tile .label { font-size: 12px; color: var(--text-secondary); }
+  .bar { display: flex; gap: 2px; height: 26px; border-radius: 4px; overflow: hidden; background: var(--surface-1); }
+  .bar div { display: flex; align-items: center; justify-content: center; font: 600 12px var(--sans); color: #fff; min-width: 0; white-space: nowrap; overflow: hidden; }
+  .bar .empty { flex: 1; color: var(--text-muted); font-weight: 400; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .caption { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .arch-head { display: flex; align-items: baseline; gap: 12px; }
+  .arch-status { font: 12px var(--mono); color: var(--accent); }
+  svg.arch { width: 100%; height: auto; display: block; background: var(--surface-0); }
+  /* diagram */
+  .frame { fill: none; stroke: var(--line); stroke-dasharray: 5 5; }
+  .group { fill: rgba(57,135,229,.04); stroke: var(--line); stroke-width: 1.2; rx: 12; }
+  .group-label, .frame-label { font: 600 11px var(--sans); letter-spacing: .1em; fill: var(--text-muted); text-transform: uppercase; }
+  .node rect.box { fill: var(--surface-1); stroke: var(--line); stroke-width: 1.2; rx: 9; transition: stroke .25s, fill .25s; }
+  .node { cursor: pointer; }
+  .node:hover rect.box { stroke: var(--text-muted); }
+  .node text.title { font: 600 15px var(--sans); fill: var(--text-primary); }
+  .node text.sub { font: 12px var(--sans); fill: var(--text-secondary); }
+  .node text.badge { font: 600 11px var(--sans); }
+  .node text.sub.sm { font-size: 11px; }
+  .node.active rect.box { stroke: var(--accent); stroke-width: 2.5; fill: #1d2633; filter: drop-shadow(0 0 8px rgba(57,135,229,.55)); animation: pulse 1.2s ease-in-out infinite; }
+  .node.hot rect.box { stroke: var(--accent); stroke-width: 2.5; filter: drop-shadow(0 0 8px rgba(57,135,229,.55)); }
+  .node.done rect.box { stroke: var(--good); }
+  .node.error rect.box { stroke: var(--critical); stroke-width: 2; }
+  .node.recovered rect.box { stroke: var(--warning); stroke-width: 2; }
+  .node.toolerr rect.box { stroke: var(--critical); stroke-width: 2.5; }
+  .node.diamond polygon { fill: var(--surface-1); stroke: var(--line); stroke-width: 1.2; }
+  @keyframes pulse { 50% { filter: drop-shadow(0 0 14px rgba(57,135,229,.85)); } }
+  .edge { fill: none; stroke: #55554f; stroke-width: 1.4; }
+  .edge.dashed { stroke-dasharray: 4 4; }
+  .edge.live { stroke: var(--accent); stroke-width: 2.4; stroke-dasharray: 7 5; animation: flow .5s linear infinite; }
+  .edge.live.warn { stroke: var(--warning); }
+  @keyframes flow { to { stroke-dashoffset: -12; } }
+  .edge-label { font: 11px var(--sans); fill: var(--text-muted); }
+  .cell rect.box { fill: var(--surface-2); }
+  /* side panel */
+  aside { background: var(--surface-1); border: 1px solid var(--line-soft); border-radius: 10px; padding: 14px; height: fit-content; position: sticky; top: 14px; max-height: calc(100vh - 28px); overflow: auto; }
+  aside h2 { font-size: 15px; margin: 0 0 4px; } aside .hint { color: var(--text-muted); font-size: 12px; }
+  aside table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  aside td, aside th { text-align: left; padding: 4px 4px; border-top: 1px solid var(--line-soft); vertical-align: top; }
+  aside th { color: var(--text-secondary); font-weight: 600; }
+  aside code, aside pre { font: 12px var(--mono); color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; }
+  .events { font: 12px var(--mono); background: var(--surface-1); border: 1px solid var(--line-soft); border-radius: 8px; padding: 8px 12px; max-height: 260px; overflow: auto; }
+  .events div { padding: 1px 0; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .events .t { color: var(--text-muted); margin-right: 8px; }
+  .events .k-node_start { color: var(--accent); } .events .k-node_error { color: var(--critical); }
+  .events .k-recovered { color: var(--warning); } .events .k-end { color: var(--good); }
+  @media (max-width: 1100px) { main { grid-template-columns: 1fr; } aside { position: static; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Kytest-Agents · MAS board</h1>
+  <span class="live"><span class="dot" id="liveDot"></span><span id="liveText">connecting…</span></span>
+  <div class="controls">
+    <select id="runSel" title="run"></select>
+    <label class="chk"><input type="checkbox" id="follow" checked> follow newest</label>
+    <button id="replay" title="replay this run's events">▶ Replay</button>
+    <select id="mockSel" title="offline scenario"></select>
+    <button id="mockBtn" title="start an offline scripted run (no API key)">Run mock</button>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="section-title">Run</div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="section-title">Reviewer verdicts — failing tests, judged against the specification</div>
+  <div class="bar" id="verdictBar"></div>
+  <div class="legend"><span><i style="background:var(--series-1)"></i>test wrong → revised</span><span><i style="background:var(--series-2)"></i>suspected implementation bug → reported</span></div>
+
+  <div class="section-title arch-head">Architecture — click any box <span class="arch-status" id="archStatus"></span></div>
+  <svg class="arch" viewBox="0 0 1200 600" role="img" aria-label="Workflow architecture: target, Planner, TestGen with tools, Verifier, Reviewer, outputs, shared state, recovery">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#77776f"/></marker>
+      <marker id="arrowLive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3987e5"/></marker>
+    </defs>
+    <rect class="frame" x="10" y="22" width="1180" height="568" rx="14"/>
+    <text class="frame-label" x="26" y="16">Workflow — hand-written state machine (mas/nodes.py) · checkpoint after every node</text>
+
+    <!-- revise loop group -->
+    <rect class="group" x="378" y="96" width="600" height="284"/>
+    <text class="group-label" x="394" y="112">Revise loop</text>
+    <text class="group-label" id="roundLabel" x="962" y="112" text-anchor="end"></text>
+
+    <!-- edges (drawn first, under the boxes) -->
+    <path class="edge dashed" data-edge="e-skip-planner" d="M100,182 C100,58 430,58 430,182" marker-end="url(#arrow)"/>
+    <text class="edge-label" x="285" y="78">--no-planner</text>
+    <path class="edge" data-edge="e-target-planner" d="M170,214 H200" marker-end="url(#arrow)"/>
+    <path class="edge" data-edge="e-planner-testgen" d="M350,214 H400" marker-end="url(#arrow)"/>
+    <text class="edge-label" x="356" y="206">plan</text>
+    <path class="edge" data-edge="e-testgen-verifier" d="M570,214 H600" marker-end="url(#arrow)"/>
+    <path class="edge" data-edge="e-verifier-reviewer" d="M760,214 H790" marker-end="url(#arrow)"/>
+    <path class="edge" data-edge="e-reviewer-testgen" d="M875,182 C875,128 500,128 500,182" marker-end="url(#arrow)"/>
+    <text class="edge-label" x="587" y="157">revise · instructions (round &lt; max)</text>
+    <path class="edge" data-edge="e-testgen-tools" d="M470,246 V290" marker-end="url(#arrow)"/>
+    <path class="edge" data-edge="e-tools-testgen" d="M500,290 V246" marker-end="url(#arrow)"/>
+    <text class="edge-label" x="420" y="272">act</text><text class="edge-label" x="508" y="272">observe</text>
+    <path class="edge" data-edge="e-reviewer-out" d="M960,204 C990,204 990,168 1010,168" marker-end="url(#arrow)"/>
+    <path class="edge" data-edge="e-reviewer-bugs" d="M960,226 C990,226 990,250 1010,250" marker-end="url(#arrow)"/>
+        <path class="edge dashed" data-edge="e-skip-reviewer" d="M680,246 V362 H1090 V280" marker-end="url(#arrow)"/>
+    <text class="edge-label" x="700" y="356">--no-reviewer → completed</text>
+    <!-- writes into shared state -->
+    <path class="edge dashed" data-edge="w-planner" d="M275,246 C275,380 130,380 130,470" marker-end="url(#arrow)"/>
+    <path class="edge dashed" data-edge="w-testgen" d="M485,354 C485,420 315,420 315,470" marker-end="url(#arrow)"/>
+    <path class="edge dashed" data-edge="w-verifier" d="M640,246 C640,420 500,420 500,470" marker-end="url(#arrow)"/>
+    <path class="edge dashed" data-edge="w-reviewer" d="M855,246 C855,420 685,420 685,470" marker-end="url(#arrow)"/>
+    <path class="edge dashed" data-edge="w-bugs" d="M915,246 C915,420 870,420 870,470" marker-end="url(#arrow)"/>
+    <text class="edge-label" x="186" y="400">writes</text>
+    <path class="edge dashed" data-edge="e-recovery" d="M1090,470 V352" marker-end="url(#arrow)"/>
+
+    <!-- nodes -->
+    <g class="node" data-node="target" transform="translate(30,182)"><rect class="box" width="140" height="64"/>
+      <text class="title" x="14" y="27">solution.py</text><text class="sub" x="14" y="47">target under test</text></g>
+    <g class="node" data-node="planner" transform="translate(200,182)"><rect class="box" width="150" height="64"/>
+      <text class="title" x="14" y="27">Planner</text><text class="sub" x="14" y="47">LLM · sees spec only</text><text class="badge" x="150" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="testgen" transform="translate(400,182)"><rect class="box" width="170" height="64"/>
+      <text class="title" x="14" y="27">TestGen</text><text class="sub" x="14" y="47">H1 agent · LLM · plan → tests</text><text class="badge" x="170" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="tools" transform="translate(400,290)"><rect class="box" width="170" height="64"/>
+      <text class="title" x="14" y="27">Tools</text><text class="sub" x="14" y="47" id="toolSub">submit_tests · read · run</text><text class="badge" x="170" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="verifier" transform="translate(600,182)"><rect class="box" width="160" height="64"/>
+      <text class="title" x="14" y="27">Verifier</text><text class="sub" x="14" y="47">no LLM · pytest · cov · mutants</text><text class="badge" x="160" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="reviewer" transform="translate(790,182)"><rect class="box" width="170" height="64"/>
+      <text class="title" x="14" y="27">Reviewer</text><text class="sub" x="14" y="47">LLM · judges failing tests</text><text class="badge" x="170" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="out" transform="translate(1010,140)"><rect class="box" width="160" height="56"/>
+      <text class="title" x="14" y="24">test_solution.py</text><text class="sub" x="14" y="43">accepted suite</text><text class="badge" x="160" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="bugs" transform="translate(1010,222)"><rect class="box" width="160" height="56"/>
+      <text class="title" x="14" y="24">bug_report.md</text><text class="sub" x="14" y="43" id="bugSub">suspected bugs</text><text class="badge" x="160" y="-6" text-anchor="end"></text></g>
+    <g class="node" data-node="end" transform="translate(1010,296)"><rect class="box" width="160" height="56"/>
+      <text class="title" x="14" y="24">END</text><text class="sub" x="14" y="43" id="endSub">not finished</text><text class="badge" x="160" y="-6" text-anchor="end"></text></g>
+
+    <!-- shared state -->
+    <rect class="group" x="30" y="440" width="950" height="130" style="fill:rgba(255,255,255,.015)"/>
+    <text class="group-label" x="46" y="460">Shared state — state.json · rewritten after every node · resume point</text>
+    <g class="node cell" data-node="s-plan" transform="translate(45,470)"><rect class="box" width="170" height="80"/>
+      <text class="title" x="12" y="25">plan</text><text class="sub" x="12" y="45" id="sub-plan">—</text><text class="sub" x="12" y="63">items P1…Pn</text></g>
+    <g class="node cell" data-node="s-testgen" transform="translate(230,470)"><rect class="box" width="170" height="80"/>
+      <text class="title" x="12" y="25">testgen[ ]</text><text class="sub" x="12" y="45" id="sub-testgen">—</text><text class="sub" x="12" y="63">accepted + failed</text></g>
+    <g class="node cell" data-node="s-verifier" transform="translate(415,470)"><rect class="box" width="170" height="80"/>
+      <text class="title" x="12" y="25">verification[ ]</text><text class="sub" x="12" y="45" id="sub-verifier">—</text><text class="sub" x="12" y="63">pytest · cov · mutants</text></g>
+    <g class="node cell" data-node="s-reviewer" transform="translate(600,470)"><rect class="box" width="170" height="80"/>
+      <text class="title" x="12" y="25">reviews[ ]</text><text class="sub" x="12" y="45" id="sub-reviewer">—</text><text class="sub" x="12" y="63">verdicts · decision</text></g>
+    <g class="node cell" data-node="s-bugs" transform="translate(785,470)"><rect class="box" width="180" height="80"/>
+      <text class="title" x="12" y="25">suspected_bugs[ ]</text><text class="sub" x="12" y="45" id="sub-bugs">—</text><text class="sub" x="12" y="63">→ bug_report.md</text></g>
+
+    <!-- recovery -->
+    <g class="node" data-node="recovery" transform="translate(995,470)"><rect class="box" width="185" height="104"/>
+      <text class="title" x="12" y="24">ON_ERROR</text>
+      <text class="sub sm" x="12" y="44">2 attempts per node, then</text>
+      <text class="sub sm" x="12" y="61">planner → go on without plan</text>
+      <text class="sub sm" x="12" y="77">testgen → keep last suite</text>
+      <text class="sub sm" x="12" y="93">reviewer → ship unreviewed</text>
+      <text class="badge" x="177" y="-6" text-anchor="end"></text></g>
+  </svg>
+  <div class="caption">Blue = running now. Finished nodes keep a ✓ (done), ↺ (recovered) or ✕ (error) mark. Dashed paths are ablation switches, state writes and recovery.</div>
+
+  <div class="section-title">Events</div>
+  <div class="events" id="events"></div>
+</section>
+
+<aside id="detail"><h2>Details</h2><div class="hint">Click a box in the diagram.</div></aside>
+</main>
+
+<script>
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const NODE_OF_ROLE = {planner: "planner", reviewer: "reviewer", testgen: "testgen"};
+const WRITES = {planner: ["w-planner", "s-plan"], testgen: ["w-testgen", "s-testgen"],
+                verifier: ["w-verifier", "s-verifier"], reviewer: ["w-reviewer", "s-reviewer"]};
+const MARK = {done: ["✓ done", "var(--good)"], error: ["✕ error", "var(--critical)"], recovered: ["↺ recovered", "var(--warning)"]};
+
+let runId = null, cursor = 0, state = null, queue = [], playing = false, toolLog = [], selected = null, firstT = null, lastT = null;
+
+function node(name) { return document.querySelector(`[data-node="${name}"]`); }
+function setMark(name, kind) {
+  const n = node(name); if (!n) return;
+  n.classList.remove("active", "done", "error", "recovered");
+  if (kind) n.classList.add(kind);
+  const badge = $("text.badge", n);
+  if (badge) { const m = MARK[kind]; badge.textContent = m ? m[0] : ""; badge.setAttribute("fill", m ? m[1] : "none"); }
+}
+function hot(selector, cls, ms) {
+  document.querySelectorAll(selector).forEach(el => {
+    el.classList.add(cls);
+    if (el.tagName === "path") el.setAttribute("marker-end", "url(#arrowLive)");
+    setTimeout(() => { el.classList.remove(cls); if (el.tagName === "path") el.setAttribute("marker-end", "url(#arrow)"); }, ms);
+  });
+}
+const edge = (id, ms = 900, warn = false) => { hot(`[data-edge="${id}"]`, "live", ms); if (warn) hot(`[data-edge="${id}"]`, "warn", ms); };
+const flash = (name, ms = 900) => hot(`[data-node="${name}"]`, "hot", ms);
+
+function resetDiagram() {
+  document.querySelectorAll(".node").forEach(n => setMark(n.dataset.node, null));
+  $("#toolSub").textContent = "submit_tests · read · run";
+  $("#endSub").textContent = "not finished";
+  $("#archStatus").textContent = "";
+  $("#roundLabel").textContent = "";
+  $("#events").innerHTML = "";
+  toolLog = []; firstT = lastT = null;
+}
+
+// One event -> what lights up. `animate` is false while catching up on history.
+function apply(ev, animate) {
+  firstT ??= ev.t; lastT = ev.t;
+  logEvent(ev);
+  const ms = animate ? 900 : 0;
+  switch (ev.event) {
+    case "start":
+      setMark("target", "done");
+      if (animate) edge(ev.next === "planner" ? "e-target-planner" : "e-skip-planner", ms);
+      break;
+    case "node_start":
+      setMark(ev.node, "active");
+      if (ev.node === "testgen") setMark("tools", null);
+      $("#archStatus").textContent = `● ${ev.node} · round ${ev.round + (ev.node === "testgen" ? 1 : 0)} · attempt ${ev.attempt}`;
+      if (ev.node === "testgen" || ev.node === "reviewer") $("#roundLabel").textContent = `round ${ev.round + (ev.node === "testgen" ? 1 : 0)}`;
+      break;
+    case "llm_reply":
+      if (animate && NODE_OF_ROLE[ev.role]) flash(NODE_OF_ROLE[ev.role], 500);
+      break;
+    case "agent_tool":
+      toolLog.push(ev); if (toolLog.length > 30) toolLog.shift();
+      $("#toolSub").textContent = (ev.error ? "✕ " : "") + ev.tool;
+      if (animate) { flash("tools", 600); edge("e-testgen-tools", 450); setTimeout(() => edge("e-tools-testgen", 450), 300); }
+      if (ev.error && animate) hot('[data-node="tools"]', "toolerr", 700);
+      break;
+    case "node_end": {
+      setMark(ev.node, "done");
+      if (ev.node === "testgen") setMark("tools", "done");
+      const [w, cell] = WRITES[ev.node] || [];
+      if (animate && w) { edge(w, ms); flash(cell, ms); if (ev.node === "reviewer") { edge("w-bugs", ms); flash("s-bugs", ms); } }
+      const id = {planner: "e-planner-testgen", testgen: "e-testgen-verifier"}[ev.node]
+        || (ev.node === "verifier" ? (ev.next === "reviewer" ? "e-verifier-reviewer" : "e-skip-reviewer") : null)
+        || (ev.node === "reviewer" ? (ev.next === "testgen" ? "e-reviewer-testgen" : "e-reviewer-out") : null);
+      if (animate && id) edge(id, ms);
+      if (animate && ev.node === "reviewer" && ev.next === "END") edge("e-reviewer-bugs", ms);
+      if (ev.next === "testgen") setMark("testgen", null), setMark("tools", null), setMark("verifier", null), setMark("reviewer", null);
+      break;
+    }
+    case "node_error":
+      setMark(ev.node, "error");
+      break;
+    case "recovered":
+      setMark(ev.node, "recovered"); setMark("recovery", "recovered");
+      if (animate) edge("e-recovery", 1200, true);
+      break;
+    case "end":
+      $("#archStatus").textContent = `■ finished · ${ev.status}`;
+      $("#endSub").textContent = `status: ${ev.status}`;
+      setMark("end", ev.status === "failed" ? "error" : ev.status === "forced" ? "recovered" : "done");
+      setMark("out", ev.status === "failed" ? null : "done");
+      if (animate) flash("end", 1200);
+      break;
+  }
+}
+
+function logEvent(ev) {
+  const box = $("#events");
+  const t = firstT == null ? 0 : (ev.t - firstT);
+  const what = ev.node || ev.role || ev.tool || ev.status || ev.next || "";
+  const more = ev.error ? ` ${typeof ev.error === "string" ? ev.error : "error"}` : ev.seconds != null ? ` ${ev.seconds}s → ${ev.next}` : "";
+  const div = document.createElement("div");
+  div.className = "k-" + ev.event;
+  div.innerHTML = `<span class="t">+${t.toFixed(1)}s</span>${esc(ev.event)} <b>${esc(what)}</b>${esc(more)}`;
+  box.appendChild(div);
+  while (box.children.length > 200) box.firstChild.remove();
+  box.scrollTop = box.scrollHeight;
+}
+
+function playNext() {
+  if (!queue.length) { playing = false; tiles(); return; }   // numbers catch up once the diagram has
+  playing = true;
+  apply(queue.shift(), true);
+  setTimeout(playNext, queue.length > 40 ? 120 : 420);   // catch up fast, then show each step
+}
+
+// ---- state-derived views -----------------------------------------------------
+function tiles() {
+  const s = state || {};
+  const v = (s.verification || []).at(-1) || {};
+  const mut = v.mutation || {};
+  const reviews = s.reviews || [];
+  const usage = Object.values(s.usage || {});
+  const tokens = usage.reduce((a, u) => a + (u.tokens || 0), 0);
+  const calls = usage.reduce((a, u) => a + (u.calls || 0), 0);
+  const statusIcon = {accepted: "✓", completed: "✓", forced: "↺", failed: "✕", running: "●"}[s.status] || "";
+  const items = [
+    [`${statusIcon} ${s.status ?? "—"}`, "status"],
+    [`${s.round ?? 0} / ${s.config?.max_rounds ?? "–"}`, "round"],
+    [v.tests ?? "—", "accepted tests"],
+    [v.coverage != null ? Math.round(v.coverage * 100) + "%" : "—", "line coverage"],
+    [mut.total ? `${mut.killed}/${mut.total}` : "—", "dev mutants killed"],
+    [v.plan_coverage ? Math.round(v.plan_coverage.ratio * 100) + "%" : "—", "plan items cited"],
+    [(s.suspected_bugs || []).length, "suspected bugs"],
+    [calls, "LLM calls"],
+    [tokens ? (tokens / 1000).toFixed(1) + "k" : "0", "tokens"],
+    [firstT != null ? (lastT - firstT).toFixed(0) + "s" : "—", "elapsed"],
+  ];
+  $("#tiles").innerHTML = items.map(([val, lab]) => `<div class="tile"><div class="value">${esc(val)}</div><div class="label">${esc(lab)}</div></div>`).join("");
+  const verdicts = reviews.flatMap(r => r.verdicts || []);
+  const wrong = verdicts.filter(x => x.judgement === "test_wrong").length;
+  const bug = verdicts.filter(x => x.judgement === "suspected_bug").length;
+  $("#verdictBar").innerHTML = !verdicts.length ? `<div class="empty">no failing tests judged yet</div>` :
+    (wrong ? `<div style="flex:${wrong};background:var(--series-1)" title="${wrong} test wrong">${wrong} test wrong</div>` : "") +
+    (bug ? `<div style="flex:${bug};background:var(--series-2)" title="${bug} suspected bug">${bug} suspected bug</div>` : "");
+  $("#sub-plan").textContent = s.plan ? `${s.plan.items.length} items · ${s.plan.ambiguities.length} ambiguities` : "—";
+  const tg = (s.testgen || []).at(-1);
+  $("#sub-testgen").textContent = tg ? `r${tg.round}: ${tg.accepted.length} ok · ${tg.failed.length} failed` : "—";
+  $("#sub-verifier").textContent = v.tests != null ? `${v.tests} tests · cov ${v.coverage != null ? Math.round(v.coverage * 100) + "%" : "–"}` : "—";
+  const rv = reviews.at(-1);
+  $("#sub-reviewer").textContent = rv ? `r${rv.round}: ${rv.decision} · ${rv.verdicts.length} verdicts` : "—";
+  $("#sub-bugs").textContent = `${(s.suspected_bugs || []).length} reported`;
+  $("#bugSub").textContent = `${(s.suspected_bugs || []).length} suspected bug(s)`;
+  if ((s.suspected_bugs || []).length) setMark("bugs", "done");
+  if (selected) showDetail(selected);
+}
+
+function table(head, rows) {
+  return `<table><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr>` +
+    rows.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("") + "</table>";
+}
+function showDetail(name) {
+  selected = name;
+  const s = state || {}; const el = $("#detail");
+  const v = s.verification || [];
+  const views = {
+    target: () => `<h2>solution.py</h2><div class="hint">The target under test. Only the Planner is denied its function bodies.</div><pre>${esc(s.target || "")}</pre>`,
+    planner: () => s.plan ? `<h2>Planner · plan</h2><div class="hint">${esc(s.plan.summary)}</div>` +
+      table(["id", "category", "input", "expected"], s.plan.items.map(i => [i.id, i.category, i.input, i.expected])) +
+      (s.plan.ambiguities.length ? `<div class="section-title">Ambiguities (not tested)</div><pre>${esc(s.plan.ambiguities.join("\n\n"))}</pre>` : "")
+      : `<h2>Planner</h2><div class="hint">${s.config && !s.config.planner ? "Disabled (--no-planner)." : "No plan yet."}</div>`,
+    testgen: () => `<h2>TestGen · rounds</h2>` + table(["round", "status", "accepted", "failed → Reviewer"],
+      (s.testgen || []).map(t => [t.round, t.status, t.accepted.join(", "), t.failed.join(", ")])),
+    tools: () => `<h2>Tool calls</h2><div class="hint">Latest ${toolLog.length} calls by the TestGen agent.</div>` +
+      table(["tool", "result"], toolLog.slice().reverse().map(e => [(e.error ? "✕ " : "") + e.tool, e.content || ""])),
+    verifier: () => `<h2>Verifier reports</h2>` + table(["round", "tests", "pytest", "coverage", "mutants", "plan cited"],
+      v.map(r => [r.round, r.tests, r.pytest ? `${r.pytest.passed} passed / ${r.pytest.failed} failed` : "–",
+                  r.coverage != null ? Math.round(r.coverage * 100) + "%" : "–", r.mutation ? `${r.mutation.killed}/${r.mutation.total}` : "–",
+                  r.plan_coverage ? (r.plan_coverage.missing.length ? "missing " + r.plan_coverage.missing.join(", ") : "all") : "–"])),
+    reviewer: () => `<h2>Reviewer</h2>` + (s.reviews || []).map(r => `<div class="section-title">Round ${r.round} · ${esc(r.decision)}</div>` +
+      table(["test", "judgement", "reason"], r.verdicts.map(x => [x.test, x.judgement, x.reason])) +
+      (r.instructions.length ? `<pre>${esc(r.instructions.map(i => "• " + i).join("\n"))}</pre>` : "")).join("") ||
+      `<div class="hint">${s.config && !s.config.reviewer ? "Disabled (--no-reviewer)." : "No review yet."}</div>`,
+    bugs: () => `<h2>Suspected bugs</h2>` + table(["test", "plan", "reason"], (s.suspected_bugs || []).map(b => [b.name, (b.plan_ids || []).join(", "), b.reason])),
+    recovery: () => `<h2>Recovery</h2>` + table(["node", "attempt", "error"], (s.errors || []).map(e => [e.node, e.attempt, e.error])) +
+      `<pre>${esc((s.degraded || []).join("\n"))}</pre>`,
+    end: () => `<h2>END · ${esc(s.status)}</h2><div class="hint">Path: ${esc((s.history || []).join(" → "))}</div><pre>${esc(JSON.stringify(s.usage, null, 1))}</pre>`,
+  };
+  views.out = () => `<h2>test_solution.py</h2><div class="hint">Tests accepted on the target, by round.</div>` + views.testgen().replace("<h2>TestGen · rounds</h2>", "");
+  views["s-plan"] = views.planner; views["s-testgen"] = views.testgen; views["s-verifier"] = views.verifier;
+  views["s-reviewer"] = views.reviewer; views["s-bugs"] = views.bugs;
+  el.innerHTML = (views[name] || (() => `<h2>${esc(name)}</h2>`))();
+}
+document.querySelectorAll(".node").forEach(n => n.addEventListener("click", () => showDetail(n.dataset.node)));
+
+// ---- polling -----------------------------------------------------------------
+async function getJSON(url, opts) { const r = await fetch(url, opts); return r.json(); }
+
+async function loadRun(id, {replay = false} = {}) {
+  runId = id; cursor = 0; queue = []; resetDiagram();
+  const r = await getJSON(`/api/run?id=${encodeURIComponent(id)}&cursor=0`);
+  state = r.state; cursor = r.cursor;
+  if (replay) { queue.push(...r.events); if (!playing) playNext(); }
+  else { r.events.forEach(ev => apply(ev, false)); tiles(); }
+}
+
+async function pollRun() {
+  if (!runId) return;
+  try {
+    const r = await getJSON(`/api/run?id=${encodeURIComponent(runId)}&cursor=${cursor}`);
+    $("#liveDot").classList.add("on");
+    const done = r.state && r.state.next === "END";
+    $("#liveText").textContent = `${done ? "finished · " + r.state.status : "live"} · ${runId}`;
+    if (r.events.length) { queue.push(...r.events); if (!playing) playNext(); }
+    cursor = r.cursor; state = r.state;
+    if (!playing && !queue.length) tiles();
+  } catch (e) { $("#liveDot").classList.remove("on"); $("#liveText").textContent = "server not reachable"; }
+}
+
+async function pollRuns() {
+  try {
+    const r = await getJSON("/api/runs");
+    const sel = $("#runSel"); const prev = sel.value;
+    sel.innerHTML = r.runs.map(x => `<option value="${esc(x.id)}">${esc(x.id)} · ${esc(x.status)}</option>`).join("");
+    if (!$("#mockSel").options.length) $("#mockSel").innerHTML = r.scenarios.map(s => `<option>${esc(s)}</option>`).join("");
+    const newest = r.runs[0]?.id;
+    if (!runId && newest) { sel.value = newest; await loadRun(newest); }
+    else if ($("#follow").checked && newest && newest !== runId) { sel.value = newest; await loadRun(newest, {replay: true}); }
+    else sel.value = prev || runId;
+  } catch (e) { /* server restarting */ }
+}
+
+$("#runSel").addEventListener("change", e => { $("#follow").checked = false; loadRun(e.target.value); });
+$("#replay").addEventListener("click", () => runId && loadRun(runId, {replay: true}));
+$("#mockBtn").addEventListener("click", async () => {
+  $("#follow").checked = true;
+  await getJSON(`/api/mock?scenario=${encodeURIComponent($("#mockSel").value)}`, {method: "POST"});
+});
+
+pollRuns(); setInterval(pollRuns, 2000); setInterval(pollRun, 700);
+</script>
+</body>
+</html>

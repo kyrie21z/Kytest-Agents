@@ -51,6 +51,18 @@ python kytest.py --mock flaky      # Planner 模型持续出错 → 自动降级
 每次运行输出路径与摘要，产物在 `runs/<id>/`：`state.json`、`log.jsonl`、`plan.json`、`test_solution.py`，
 发现缺陷时还有 `test_suspected_bugs.py` 和 `bug_report.md`。
 
+**实时架构看板。** 在另一个终端启动看板，再运行任意一次工作流，正在执行的 Agent 会在架构图上点亮：
+
+```bash
+python board.py                                   # 打开 http://127.0.0.1:8770
+python board.py --runs docs/evidence/bench-test1/runs --port 8771   # 回放基准中的真实模型运行
+```
+
+看板只读取引擎本来就会写的 `state.json` 与 `log.jsonl`：节点运行时显示蓝色，结束后标 ✓ 完成、↺ 已恢复或 ✕ 出错；
+连线随状态转移流动，节点写入共享状态时对应格子闪烁。页面上的“Run mock”按钮可以直接启动离线场景，“Replay”按钮可以重放已完成的运行；点击任意方框会显示该节点的计划、裁决、验证报告或工具调用。
+
+![实时架构看板](docs/board.png)
+
 **真实模型。** 复制 `.env.example` 为 `.env`，填写 OpenAI 兼容接口的 `LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL`
 （本项目使用百炼 `qwen3.7-flash`），然后：
 
