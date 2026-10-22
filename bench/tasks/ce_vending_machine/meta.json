@@ -9,7 +9,7 @@
  "tier": "T5",
  "split": "test",
  "entry": "VendingMachine",
- "primary_bug": "no_balance_check",
+ "primary_bug": "restock_unknown",
  "bugs": {
   "no_balance_check": {
    "origin": "synthetic",
@@ -19,7 +19,9 @@
      "if item['quantity'] > 0 and self.balance >= item['price']:",
      "if item['quantity'] > 0:"
     ]
-   ]
+   ],
+   "spec_decided": false,
+   "why_undecided": "the docstring never says a purchase needs enough balance"
   },
   "stock_not_decremented": {
    "origin": "synthetic",
@@ -29,7 +31,9 @@
      "                item['quantity'] -= 1\n",
      ""
     ]
-   ]
+   ],
+   "spec_decided": false,
+   "why_undecided": "the docstring never says a purchase reduces the quantity"
   },
   "restock_unknown": {
    "origin": "synthetic",

@@ -35,8 +35,11 @@ def check(task) -> list:
                 problems.append(f"alt {name} fails gold (not a legal alternative):\n{r.output}")
             if not want_pass and not r.any_fail:
                 problems.append(f"bug {name} survives gold (needs gold_extra_test.py)")
-    if task.meta["primary_bug"] not in task.meta["bugs"]:
+    primary = task.meta["bugs"].get(task.meta["primary_bug"])
+    if primary is None:
         problems.append("primary_bug not among bugs")
+    elif primary.get("spec_decided") is False:
+        problems.append("primary_bug must be decided by the specification")
     return problems
 
 

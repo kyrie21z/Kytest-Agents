@@ -126,14 +126,18 @@ H1 的基准（MBPP 20 题、单函数、算子替换故障）针对单 Agent �
 | QuixBugs（MIT） | `to_base` `kth` `lis` `get_factors` `shunting_yard` `find_first_in_sorted` | T2 算法函数，自带人写缺陷 |
 | ClassEval（代码 MIT，数据 CC-BY-NC） | `ShoppingCart` `BankAccount` `Warehouse` | T3 有状态类 |
 | ClassEval | `VendingMachine` | T5 规格自相矛盾（docstring 说返回 list，示例与实现返回 str） |
-| BigCodeBench-Hard（Apache-2.0） | `factorial_sums`(854) `bigram_counts`(928) | T2 规格丰富的函数 |
+| BigCodeBench-Hard（Apache-2.0） | `factorial_sums`(854)；`bigram_counts`(928) | T2 规格丰富的函数；928 为 T5（docstring 说用 `itertools.permutations` 生成 650 个键，又说“所有两字母组合”676 个） |
 | 原创 | `allocate`（最大余数分配） | 未公开对照：排除预训练见过的影响 |
 | 原创 | `normalize_tags` | T5 有意留白（内部空白、Unicode 大小写未规定） |
 
 每题有只给评测器看的隐藏资产：
 
 - **金标准测试**：上游测试；上游测试杀不死某个缺陷时，按 docstring 补 `gold_extra_test.py`（4 题需要补，说明上游测试本身没覆盖规格）。
-- **缺陷变体**（37 个）：QuixBugs 上游人写缺陷 + 手写合成缺陷，`meta.json` 标注来源。
+- **缺陷变体**（38 个）：QuixBugs 上游人写缺陷 + 手写合成缺陷，`meta.json` 标注来源。
+  每个缺陷都对照 docstring 审核过：只有规格（文字或示例）明确规定了被破坏的行为，才算 `spec_decided`，
+  才计入检出率、才能当主缺陷。6 个缺陷未通过审核（如“下单是否扣库存”docstring 从未说明），
+  标为 `spec_decided: false` 并写明原因，只计入辅助指标 `kill_rate_all`。
+  这次审核是在开发集上发现 `bigram_counts` 的主缺陷其实可由规格推出之后做的，覆盖全部 14 题，在测试集运行之前完成。
 - **合法替代实现**（15 个）：只在规格未规定处与参考实现不同（前置条件外的输入、未规定的顺序或返回值、错误信息）。现有公开基准都没有这一项，全部自写。
 
 `bench/validate.py` 机械校验：金标准在参考实现和每个替代实现上通过、在每个缺陷上失败、每个变体确实与参考不同。

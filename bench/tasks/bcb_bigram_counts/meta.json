@@ -6,10 +6,10 @@
   "license": "Apache-2.0",
   "upstream_id": "BigCodeBench/928"
  },
- "tier": "T2",
+ "tier": "T5",
  "split": "dev",
  "entry": "bigram_counts",
- "primary_bug": "no_doubles",
+ "primary_bug": "reversed_pairs",
  "bugs": {
   "no_doubles": {
    "origin": "synthetic",
@@ -19,7 +19,9 @@
      "combinations = permutations + [x*2 for x in ALPHABETS]",
      "combinations = permutations"
     ]
-   ]
+   ],
+   "spec_decided": false,
+   "why_undecided": "the docstring says the keys are generated with itertools.permutations (650 keys, no 'aa') but also 'all possible two-letter combinations'"
   },
   "non_overlapping": {
    "origin": "synthetic",
@@ -28,6 +30,18 @@
     [
      "return {key: word_counter.get(key, 0) for key in combinations}",
      "return {key: word.count(key) for key in combinations}"
+    ]
+   ],
+   "spec_decided": false,
+   "why_undecided": "the docstring does not say whether overlapping occurrences are counted"
+  },
+  "reversed_pairs": {
+   "origin": "synthetic",
+   "desc": "pairs are read right-to-left, so 'abcdef' counts 'ba' instead of 'ab' (contradicts the docstring example)",
+   "patch": [
+    [
+     "zip(word, word[1:])",
+     "zip(word[1:], word)"
     ]
    ]
   }
@@ -49,5 +63,6 @@
   "overlapping occurrences counted",
   "absent bigram is 0",
   "empty word"
- ]
+ ],
+ "ambiguity": "The docstring generates keys with itertools.permutations (650, no doubled letters) yet promises all two-letter combinations; the reference and upstream tests use 676. Overlap counting is unstated."
 }

@@ -3,7 +3,8 @@
     python bench/score.py --name dev1
 
 Per job (all measured by running the produced tests, never by trusting the agents):
-  clean  condition: tests, bug kill rate over every bug variant, false-positive
+  clean  condition: tests, bug kill rate over the bug variants the specification
+         decides (kill_rate_all also counts the undecided ones), false-positive
          rate over legal alternatives, false bug reports (suspected tests on a
          correct target).
   buggy  condition: reported (a suspected-bug test passes on the reference and
@@ -56,7 +57,9 @@ def score_job(task, condition: str, job: Path) -> dict:
         bugs, alts = task.bugs(), task.alts()
         killed = {n: suite is not None and run_pytest(src, {SUITE: suite}).any_fail for n, src in bugs.items()}
         flagged = {n: suite is not None and run_pytest(src, {SUITE: suite}).any_fail for n, src in alts.items()}
-        row.update(kill_rate=sum(killed.values()) / len(bugs), killed=[n for n, k in killed.items() if k],
+        decided = [n for n in bugs if task.meta["bugs"][n].get("spec_decided", True)]
+        row.update(kill_rate=sum(killed[n] for n in decided) / len(decided),
+                   kill_rate_all=sum(killed.values()) / len(bugs), killed=[n for n, k in killed.items() if k],
                    fp_rate=sum(flagged.values()) / len(alts), false_positive_alts=[n for n, f in flagged.items() if f],
                    false_bug_reports=sum(not ok for ok in ref_sus.values()))
     else:

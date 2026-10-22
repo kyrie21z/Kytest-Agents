@@ -9,7 +9,7 @@
  "tier": "T3",
  "split": "test",
  "entry": "Warehouse",
- "primary_bug": "order_keeps_stock",
+ "primary_bug": "add_overwrites",
  "bugs": {
   "order_keeps_stock": {
    "origin": "synthetic",
@@ -19,7 +19,9 @@
      "            self.update_product_quantity(product_id, -quantity)\n",
      ""
     ]
-   ]
+   ],
+   "spec_decided": false,
+   "why_undecided": "the docstring never says that creating an order reduces inventory"
   },
   "add_overwrites": {
    "origin": "synthetic",

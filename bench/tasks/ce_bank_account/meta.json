@@ -29,7 +29,9 @@
      "        self.withdraw(amount)\n        other_account.deposit(amount)",
      "        other_account.deposit(amount)\n        self.withdraw(amount)"
     ]
-   ]
+   ],
+   "spec_decided": false,
+   "why_undecided": "the docstring does not say a failed transfer leaves the other account unchanged"
   },
   "zero_deposit_rejected": {
    "origin": "synthetic",
