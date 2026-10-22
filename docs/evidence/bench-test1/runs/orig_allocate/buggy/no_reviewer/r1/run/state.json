@@ -1,0 +1,231 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def allocate(total, weights):\n    \"\"\"Split a non-negative integer total into integer shares proportional to weights.\n\n    weights is a list of non-negative ints with at least one positive entry.\n    Every entry first receives floor(total * w / sum(weights)). The units left\n    over are then handed out one each to the entries with the largest fractional\n    remainder (total * w mod sum(weights)); ties go to the entry with the lower\n    index. The result is a new list of ints, one per weight, summing to total.\n    Entries with weight 0 always receive 0.\n\n    Raises ValueError if total is negative, weights is empty, any weight is\n    negative, or all weights are zero.\n\n    >>> allocate(100, [1, 1, 1])\n    [34, 33, 33]\n    >>> allocate(10, [3, 0, 7])\n    [3, 0, 7]\n    \"\"\"\n    if total < 0 or not weights or any(w < 0 for w in weights) or not any(weights):\n        raise ValueError(\"invalid allocation request\")\n    whole = sum(weights)\n    shares = [total * w // whole for w in weights]\n    remainders = [total * w % whole for w in weights]\n    leftover = total - sum(shares)\n    order = sorted(range(len(weights)), key=lambda i: (-remainders[i], -i))\n    for i in order[:leftover]:\n        shares[i] += 1\n    return shares\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/no_reviewer/r1/run/workspace",
+ "spec": "def allocate(total, weights):\n    \"\"\"Split a non-negative integer total into integer shares proportional to weights.\n\n    weights is a list of non-negative ints with at least one positive entry.\n    Every entry first receives floor(total * w / sum(weights)). The units left\n    over are then handed out one each to the entries with the largest fractional\n    remainder (total * w mod sum(weights)); ties go to the entry with the lower\n    index. The result is a new list of ints, one per weight, summing to total.\n    Entries with weight 0 always receive 0.\n\n    Raises ValueError if total is negative, weights is empty, any weight is\n    negative, or all weights are zero.\n\n    >>> allocate(100, [1, 1, 1])\n    [34, 33, 33]\n    >>> allocate(10, [3, 0, 7])\n    [3, 0, 7]\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Distributes a non-negative integer total among a list of non-negative weights proportionally using the largest remainder method (Hamilton method), guaranteeing the result sums to total, preserves order, and assigns 0 to zero-weight entries.",
+  "input_domain": "total: int >= 0; weights: list[int], length >= 1, elements >= 0, at least one element > 0",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Exact proportional split with tie-breaking",
+    "input": "allocate(100, [1, 1, 1])",
+    "expected": "[34, 33, 33]",
+    "rationale": "Matches docstring example. floor(100*1/3)=33 for all; remainder=1. Ties in fractional remainder go to lower index per spec.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Proportional split with zero-weight entry",
+    "input": "allocate(10, [3, 0, 7])",
+    "expected": "[3, 0, 7]",
+    "rationale": "Matches docstring example. Spec explicitly states: 'Entries with weight 0 always receive 0.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "boundary",
+    "behavior": "Minimum valid total",
+    "input": "allocate(0, [2, 3])",
+    "expected": "[0, 0]",
+    "rationale": "Spec allows 'non-negative integer total'. With total=0, floor(0*w/S)=0 and remainder=0, yielding all zeros.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Single positive weight",
+    "input": "allocate(50, [1])",
+    "expected": "[50]",
+    "rationale": "Spec requires 'at least one positive entry'. With only one entry, it must consume the entire total to satisfy proportionality and sum constraint.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "Tie-breaking in remainder distribution",
+    "input": "allocate(5, [1, 1])",
+    "expected": "[3, 2]",
+    "rationale": "Base floors are [2, 2]; remainder=1. Both have identical fractional remainder (1). Spec mandates: 'ties go to the entry with the lower index'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "property",
+    "behavior": "Sum invariant across multiple weights",
+    "input": "allocate(100, [1, 2, 3, 4, 5])",
+    "expected": "List of 5 integers summing to 100",
+    "rationale": "Spec guarantees: 'The result is a new list of ints, one per weight, summing to total.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "error",
+    "behavior": "Negative total triggers ValueError",
+    "input": "allocate(-5, [1, 2])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if total is negative'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "error",
+    "behavior": "Empty weights list triggers ValueError",
+    "input": "allocate(10, [])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if ... weights is empty'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "error",
+    "behavior": "Negative weight triggers ValueError",
+    "input": "allocate(10, [1, -2, 3])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if ... any weight is negative'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P10",
+    "category": "error",
+    "behavior": "All-zero weights triggers ValueError",
+    "input": "allocate(10, [0, 0, 0])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if ... all weights are zero.' Also violates precondition requiring 'at least one positive entry'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P11",
+    "category": "normal",
+    "behavior": "Multi-step remainder distribution",
+    "input": "allocate(10, [1, 2, 3])",
+    "expected": "[2, 3, 5]",
+    "rationale": "Sums to 6. Base floors: [1, 3, 5]. Remainder=1. Fractional mods: [4, 2, 0]. Largest remainder belongs to index 0, which receives the extra unit. Spec: 'units left over are then handed out one each to the entries with the largest fractional remainder'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P12",
+    "category": "state",
+    "behavior": "Zero-weight isolation in mixed list",
+    "input": "allocate(100, [0, 5, 0, 5])",
+    "expected": "[0, 50, 0, 50]",
+    "rationale": "Confirms zero-weight entries strictly receive 0 regardless of position, while non-zero entries split proportionally. Spec: 'Entries with weight 0 always receive 0.'",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Type enforcement: Spec says 'list of non-negative ints', but does not specify behavior if floats, strings, or other iterables are passed (e.g., should it coerce, raise TypeError, or fail silently?).",
+   "Scale limits: No bounds are given for `total` magnitude or `weights` length; performance characteristics or potential integer overflow in other environments are unspecified.",
+   "Fractional remainder precision: Spec uses integer modulo `total * w mod sum(weights)`. While unambiguous in Python, it leaves open whether implementations should guard against intermediate multiplication overflow before modulo reduction."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p2_zero_weight_entry",
+    "test_p3_minimum_total",
+    "test_p7_negative_total",
+    "test_p11_multi_step_remainder",
+    "test_p4_single_positive_weight",
+    "test_p6_sum_invariant",
+    "test_p8_empty_weights",
+    "test_p9_negative_weight",
+    "test_p10_all_zero_weights",
+    "test_p12_zero_weight_isolation"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_exact_proportional_split",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "\"\"\"Test P1: Exact proportional split with tie-breaking.\"\"\"\nimport pytest\nfrom solution import allocate\n\ndef test_p1_exact_proportional_split():\n    \"\"\"allocate(100, [1, 1, 1]) == [34, 33, 33].\n\n    Docstring example. floor(100*1/3)=33 for all; remainder=1. Ties in\n    fractional remainder go to lower index per spec.\n    \"\"\"\n    result = allocate(100, [1, 1, 1])\n    assert result == [34, 33, 33]\n    assert isinstance(result, list)\n    assert all(isinstance(x, int) for x in result)",
+     "oracle_reason": "S=3, base=floor(100/3)=33 each, leftover=1. One unit goes to index 0 (lowest index wins tie). Result: [34,33,33].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p1_exact_proportional_split _______________________\ntest_solution.py:12: in test_p1_exact_proportional_split\n    assert result == [34, 33, 33]\nE   assert [33, 33, 34] == [34, 33, 33]\nE     \nE     At index 0 diff: 33 != 34\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_exact_proportional_split - assert [33, 33, 3...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p5_tie_breaking_remainder",
+     "plan_ids": [
+      "P5"
+     ],
+     "code": "\"\"\"Test P5: Tie-breaking in remainder distribution.\"\"\"\nimport pytest\nfrom solution import allocate\n\ndef test_p5_tie_breaking_remainder():\n    \"\"\"allocate(5, [1, 1]) == [3, 2].\n\n    Base floors are [2, 2]; remainder=1. Both have identical fractional\n    remainder (1). Spec mandates: 'ties go to the entry with the lower index'.\n    \"\"\"\n    result = allocate(5, [1, 1])\n    assert result == [3, 2]\n    assert result[0] > result[1]  # lower index wins the tie",
+     "oracle_reason": "floors=[2,2], remainders=[1,1], leftover=1. Tie broken by lower index → index 0 gets +1.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p5_tie_breaking_remainder ________________________\ntest_solution.py:12: in test_p5_tie_breaking_remainder\n    assert result == [3, 2]\nE   assert [2, 3] == [3, 2]\nE     \nE     At index 0 diff: 2 != 3\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p5_tie_breaking_remainder - assert [2, 3] == [3...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 12,
+   "turns": 5,
+   "final_text": " lower index\". This is a genuine bug in `solution.py` line 25.\n\n- **`test_p5_tie_breaking_remainder`** — Expected `[3, 2]`, got `[2, 3]`. Same tie-breaking bug on a simpler two-element case.\n\n**Remaining limitations of the suite:**\n\n1. **Tie-breaking not yet verifiable** — P1 and P5 must wait for the SUT fix before merging.\n2. **No immutability check** — Does not verify the returned list is a new object (not aliased to input).\n3. **No single-zero-weight test** — `allocate(10, [0])` should raise `ValueError` (all weights zero) but is untested.\n4. **No large-scale stress test** — Only moderate-sized inputs used; edge cases with very large totals or many weights are untested.\n5. **No type-checking for non-list inputs** — Contract says \"list\", but passing a tuple or other iterable is untested."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 7,
+    "total": 7,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9",
+     "P10",
+     "P11",
+     "P12"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6484
+  },
+  "testgen": {
+   "calls": 5,
+   "tokens": 40589
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/no_reviewer/r1/input/solution.py"
+}

@@ -1,0 +1,5 @@
+status: accepted   rounds: 1   path: testgen -> verifier -> reviewer
+tests: 8 accepted   coverage: 1.0   dev mutants killed: 3/3   plan cited: None
+review r1: accept  
+usage: {"testgen": {"calls": 5, "tokens": 22421}, "reviewer": {"calls": 1, "tokens": 2848}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_kth/clean/no_planner/r1/run

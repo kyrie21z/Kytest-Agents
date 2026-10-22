@@ -1,0 +1,101 @@
+{
+ "summary": "Splits a comma-separated string into individual tags, strips surrounding whitespace, converts to lowercase, drops empty or whitespace-only tags, removes duplicates based on normalized values while preserving the order of first occurrences, and returns the resulting list.",
+ "input_domain": "str (comma-separated tag string)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Standard mixed case and whitespace handling matching the docstring example",
+   "input": "\" Python, ML ,python,, Data \"",
+   "expected": "[\"python\", \"ml\", \"data\"]",
+   "rationale": "Directly matches the provided doctest: '>>> normalize_tags(\" Python, ML ,python,, Data \")\\n    [\"python\", \"ml\", \"data\"]'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "All lowercase tags with no extra whitespace",
+   "input": "\"tag1,tag2,tag3\"",
+   "expected": "[\"tag1\", \"tag2\", \"tag3\"]",
+   "rationale": "Spec requires stripping whitespace and lower-casing; these tags already satisfy those conditions.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Duplicate tags with different casing",
+   "input": "\"Apple, apple, APPLE, banana\"",
+   "expected": "[\"apple\", \"banana\"]",
+   "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "String containing only commas and whitespace",
+   "input": "\", , , \"",
+   "expected": "[]",
+   "rationale": "Spec states: 'Empty tags (including ones that are only whitespace) are dropped.' and 'A string without any non-empty tag gives an empty list.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Single tag with surrounding whitespace",
+   "input": "\"  hello  \"",
+   "expected": "[\"hello\"]",
+   "rationale": "Stripping surrounding whitespace and lower-casing applies to single-element splits.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Leading and trailing commas",
+   "input": "\",  foo  , bar  ,\"",
+   "expected": "[\"foo\", \"bar\"]",
+   "rationale": "Splitting by comma produces empty strings at boundaries, which are dropped per spec.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Preservation of internal spaces within tags",
+   "input": "\"machine learning, deep learning\"",
+   "expected": "[\"machine learning\", \"deep learning\"]",
+   "rationale": "Spec specifies stripping of 'surrounding' whitespace, implying internal spacing is preserved.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Multiple consecutive commas without spaces",
+   "input": "\"a,,,b\"",
+   "expected": "[\"a\", \"b\"]",
+   "rationale": "Consecutive commas generate empty intermediate tokens, which are filtered out as per spec.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "Tags with uppercase letters only",
+   "input": "\"FOO, BAR\"",
+   "expected": "[\"foo\", \"bar\"]",
+   "rationale": "Lower-casing is explicitly required for all tags.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "property",
+   "behavior": "Order preservation with interleaved duplicates",
+   "input": "\"cat, dog, cat, bird, dog\"",
+   "expected": "[\"cat\", \"dog\", \"bird\"]",
+   "rationale": "Spec requires keeping original order and removing duplicates after normalization, retaining only the first occurrence.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "What should happen if `text` is not a string (e.g., int, None, list)? The spec does not define type validation or error handling.",
+  "How are non-comma characters handled? The spec says 'comma-separated', implying other delimiters are treated as literal characters within tags rather than split points.",
+  "Does 'first occurrence' refer to the position in the original string before splitting, or after filtering empty tags? (Implied: original split order, but worth clarifying for edge cases like ',a,,a,'.)"
+ ]
+}

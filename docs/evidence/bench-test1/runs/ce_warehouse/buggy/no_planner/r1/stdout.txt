@@ -1,0 +1,7 @@
+status: forced   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 16 accepted   coverage: 1.0   dev mutants killed: 0/0   plan cited: None
+review r1: revise  
+review r2: revise  test_add_product_accumulates_quantity_on_existing=suspected_bug
+suspected bugs: 1 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/buggy/no_planner/r1/run/bug_report.md
+usage: {"testgen": {"calls": 12, "tokens": 79586}, "reviewer": {"calls": 2, "tokens": 12065}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/buggy/no_planner/r1/run

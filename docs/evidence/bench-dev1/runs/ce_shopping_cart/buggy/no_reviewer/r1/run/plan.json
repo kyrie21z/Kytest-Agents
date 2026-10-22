@@ -1,0 +1,85 @@
+{
+ "summary": "Manages a shopping cart containing items with associated prices and quantities, supporting addition, partial removal, state inspection, and total cost calculation.",
+ "input_domain": "item: str, price: float, quantity: int (typically >= 1 for add, >= 0 for remove). Cart state is initialized empty.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add a single item with explicit quantity and verify stored state",
+   "input": "cart.add_item('apple', 1.5, 3)",
+   "expected": "cart.view_items() == {'apple': {'price': 1.5, 'quantity': 3}}",
+   "rationale": "Docstring for add_item specifies storing item, price, and quantity in the dictionary.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Calculate total price across multiple distinct items",
+   "input": "cart.add_item('a', 10.0, 2); cart.add_item('b', 5.0, 4)",
+   "expected": "cart.total_price() == 40.0",
+   "rationale": "total_price docstring defines total as 'quantity of each item multiplied by the price' summed across all items.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Inspect state of a newly initialized empty cart",
+   "input": "cart = ShoppingCart(); cart.view_items()",
+   "expected": "{}",
+   "rationale": "__init__ docstring states it initializes items as an empty dictionary.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Calculate total price of an empty cart",
+   "input": "cart = ShoppingCart(); cart.total_price()",
+   "expected": "0.0",
+   "rationale": "Sum of products over an empty set is 0; spec return type is float.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "state",
+   "behavior": "Partially remove an item and verify remaining quantity",
+   "input": "cart.add_item('x', 5.0, 10); cart.remove_item('x', 3)",
+   "expected": "cart.view_items() == {'x': {'price': 5.0, 'quantity': 7}}",
+   "rationale": "remove_item docstring says 'Subtract the specified quantity of item from the shopping list items' and example shows reduced quantity.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Add item using default quantity parameter",
+   "input": "cart.add_item('y', 2.5)",
+   "expected": "cart.view_items() == {'y': {'price': 2.5, 'quantity': 1}}",
+   "rationale": "Docstring for add_item explicitly states 'The default quantity is 1'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Verify total price is order-independent",
+   "input": "Seq A: add('m', 2.0, 5); add('n', 3.0, 2) vs Seq B: add('n', 3.0, 2); add('m', 2.0, 5)",
+   "expected": "Both sequences yield cart.total_price() == 16.0",
+   "rationale": "Total price depends only on the final set of items and attributes, not insertion order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "state",
+   "behavior": "Remove full quantity and verify zero contribution to total",
+   "input": "cart.add_item('z', 1.0, 2); cart.remove_item('z', 2)",
+   "expected": "cart.total_price() == 0.0",
+   "rationale": "Subtracting full quantity leaves 0 units, contributing 0 to the total price calculation regardless of key removal policy.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when adding an item that already exists (specifies replacement vs accumulation).",
+  "Behavior when removing a quantity greater than currently held or removing a non-existent item.",
+  "Whether the dictionary key is removed or retained with quantity 0 after complete subtraction.",
+  "Handling of negative prices or quantities (violates implicit preconditions; undefined behavior).",
+  "Floating-point precision edge cases (e.g., 0.1 + 0.2) beyond the provided examples."
+ ]
+}

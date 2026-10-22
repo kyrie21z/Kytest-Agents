@@ -1,0 +1,83 @@
+{
+ "summary": "Converts a positive base-10 integer to its string representation in a specified target base (2-36), using standard positional notation with digits 0-9 and uppercase letters A-Z.",
+ "input_domain": "num is an integer greater than 0, and b is an integer between 2 and 36 inclusive.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Verify standard decimal conversion remains unchanged.",
+   "input": "to_base(123, 10)",
+   "expected": "'123'",
+   "rationale": "The specification states the output is 'A string representing the value of num in base b'. For base 10, this matches the standard decimal string representation.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Test the minimum allowed value for num.",
+   "input": "to_base(1, 2)",
+   "expected": "'1'",
+   "rationale": "The precondition specifies 'num > 0', making 1 the smallest valid input. The binary representation of 1 is '1'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Test the minimum allowed value for b.",
+   "input": "to_base(7, 2)",
+   "expected": "'111'",
+   "rationale": "The precondition specifies '2 <= b', making 2 the smallest valid base. 7 in base 2 is 111.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Test the maximum allowed value for b with the largest single-digit value.",
+   "input": "to_base(35, 36)",
+   "expected": "'Z'",
+   "rationale": "The precondition specifies 'b <= 36'. The example 'to_base(31, 16)' returns '1F', demonstrating that values 10-35 map to uppercase letters A-Z. Thus, 35 maps to 'Z'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Verify the exact behavior shown in the specification example.",
+   "input": "to_base(31, 16)",
+   "expected": "'1F'",
+   "rationale": "Directly cited from the specification example: '>>> to_base(31, 16)\\n    \\'1F\\''.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Verify base rollover behavior where num equals the base.",
+   "input": "to_base(36, 36)",
+   "expected": "'10'",
+   "rationale": "In any positional numeral system, the value equal to the base is represented as '10'. This tests the transition from single-digit to multi-digit strings.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Test a power-of-two value in the minimum base to verify zero-padding/multiple zeros.",
+   "input": "to_base(256, 2)",
+   "expected": "'100000000'",
+   "rationale": "Tests a larger boundary case in base 2. 256 is 2^8, which should yield a '1' followed by eight '0's in binary.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Verify mixed-digit conversion in a mid-range base.",
+   "input": "to_base(255, 16)",
+   "expected": "'FF'",
+   "rationale": "Tests standard hexadecimal conversion where both digits exceed 9, relying on the uppercase letter mapping implied by the specification example.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "The specification does not explicitly state whether digits for bases > 10 should use uppercase or lowercase letters, though the example uses 'F' (uppercase).",
+  "The docstring mentions 'A base-10 integer', but does not explicitly forbid float inputs that represent whole numbers (e.g., 10.0). Behavior for non-integral types is undefined.",
+  "It is unclear if the function should handle leading zeros in the input or output, though the precondition 'num > 0' implies standard canonical representation without leading zeros."
+ ]
+}

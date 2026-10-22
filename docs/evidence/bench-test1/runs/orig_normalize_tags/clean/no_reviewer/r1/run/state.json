@@ -1,0 +1,171 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_reviewer/r1/run/workspace",
+ "spec": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a comma-separated string of tags into a list of unique, normalized tags by stripping surrounding whitespace, lowercasing, dropping empty segments, and deduplicating based on normalized values while preserving the original order of first occurrences.",
+  "input_domain": "Strings containing any combination of characters and whitespace, separated by commas.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Standard multi-tag input with mixed case, whitespace, duplicates, and empty segments",
+    "input": "\" Python, ML ,python,, Data \"",
+    "expected": "[\"python\", \"ml\", \"data\"]",
+    "rationale": "Docstring example explicitly states: normalize_tags(\" Python, ML ,python,, Data \") returns ['python', 'ml', 'data']. Matches rules for stripping, lowercasing, dropping empties, and deduplication.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "empty",
+    "behavior": "Input is an empty string",
+    "input": "\"\"",
+    "expected": "[]",
+    "rationale": "Spec states: 'A string without any non-empty tag gives an empty list.' An empty string contains zero tags.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "boundary",
+    "behavior": "Input contains only commas and whitespace",
+    "input": "\", , , \"",
+    "expected": "[]",
+    "rationale": "Spec states: 'Empty tags (including ones that are only whitespace) are dropped.' All segments become empty/whitespace-only after split and strip, resulting in an empty list.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "property",
+    "behavior": "Duplicate tags with different casing preserve first occurrence and order",
+    "input": "\"A, b, A, B\"",
+    "expected": "[\"a\", \"b\"]",
+    "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept, and the remaining tags keep their original order.' After lowercasing, 'A' and 'A' match, 'b' and 'B' match. First 'a' and first 'b' remain.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "Single tag with surrounding whitespace",
+    "input": "\"  Hello  \"",
+    "expected": "[\"hello\"]",
+    "rationale": "Spec states: 'Each tag is stripped of surrounding whitespace and lower-cased.' With no commas, the whole string is one tag. Strip yields 'Hello', lower yields 'hello'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "boundary",
+    "behavior": "Leading and trailing commas",
+    "input": "\",tag1,tag2,\"",
+    "expected": "[\"tag1\", \"tag2\"]",
+    "rationale": "Spec states: 'Empty tags (including ones that are only whitespace) are dropped.' Leading/trailing commas produce empty segments that are filtered out, leaving only valid tags.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "property",
+    "behavior": "Multiple consecutive commas between tags",
+    "input": "\"a,,,b\"",
+    "expected": "[\"a\", \"b\"]",
+    "rationale": "Consecutive commas generate empty string segments. Per spec: 'Empty tags... are dropped.' Only 'a' and 'b' survive normalization and filtering.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "normal",
+    "behavior": "Tags containing internal whitespace",
+    "input": "\"foo bar, baz qux\"",
+    "expected": "[\"foo bar\", \"baz qux\"]",
+    "rationale": "Spec specifies stripping 'surrounding whitespace' only. Internal spaces are preserved after lowercasing and splitting.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Behavior when `text` is not a string (e.g., None, int, list). The spec lacks type hints or explicit type checking requirements.",
+   "Whether tabs (\\t), newlines (\\n), or other Unicode whitespace characters count as 'surrounding whitespace' to be stripped.",
+   "Whether non-ASCII comma variants (e.g., fullwidth ，) should be treated as delimiters or literal characters.",
+   "Exact behavior for tags consisting solely of non-breaking spaces or other Unicode whitespace that may not be caught by standard .strip()."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p1_standard_mixed_case_whitespace_duplicates",
+    "test_p2_empty_string",
+    "test_p3_only_commas_and_whitespace",
+    "test_p4_duplicate_tags_different_casing_preserve_first",
+    "test_p5_single_tag_with_surrounding_whitespace",
+    "test_p6_leading_and_trailing_commas",
+    "test_p7_multiple_consecutive_commas",
+    "test_p8_internal_whitespace_preserved"
+   ],
+   "failed": [],
+   "attempts": 9,
+   "turns": 7,
+   "final_text": "Error` on `.split(\",\")` for non-strings, but the contract doesn't promise any specific error — so we can't assert one.\n\n2. **No test for very long inputs or many unique tags**: We use small representative inputs as instructed, but edge cases like hundreds of unique tags aren't covered.\n\n3. **No test for tabs/newlines in tags**: The spec says \"stripped of surrounding whitespace\" which includes `\\t`, `\\n`, etc., but we only tested spaces. A tag like `\"foo\\nbar\"` would be stripped to `\"foo\\nbar\"` (internal newline preserved) — this is a subtle distinction not explicitly tested.\n\n4. **No negative test cases**: All tests verify correct behavior; none intentionally trigger faults to confirm detection. The fault hypotheses are documented but not actively exercised against a broken implementation."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 8,
+   "pytest": {
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 5726
+  },
+  "testgen": {
+   "calls": 7,
+   "tokens": 42228
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_reviewer/r1/input/solution.py"
+}

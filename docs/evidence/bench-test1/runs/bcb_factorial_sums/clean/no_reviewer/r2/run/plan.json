@@ -1,0 +1,85 @@
+{
+ "summary": "Generates all permutations of a list of non-negative integers, calculates the sum of factorials for each permutation, and returns a tuple containing the list of sums and the list of permutations.",
+ "input_domain": "A list of non-negative integers.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns sums and permutations for distinct positive integers",
+   "input": "[1, 2, 3]",
+   "expected": "([9, 9, 9, 9, 9, 9], [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])",
+   "rationale": "Directly matches the first example in the docstring. 1!+2!+3! = 9. 3! = 6 permutations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Returns sums and permutations for zero and a positive integer",
+   "input": "[0, 4]",
+   "expected": "([25, 25], [(0, 4), (4, 0)])",
+   "rationale": "Directly matches the second example in the docstring. 0!+4! = 1+24 = 25. 2! = 2 permutations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Handles empty input list",
+   "input": "[]",
+   "expected": "([], [])",
+   "rationale": "Docstring explicitly states: 'If an empty list is given, the function returns empty lists.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Handles single-element list",
+   "input": "[5]",
+   "expected": "([120], [(5,)])",
+   "rationale": "Boundary case for list length. 5! = 120. Exactly one permutation exists for a single element.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Rejects non-list input",
+   "input": "'123'",
+   "expected": "Raises TypeError",
+   "rationale": "Docstring specifies: 'Raises: TypeError: If numbers is not a list of integers.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Rejects list containing non-integers",
+   "input": "[1, '2', 3]",
+   "expected": "Raises TypeError",
+   "rationale": "Docstring specifies TypeError for inputs that are not a list of integers.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "Rejects negative numbers",
+   "input": "[-1, 2]",
+   "expected": "Raises ValueError",
+   "rationale": "Docstring specifies: 'ValueError: If input numbers are negative.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Verifies output counts and sum consistency for larger input",
+   "input": "[1, 2, 3, 4]",
+   "expected": "len(fac) == 24, len(perm) == 24, and all values in fac equal 33",
+   "rationale": "Property derived from spec: number of permutations equals n! (24). Since permutations preserve the multiset of numbers, the sum of factorials remains constant at 1!+2!+3!+4! = 33 for all outputs.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Handling of duplicate integers in the input list (e.g., [2, 2]). The spec does not clarify whether permutations should be unique or positional, though itertools.permutations yields positional duplicates.",
+  "Return type of permutations: docstring claims 'list of list of int' but the example shows tuples of ints. Behavior for nested lists vs tuples is unspecified.",
+  "Strictness of type checking for numeric subtypes (e.g., [1.0, 2] or numpy arrays). The spec says 'list of int', but behavior for floats or array-like objects is unspecified.",
+  "Ordering of the returned permutations and sums. The examples show a specific order, but the spec does not mandate lexicographical or any particular sorting.",
+  "Exact exception message strings for TypeError and ValueError. The spec defines the exception types but not their messages."
+ ]
+}

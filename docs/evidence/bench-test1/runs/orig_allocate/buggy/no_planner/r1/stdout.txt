@@ -1,0 +1,7 @@
+status: accepted   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 9 accepted   coverage: 1.0   dev mutants killed: 6/7   plan cited: None
+review r1: revise  
+review r2: accept  test_tie_breaking_lower_index=suspected_bug, test_zero_weight_with_leftover=suspected_bug
+suspected bugs: 2 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/no_planner/r1/run/bug_report.md
+usage: {"testgen": {"calls": 16, "tokens": 95566}, "reviewer": {"calls": 2, "tokens": 11643}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/no_planner/r1/run

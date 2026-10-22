@@ -1,0 +1,103 @@
+{
+ "summary": "Manages warehouse inventory and orders, supporting product addition/quantity updates/retrieval, order creation/status tracking, and returning specific values or False for invalid operations.",
+ "input_domain": "product_id (int), order_id (int), name (str), quantity (int), status (str). Internal state consists of two dictionaries mapping IDs to product/order details.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add a new product to inventory",
+   "input": "warehouse.add_product(1, 'A', 10)",
+   "expected": "warehouse.inventory == {1: {'name': 'A', 'quantity': 10}}",
+   "rationale": "Docstring: 'Or just add new product to dict otherwise.' and example output.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Accumulate quantity when adding an existing product",
+   "input": "warehouse.add_product(1, 'A', 5); warehouse.add_product(1, 'A', 3)",
+   "expected": "warehouse.inventory[1]['quantity'] == 8",
+   "rationale": "Docstring: 'plus the quantity if it has existed in inventory.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Decrease product quantity using negative update",
+   "input": "warehouse.add_product(1, 'A', 5); warehouse.update_product_quantity(1, -2)",
+   "expected": "warehouse.inventory[1]['quantity'] == 3",
+   "rationale": "Docstring example shows `update_product_quantity(1, -1)` reduces quantity. No lower bound or error condition is specified for negative results.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Retrieve quantity for missing product",
+   "input": "warehouse.get_product_quantity(99)",
+   "expected": "False",
+   "rationale": "Docstring: 'if the product_id is in inventory then return the corresponding quantity, or False otherwise.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Create order with sufficient inventory",
+   "input": "warehouse.add_product(1, 'A', 10); warehouse.create_order(101, 1, 5)",
+   "expected": "warehouse.orders == {101: {'product_id': 1, 'quantity': 5, 'status': 'Shipped'}}",
+   "rationale": "Docstring example and description. Default value of status is 'Shipped'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Create order with insufficient inventory",
+   "input": "warehouse.add_product(1, 'A', 2); warehouse.create_order(102, 1, 5)",
+   "expected": "False",
+   "rationale": "Docstring: ':return False: only if product_id is not in inventory or the quantity is not adequate'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "Update order status successfully",
+   "input": "warehouse.create_order(101, 1, 5); warehouse.change_order_status(101, 'Delivered')",
+   "expected": "warehouse.orders[101]['status'] == 'Delivered'",
+   "rationale": "Docstring example demonstrates changing status to a new string when order_id exists.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Track non-existent order",
+   "input": "warehouse.track_order(999)",
+   "expected": "False",
+   "rationale": "Docstring: 'return False: only if the order_id is not in self.orders.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "Change status for non-existent order",
+   "input": "warehouse.change_order_status(999, 'Pending')",
+   "expected": "False",
+   "rationale": "Docstring: ':return False: only if the order_id is not in self.orders'",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "state",
+   "behavior": "Initialize empty inventory and orders",
+   "input": "warehouse = Warehouse()",
+   "expected": "warehouse.inventory == {} and warehouse.orders == {}",
+   "rationale": "__init__ docstring states: 'Initialize two fields. self.inventory is a dict... self.orders is a dict...' implying empty initial state.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Whether create_order deducts from self.inventory (spec is silent on side effects beyond adding to self.orders)",
+  "Return value of create_order on success (spec only documents :return False: condition)",
+  "Behavior of update_product_quantity when product_id does not exist (spec silent)",
+  "Allowed ranges for initial quantity in add_product (spec silent, though examples use positive ints)",
+  "Validation rules for status string in change_order_status (spec silent)"
+ ]
+}

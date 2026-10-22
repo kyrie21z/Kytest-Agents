@@ -1,0 +1,67 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "from collections import Counter\nimport itertools\nimport string\n\n\ndef bigram_counts(word: str) -> dict:\n    \"\"\"\n    Create a dictionary containing all possible two-letter combinations of the lowercase English alphabets. \n    The dictionary values represent the frequency of these two-letter combinations in the given word.\n    If a combination does not appear in the word, its value will be 0.\n\n    Requirements:\n    - collections.Counter\n    - itertools\n    - string\n    \n    Parameters:\n    - word (str): The input string containing alphabetic characters.\n\n    Returns:\n    - dict: A dictionary with keys as two-letter alphabet combinations and values as their counts in the word.\n\n    Requirements:\n    - The function uses the `collections.Counter` library to count the occurrences of two-letter combinations.\n    - The function uses the `itertools.permutations` method to generate all two-letter combinations of alphabets.\n    - The function uses the `string` library to get a string of lowercase alphabets.\n\n    Example:\n    >>> list(bigram_counts('abcdef').items())[:5]\n    [('ab', 1), ('ac', 0), ('ad', 0), ('ae', 0), ('af', 0)]\n    \"\"\"\n    ALPHABETS = string.ascii_lowercase\n    # Generate all two-letter combinations of alphabets\n    permutations = [''.join(x) for x in itertools.permutations(ALPHABETS, 2)]\n    combinations = permutations + [x*2 for x in ALPHABETS]\n    \n    # Generate all two-letter combinations in the word\n    word_combinations = [''.join(x) for x in zip(word, word[1:])]\n    # Count the occurrences of each two-letter combination in the word\n    word_counter = Counter(word_combinations)\n\n    # Create the dictionary with the counts\n    return {key: word_counter.get(key, 0) for key in combinations}\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/bcb_bigram_counts/clean/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_repeated_bigrams",
+    "test_empty_string",
+    "test_single_character",
+    "test_simple_three_letter_word",
+    "test_double_letter_bigram",
+    "test_non_alpha_characters"
+   ],
+   "failed": [],
+   "attempts": 13,
+   "turns": 7,
+   "final_text": "*No uppercase/mixed-case word testing**: The docstring says \"lowercase English alphabets\" but doesn't specify behavior for uppercase input. Words like `\"ABC\"` or `\"AbCd\"` are untested — the function would produce bigrams like `\"AB\"`, `\"BC\"` which wouldn't match any lowercase key, yielding all-zeros. This may be correct or a silent bug depending on intent.\n\n3. **No whitespace/punctuation edge cases beyond simple mixed chars**: Only `\"a1b2c\"` was tested. Longer strings with spaces, tabs, newlines, or Unicode are untested.\n\n4. **No performance boundary**: Very long words (e.g., thousands of characters) aren't tested for correctness or timeout behavior.\n\n5. **Return-type enforcement is minimal**: Only `isinstance(result, dict)` is checked; no verification that values are integers specifically."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 4,
+    "total": 4,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 7,
+   "tokens": 46710
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/bcb_bigram_counts/clean/single/r1/input/solution.py"
+}

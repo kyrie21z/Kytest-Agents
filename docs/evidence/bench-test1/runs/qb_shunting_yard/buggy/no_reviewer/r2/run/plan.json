@@ -1,0 +1,84 @@
+{
+ "summary": "Converts a list of integer and operator tokens from infix notation to Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm.",
+ "input_domain": "Lists containing only integers and the characters '+', '-', '*', or '/'. Must satisfy the precondition that every token is either an int or one of the four operators.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Converts sequential subtraction to RPN",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Directly matches the first example in the docstring: '>>> shunting_yard([10, '-', 5, '-', 2]) => [10, 5, '-', 2, '-']'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Respects operator precedence (division before subtraction)",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Matches the second example in the docstring; verifies that higher precedence operators appear earlier in the RPN output.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Handles complex expression with mixed precedence and operators",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Matches the third example in the docstring; tests interleaved operators and correct precedence ordering across multiple operations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Returns empty list for empty input",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "Precondition holds vacuously for empty lists; standard behavior for conversion functions where no tokens exist to reorder.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Returns unchanged list for single operand",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Satisfies precondition; no operators present to trigger reordering, so output must match input per 'The input tokens reordered...' specification.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Output preserves the exact multiset of input tokens",
+   "input": "Any valid tokens list",
+   "expected": "Multiset of output equals multiset of input",
+   "rationale": "Docstring states 'The input tokens reordered into Reverse Polish Notation', implying a strict permutation without loss, duplication, or type conversion.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Handles minimal valid infix expression",
+   "input": "[1, '+', 2]",
+   "expected": "[1, 2, '+']",
+   "rationale": "Smallest non-trivial case satisfying precondition; aligns with standard RPN definition where operands precede their operator.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Maintains left-to-right associativity for equal-precedence operators",
+   "input": "[1, '-', 2, '-', 3]",
+   "expected": "[1, 2, '-', 3, '-']",
+   "rationale": "Consistent with Dijkstra's shunting-yard algorithm behavior for left-associative operators and matches the structural pattern observed in P1.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Unary operator handling: The spec only demonstrates binary operators. Behavior for expressions like ['-', 5] is undefined.",
+  "Invalid infix sequences: The spec does not specify behavior for malformed inputs like [1, 2] (missing operator) or ['+', 5] (leading operator).",
+  "Precondition violations: The spec lists a precondition but explicitly states it is not a promise to raise. Behavior for floats, strings, or other types is undefined.",
+  "Parentheses support: The token set and examples do not include parentheses, leaving their handling and interaction with precedence ambiguous."
+ ]
+}

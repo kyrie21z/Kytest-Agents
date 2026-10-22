@@ -1,0 +1,112 @@
+{
+ "summary": "Computes the sum of factorials for every permutation of a list of non-negative integers, returning both the list of sums and the list of permutations.",
+ "input_domain": "List of non-negative integers (length >= 0)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Calculate factorial sums and permutations for [1, 2, 3]",
+   "input": "[1, 2, 3]",
+   "expected": "([9, 9, 9, 9, 9, 9], [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])",
+   "rationale": "Matches provided example in docstring exactly.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Handle empty input list",
+   "input": "[]",
+   "expected": "([], [])",
+   "rationale": "Docstring states: 'If an empty list is given, the function returns empty lists.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Handle list with a single zero",
+   "input": "[0]",
+   "expected": "([1], [(0,)])",
+   "rationale": "Boundary condition for length 1. Tests that 0 is accepted as a valid non-negative integer and 0! evaluates to 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Handle list containing zero and a positive integer",
+   "input": "[0, 4]",
+   "expected": "([25, 25], [(0, 4), (4, 0)])",
+   "rationale": "Matches provided example. Verifies correct handling of zero alongside larger integers.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Handle list with duplicate values",
+   "input": "[2, 2]",
+   "expected": "([4, 4], [(2, 2), (2, 2)])",
+   "rationale": "itertools.permutations treats elements as unique by position, so duplicates yield repeated permutations. Each sum is 2! + 2! = 4.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Raise TypeError for non-list input",
+   "input": "\"123\"",
+   "expected": "TypeError",
+   "rationale": "Docstring specifies: 'Raises: TypeError: If numbers is not a list of integers.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "Raise ValueError for negative integers",
+   "input": "[-5, 1]",
+   "expected": "ValueError",
+   "rationale": "Docstring specifies: 'Raises: ValueError: If input numbers are negative.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Raise TypeError for list containing non-integers",
+   "input": "[1, 2.5]",
+   "expected": "TypeError",
+   "rationale": "Docstring specifies parameter is 'list of int' and raises TypeError if not a list of integers.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Verify return value structure matches docstring signature",
+   "input": "[1, 2]",
+   "expected": "result is a tuple of length 2, result[0] is a list, result[1] is a sequence of sequences",
+   "rationale": "Docstring return section describes two separate return types, and example shows tuple unpacking: 'fac, perm = factorial_sums(...)'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "property",
+   "behavior": "Verify factorial sums are invariant across permutations",
+   "input": "[3, 1, 4]",
+   "expected": "All elements in the sums list are identical",
+   "rationale": "Addition is commutative, so the sum of factorials for any permutation of the same multiset must be identical. Validates core summation logic.",
+   "confidence": "high"
+  },
+  {
+   "id": "P11",
+   "category": "property",
+   "behavior": "Verify permutation count matches n!",
+   "input": "[1, 2, 3, 4]",
+   "expected": "Length of permutations list equals 24",
+   "rationale": "Spec requires using itertools.permutations, which generates exactly n! permutations for a list of length n.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Float-like values (e.g., [1.0, 2.0]): Spec says 'list of int', but does not clarify whether duck-typing accepts numeric floats or strictly rejects them via TypeError.",
+  "Permutation container type: Spec return type says 'list of list of int', but itertools.permutations yields tuples. It is unclear if the function should convert them to lists or if the docstring is simplified.",
+  "Exception message content: Spec names exception types but does not specify required error messages or formatting.",
+  "Very large inputs: Factorials grow rapidly. Spec does not define behavior for memory exhaustion, timeout, or arbitrarily large integers beyond Python's native arbitrary precision.",
+  "Order of permutations: Spec does not mandate output order, relying on itertools.permutations. If deterministic ordering is required beyond standard library behavior, it is unspecified."
+ ]
+}

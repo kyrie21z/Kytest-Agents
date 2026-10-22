@@ -1,0 +1,93 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "class VendingMachine:\n    \"\"\"\n    This is a class to simulate a vending machine, including adding products, inserting coins, purchasing products, viewing balance, replenishing product inventory, and displaying product information.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initializes the vending machine's inventory and balance.\n        \"\"\"\n        self.inventory = {}\n        self.balance = 0\n\n    def add_item(self, item_name, price, quantity):\n        \"\"\"\n        Adds a product to the vending machine's inventory.\n        :param item_name: The name of the product to be added, str.\n        :param price: The price of the product to be added, float.\n        :param quantity: The quantity of the product to be added, int.\n        :return: None\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\n        >>> vendingMachine.inventory\n        {'Coke': {'price': 1.25, 'quantity': 10}}\n\n        \"\"\"\n        if not self.restock_item(item_name, quantity):\n            self.inventory[item_name] = {'price': price, 'quantity': quantity}\n\n    def insert_coin(self, amount):\n        \"\"\"\n        Inserts coins into the vending machine.\n        :param amount: The amount of coins to be inserted, float.\n        :return: The balance of the vending machine after the coins are inserted, float.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.insert_coin(1.25)\n        1.25\n\n        \"\"\"\n        self.balance += amount\n        return self.balance\n\n    def purchase_item(self, item_name):\n        \"\"\"\n        Purchases a product from the vending machine and returns the balance after the purchase and display purchase unsuccessful if the product is out of stock.\n        :param item_name: The name of the product to be purchased, str.\n        :return: If successful, returns the balance of the vending machine after the product is purchased, float,otherwise,returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.balance = 1.25\n        >>> vendingMachine.purchase_item('Coke')\n        0.0\n        >>> vendingMachine.purchase_item('Pizza')\n        False\n\n        \"\"\"\n        if item_name in self.inventory:\n            item = self.inventory[item_name]\n            if item['quantity'] > 0 and self.balance >= item['price']:\n                self.balance -= item['price']\n                item['quantity'] -= 1\n                return self.balance\n            else:\n                return False\n        else:\n            return False\n\n    def restock_item(self, item_name, quantity):\n        \"\"\"\n        Replenishes the inventory of a product already in the vending machine.\n        :param item_name: The name of the product to be replenished, str.\n        :param quantity: The quantity of the product to be replenished, int.\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.restock_item('Coke', 10)\n        True\n        >>> vendingMachine.restock_item('Pizza', 10)\n        False\n\n        \"\"\"\n        self.inventory.setdefault(item_name, {'price': 0, 'quantity': 0})['quantity'] += quantity\n        return True\n\n    def display_items(self):\n        \"\"\"\n        Displays the products in the vending machine.\n        :return: If the vending machine is empty, returns False, otherwise, returns a list of the products in the vending machine, str.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.display_items()\n        False\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10} }\n        >>> vendingMachine.display_items()\n        'Coke - $1.25 [10]'\n\n        \"\"\"\n        if not self.inventory:\n            return False\n        else:\n            items = []\n            for item_name, item_info in self.inventory.items():\n                items.append(f\"{item_name} - ${item_info['price']} [{item_info['quantity']}]\")\n            return '\\n'.join(items)\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_init_empty_inventory",
+    "test_insert_coin_accumulate",
+    "test_restock_new_item_returns_true",
+    "test_purchase_with_change",
+    "test_display_empty_vs_items",
+    "test_purchase_decrements_quantity"
+   ],
+   "failed": [
+    {
+     "name": "test_add_item_creates_new_entry",
+     "plan_ids": [],
+     "code": "from solution import VendingMachine\n\ndef test_add_item_creates_new_entry():\n    \"\"\"Adding a new item should create it in inventory with correct price and quantity.\"\"\"\n    vm = VendingMachine()\n    vm.add_item('Coke', 1.25, 10)\n    assert vm.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\n",
+     "oracle_reason": "Docstring example shows expected result: inventory should contain Coke with price 1.25 and quantity 10",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_add_item_creates_new_entry ________________________\ntest_solution.py:7: in test_add_item_creates_new_entry\n    assert vm.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\nE   AssertionError: assert {'Coke': {'pr...uantity': 10}} == {'Coke': {'pr...uantity': 10}}\nE     \nE     Differing items:\nE     {'Coke': {'price': 0, 'quantity': 10}} != {'Coke': {'price': 1.25, 'quantity': 10}}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_add_item_creates_new_entry - AssertionError: as...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 18,
+   "turns": 7,
+   "final_text": "`add_item` never reaches the new-item creation branch at line 27), we cannot write a passing test that exercises `add_item`'s intended behavior without first fixing the underlying bug. The earlier rejected test (`test_add_item_creates_new_entry`) actually detected this bug — price defaults to 0 because `setdefault('price', 0)` is used but never overwritten.\n\n2. **Edge cases not covered**: No tests for purchasing with insufficient balance, purchasing out-of-stock items, or negative coin amounts. These would require additional docstring quotes from the implementation.\n\n3. **No multi-item display test**: Only single-item `display_items` tested; no test for multiple items in inventory.\n\n4. **No boundary tests on balance**: e.g., exact-change purchase (balance == price), zero-balance scenarios."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.8620689655172414,
+   "missing_lines": [
+    26,
+    27,
+    63,
+    65
+   ],
+   "mutation": {
+    "score": 0.4,
+    "killed": 2,
+    "total": 5,
+    "survivors": [
+     {
+      "line": 58,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 7,
+   "tokens": 54566
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/single/r1/input/solution.py"
+}

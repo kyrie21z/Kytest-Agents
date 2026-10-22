@@ -1,0 +1,84 @@
+{
+ "summary": "A BankAccount class that manages a monetary balance, supporting initialization, deposits, withdrawals, balance checks, and transfers between accounts.",
+ "input_domain": "balance: int (default 0); amount: int >= 0; other_account: BankAccount instance",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit positive amount",
+   "input": "BankAccount().deposit(50)",
+   "expected": "Returns 50; account balance becomes 50",
+   "rationale": "Docstring: 'increasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Withdraw positive amount within balance",
+   "input": "BankAccount(100).withdraw(40)",
+   "expected": "Returns 60; account balance becomes 60",
+   "rationale": "Docstring: 'decreasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "error",
+   "behavior": "Deposit negative amount",
+   "input": "BankAccount().deposit(-10)",
+   "expected": "Raises ValueError('Invalid amount')",
+   "rationale": "Docstring: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Withdraw amount exceeding balance",
+   "input": "BankAccount(50).withdraw(100)",
+   "expected": "Raises ValueError('Insufficient balance.')",
+   "rationale": "Docstring: 'If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "View initial balance",
+   "input": "BankAccount().view_balance()",
+   "expected": "Returns 0",
+   "rationale": "Docstring: 'Return the account balance.' __init__ defaults balance to 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "Transfer funds between accounts",
+   "input": "a1 = BankAccount(1000); a2 = BankAccount(); a1.transfer(a2, 300)",
+   "expected": "a1.balance == 700; a2.balance == 300",
+   "rationale": "Docstring example: 'account1.balance = 700 account2.balance = 300' after depositing 1000 and transferring 300.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Deposit zero amount",
+   "input": "BankAccount(100).deposit(0)",
+   "expected": "Returns 100; balance remains 100",
+   "rationale": "0 is non-negative, satisfying the implicit precondition. No error should be raised per spec.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Withdraw exact balance amount",
+   "input": "BankAccount(75).withdraw(75)",
+   "expected": "Returns 0; balance becomes 0",
+   "rationale": "Boundary condition where withdrawal equals balance. Spec only raises error when 'greater than the account balance'.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Does transfer() validate for negative amounts or insufficient funds, or rely on internal deposit/withdraw calls?",
+  "What is the return value of transfer()? The docstring example shows side effects but no explicit return statement.",
+  "Should __init__ accept negative balances? The spec lacks a precondition restricting balance >= 0.",
+  "Are float amounts allowed despite the type hint ':param amount: int'? Python's duck typing may allow floats, but spec hints at integers."
+ ]
+}

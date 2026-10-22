@@ -1,0 +1,84 @@
+{
+ "summary": "Converts a positive base-10 integer into its string representation using a target base between 2 and 36.",
+ "input_domain": "num: integer > 0; b: integer where 2 <= b <= 36",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Converts 31 to hexadecimal",
+   "input": "to_base(31, 16)",
+   "expected": "'1F'",
+   "rationale": "Directly matches the docstring example: >>> to_base(31, 16)\\n    '1F'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Converts 10 to binary",
+   "input": "to_base(10, 2)",
+   "expected": "'1010'",
+   "rationale": "Satisfies precondition `num > 0, 2 <= b <= 36`; outputs string representation per `Output: A string representing the value of num in base b.`",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Converts minimal valid integer",
+   "input": "to_base(1, 10)",
+   "expected": "'1'",
+   "rationale": "Tests lower boundary of `num` per precondition `num > 0`.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Converts using minimal valid base",
+   "input": "to_base(5, 2)",
+   "expected": "'101'",
+   "rationale": "Tests lower boundary of `b` per precondition `2 <= b <= 36`.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Converts using maximal valid base",
+   "input": "to_base(35, 36)",
+   "expected": "'Z'",
+   "rationale": "Tests upper boundary of `b` per precondition `2 <= b <= 36`; expects letter digit for value 35.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Converts 100 to octal",
+   "input": "to_base(100, 8)",
+   "expected": "'144'",
+   "rationale": "Standard conversion within valid domain verifying correct positional weighting.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Converts to base 10",
+   "input": "to_base(123, 10)",
+   "expected": "'123'",
+   "rationale": "Per `Output: A string representing the value of num in base b`, base-10 conversion must yield the canonical decimal string.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Converts larger integer in hex",
+   "input": "to_base(1000, 16)",
+   "expected": "'3E8'",
+   "rationale": "Tests multi-digit carry-over and letter mapping while respecting `num > 0`.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Character case for digits >= 10: The example uses uppercase 'F', but the spec does not explicitly mandate uppercase vs lowercase.",
+  "Non-integer inputs: Spec says `num` is an integer and `b` is a base, but does not specify behavior for floats, strings, or other types.",
+  "Precondition violations: Inputs where `num <= 0`, `b < 2`, or `b > 36` violate the stated precondition. The spec defines this as undefined behavior and does not specify an exception or fallback.",
+  "Negative numbers: Precondition `num > 0` excludes negatives, but the spec does not clarify if a leading '-' should be preserved or handled if the precondition were relaxed."
+ ]
+}

@@ -1,0 +1,84 @@
+{
+ "summary": "Manages warehouse inventory and order lifecycle, supporting product registration, quantity tracking and modification, order creation with stock validation, status updates, and order tracking using dictionary-based storage.",
+ "input_domain": "Valid inputs consist of integer product_id and order_id, string name and status, and integer quantity. Initial state is empty inventory and orders dicts. Valid call sequences require products to exist before querying or ordering, and orders to exist before changing status or tracking.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Register a new product in inventory",
+   "input": "warehouse.add_product(1, 'Widget', 10)",
+   "expected": "warehouse.inventory == {1: {'name': 'Widget', 'quantity': 10}}",
+   "rationale": "Docstring example explicitly demonstrates the exact dictionary structure created for a new product.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Accumulate quantity for an existing product",
+   "input": "warehouse.add_product(1, 'Widget', 5)",
+   "expected": "warehouse.inventory[1]['quantity'] == 15",
+   "rationale": "Specification states: 'plus the quantity if it has existed in inventory.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Retrieve quantity for an existing product",
+   "input": "warehouse.get_product_quantity(1)",
+   "expected": "15",
+   "rationale": "Specification states: 'if the product_id is in inventory then return the corresponding quantity'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Signal failure when querying non-existent product",
+   "input": "warehouse.get_product_quantity(999)",
+   "expected": "False",
+   "rationale": "Specification states: 'or False otherwise.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Create a valid order with default status",
+   "input": "warehouse.create_order(101, 1, 5)",
+   "expected": "warehouse.orders == {101: {'product_id': 1, 'quantity': 5, 'status': 'Shipped'}}",
+   "rationale": "Docstring example shows order creation populating the orders dict with product info and default status 'Shipped'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Reject order with insufficient inventory",
+   "input": "warehouse.create_order(102, 1, 20)",
+   "expected": "False",
+   "rationale": "Specification states return False 'only if ... the quantity is not adequate'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "Update status of an existing order",
+   "input": "warehouse.change_order_status(101, 'Delivered')",
+   "expected": "warehouse.orders[101]['status'] == 'Delivered'",
+   "rationale": "Specification states: 'Change the status of order if the input order_id is in self.orders.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Apply negative quantity adjustment",
+   "input": "warehouse.update_product_quantity(1, -3)",
+   "expected": "warehouse.inventory[1]['quantity'] == 12",
+   "rationale": "Docstring example explicitly uses a negative value (-1) to reduce quantity, indicating simple arithmetic addition is performed without clamping.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Behavior of update_product_quantity when product_id does not exist in inventory (spec does not specify whether to raise KeyError, silently ignore, or create a new entry).",
+  "Whether create_order deducts the ordered quantity from self.inventory (spec only mentions adding to self.orders, leaving inventory mutation undefined).",
+  "Validation rules for negative quantities passed to add_product or create_order (spec does not define whether negative stock or order quantities should be rejected or allowed).",
+  "Data structure consistency for Order entries (docstrings use dict literals in examples, but the class name Warehouse implies potential object-oriented design; implementation may vary between dicts and custom classes)."
+ ]
+}

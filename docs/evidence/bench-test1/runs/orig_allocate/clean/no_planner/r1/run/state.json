@@ -1,0 +1,84 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def allocate(total, weights):\n    \"\"\"Split a non-negative integer total into integer shares proportional to weights.\n\n    weights is a list of non-negative ints with at least one positive entry.\n    Every entry first receives floor(total * w / sum(weights)). The units left\n    over are then handed out one each to the entries with the largest fractional\n    remainder (total * w mod sum(weights)); ties go to the entry with the lower\n    index. The result is a new list of ints, one per weight, summing to total.\n    Entries with weight 0 always receive 0.\n\n    Raises ValueError if total is negative, weights is empty, any weight is\n    negative, or all weights are zero.\n\n    >>> allocate(100, [1, 1, 1])\n    [34, 33, 33]\n    >>> allocate(10, [3, 0, 7])\n    [3, 0, 7]\n    \"\"\"\n    if total < 0 or not weights or any(w < 0 for w in weights) or not any(weights):\n        raise ValueError(\"invalid allocation request\")\n    whole = sum(weights)\n    shares = [total * w // whole for w in weights]\n    remainders = [total * w % whole for w in weights]\n    leftover = total - sum(shares)\n    order = sorted(range(len(weights)), key=lambda i: (-remainders[i], i))\n    for i in order[:leftover]:\n        shares[i] += 1\n    return shares\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/clean/no_planner/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_zero_weight_entry",
+    "test_sum_preservation",
+    "test_valueerror_invalid_inputs",
+    "test_tie_breaking_by_index",
+    "test_basic_equal_weights",
+    "test_single_weight"
+   ],
+   "failed": [],
+   "attempts": 9,
+   "turns": 6,
+   "final_text": "dles arbitrary precision, so this is unlikely to be an issue).\n- **Many zero-weight entries mixed with positives**: Only one zero-weight case (`[3, 0, 7]`) was tested; a scenario like `[0, 0, 5, 0, 5]` with multiple zeros isn't covered.\n- **Fractional remainder ordering with many tied remainders**: The tie-breaking test uses only 3 equal weights. A larger set where several remainders are identical could expose bugs in the sort stability or index-based tie-breaking.\n- **Total = 0 with positive weights**: This boundary case (where every share should be 0) is not explicitly tested.\n- **Return-type enforcement beyond `isinstance(x, int)`**: No check that the return value is strictly a `list` (not a tuple or other sequence), though the implementation clearly returns a list comprehension result."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.8571428571428571,
+    "killed": 6,
+    "total": 7,
+    "survivors": [
+     {
+      "line": 23,
+      "description": "Mod -> Mult"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 6,
+   "tokens": 30538
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 4471
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/clean/no_planner/r1/input/solution.py"
+}

@@ -1,0 +1,102 @@
+{
+ "summary": "Manages a shopping cart using a dictionary to track item names mapped to their price and quantity. Supports adding items, removing specified quantities, viewing the current state, and calculating the aggregate total price.",
+ "input_domain": "item: str; price: float; quantity: int (typically non-negative); sequence of method calls on ShoppingCart instances.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add item with default quantity",
+   "input": "cart.add_item(\"apple\", 1.5)",
+   "expected": "cart.view_items() returns {\"apple\": {\"price\": 1.5, \"quantity\": 1}}",
+   "rationale": "Docstring states: 'The default quantity is 1'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Add item with explicit quantity",
+   "input": "cart.add_item(\"banana\", 2.0, 3)",
+   "expected": "cart.view_items() returns {\"banana\": {\"price\": 2.0, \"quantity\": 3}}",
+   "rationale": "Docstring defines quantity parameter as 'The number of items' and shows example usage with quantity 5.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Remove partial quantity",
+   "input": "cart.add_item(\"cherry\", 5.0, 10) followed by cart.remove_item(\"cherry\", 4)",
+   "expected": "cart.view_items() returns {\"cherry\": {\"price\": 5.0, \"quantity\": 6}}",
+   "rationale": "Docstring states: 'Subtract the specified quantity of item from the shopping list items'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Calculate total price with multiple items",
+   "input": "cart.add_item(\"a\", 1.0, 2), cart.add_item(\"b\", 3.0, 4) followed by cart.total_price()",
+   "expected": "Returns 14.0",
+   "rationale": "Docstring states total is 'the quantity of each item multiplied by the price', validated by the example calculation (1*5 + 2*3 = 11.0).",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "empty",
+   "behavior": "View and total on empty cart",
+   "input": "cart = ShoppingCart() followed by cart.view_items() and cart.total_price()",
+   "expected": "view_items() returns {}, total_price() returns 0.0",
+   "rationale": "__init__ docstring states: 'Initialize the items representing the shopping list as an empty dictionary'. Sum of empty set is 0.0, matching the float return type.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "State consistency across mutation sequence",
+   "input": "cart.add_item(\"x\", 10.0, 5), cart.remove_item(\"x\", 2), cart.view_items()",
+   "expected": "Returns {\"x\": {\"price\": 10.0, \"quantity\": 3}}",
+   "rationale": "view_items docstring specifies it returns 'the current shopping list items', implying it must reflect all prior add/remove mutations accurately.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Add item with zero quantity",
+   "input": "cart.add_item(\"zero_qty\", 9.99, 0)",
+   "expected": "cart.view_items() returns {\"zero_qty\": {\"price\": 9.99, \"quantity\": 0}}",
+   "rationale": "Quantity is typed as int; 0 is a valid numeric boundary for counts and should be stored as provided per spec.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Remove exact remaining quantity",
+   "input": "cart.add_item(\"exact\", 5.0, 1) followed by cart.remove_item(\"exact\", 1)",
+   "expected": "cart.view_items() returns {\"exact\": {\"price\": 5.0, \"quantity\": 0}}",
+   "rationale": "Spec says to subtract quantity; reaching 0 is a natural arithmetic boundary for subtraction without explicit deletion rules.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Total price returns float type",
+   "input": "cart.add_item(\"float_test\", 0.1, 1) followed by cart.total_price()",
+   "expected": "Returns a float value (e.g., 0.1) and isinstance(result, float) is True",
+   "rationale": "Method signature explicitly declares return type: def total_price(self) -> float:",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "normal",
+   "behavior": "Update existing item price and quantity",
+   "input": "cart.add_item(\"dup\", 10.0, 2) followed by cart.add_item(\"dup\", 15.0, 4)",
+   "expected": "cart.view_items() returns {\"dup\": {\"price\": 15.0, \"quantity\": 4}}",
+   "rationale": "Docstring says 'Add item information to the shopping list items'; underlying dict implementation implies overwriting existing keys with new metadata.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when remove_item is called with a quantity greater than currently held (e.g., negative resulting quantity).",
+  "Behavior when add_item is called with a negative quantity.",
+  "Whether an item should be automatically removed from the dictionary when its quantity reaches 0 after removal, or kept with quantity 0.",
+  "Whether add_item merges quantities for duplicate items or strictly overwrites them."
+ ]
+}

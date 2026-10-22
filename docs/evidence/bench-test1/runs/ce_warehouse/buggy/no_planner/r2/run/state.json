@@ -1,0 +1,158 @@
+{
+ "status": "forced",
+ "next": "END",
+ "round": 2,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "class Warehouse:\n    \"\"\"\n    The class manages inventory and orders, including adding products, updating product quantities, retrieving product quantities, creating orders, changing order statuses, and tracking orders.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initialize two fields.\n        self.inventory is a dict that stores the products.\n        self.inventory = {Product ID: Product}\n        self.orders is a dict that stores the products in a order.\n        self.orders = {Order ID: Order}\n        \"\"\"\n        self.inventory = {}\n        self.orders = {}\n\n    def add_product(self, product_id, name, quantity):\n        \"\"\"\n        Add product to inventory and plus the quantity if it has existed in inventory.\n        Or just add new product to dict otherwise.\n        :param product_id: int\n        :param name: str, product name\n        :param quantity: int, product quantity\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.inventory\n        {1: {'name': 'product1', 'quantity': 3}}\n        \"\"\"\n        if product_id not in self.inventory:\n            self.inventory[product_id] = {'name': name, 'quantity': quantity}\n        else:\n            self.inventory[product_id]['quantity'] = quantity\n\n    def update_product_quantity(self, product_id, quantity):\n        \"\"\"\n        According to product_id, add the quantity to the corresponding product in inventory.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.update_product_quantity(1, -1)\n        >>> warehouse.inventory\n        {1: {'name': 'product1', 'quantity': 2}}\n        \"\"\"\n        if product_id in self.inventory:\n            self.inventory[product_id]['quantity'] += quantity\n\n    def get_product_quantity(self, product_id):\n        \"\"\"\n        Get the quantity of specific product by product_id.\n        :param product_id, int\n        :return: if the product_id is in inventory then return the corresponding quantity,\n                or False otherwise.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.get_product_quantity(1)\n        3\n        >>> warehouse.get_product_quantity(2)\n        False\n        \"\"\"\n        if product_id in self.inventory:\n            return self.inventory[product_id]['quantity']\n        else:\n            return False\n\n    def create_order(self, order_id, product_id, quantity):\n        \"\"\"\n        Create a order which includes the infomation of product, like id and quantity.\n        And put the new order into self.orders.\n        The default value of status is 'Shipped'.\n        :param order_id: int\n        :param product_id: int\n        :param quantity: the quantity of product that be selected.\n        :return False: only if product_id is not in inventory or the quantity is not adequate\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.orders\n        {1: {'product_id': 1, 'quantity': 2, 'status': 'Shipped'}}\n        >>> warehouse.create_order(1, 2, 2)\n        False\n        \"\"\"\n        if self.get_product_quantity(product_id) >= quantity:\n            self.update_product_quantity(product_id, -quantity)\n            self.orders[order_id] = {'product_id': product_id, 'quantity': quantity, 'status': 'Shipped'}\n        else:\n            return False\n\n    def change_order_status(self, order_id, status):\n        \"\"\"\n        Change the status of order if the input order_id is in self.orders.\n        :param order_id: int\n        :param status: str, the state that is going to change to\n        :return False: only if the order_id is not in self.orders\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.change_order_status(1, \"done\")\n        >>> warehouse.orders\n        {1: {'product_id': 1, 'quantity': 2, 'status': 'done'}}\n        \"\"\"\n        if order_id in self.orders:\n            self.orders[order_id]['status'] = status\n        else:\n            return False\n\n    def track_order(self, order_id):\n        \"\"\"\n        Get the status of specific order.\n        :param order_id: int\n        :return False: only if the order_id is not in self.orders.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.track_order(1)\n        'Shipped'\n        \"\"\"\n        if order_id in self.orders:\n            return self.orders[order_id]['status']\n        else:\n            return False\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/buggy/no_planner/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_add_product_creates_entry",
+    "test_add_product_replaces_quantity",
+    "test_get_product_quantity_returns_false_for_missing",
+    "test_create_order_deducts_stock_and_sets_shipped",
+    "test_create_order_insufficient_stock_returns_false",
+    "test_track_order_returns_false_for_missing"
+   ],
+   "failed": [],
+   "attempts": 12,
+   "turns": 8,
+   "final_text": "tly skipped), zero delta.\n2. **`change_order_status`** — Not tested. Missing cases: valid status change, changing to various string values, calling on non-existent order (should return `False`).\n3. **Edge cases for `create_order`** — Ordering exactly the available quantity (boundary), ordering zero quantity, multiple sequential orders depleting stock to zero.\n4. **Return type discrimination** — `get_product_quantity` returns either `int` or `False`; no test checks that the return type is strictly one of these two (e.g., could accidentally return `None`).\n5. **`add_product` with zero or negative quantity** — The contract doesn't forbid these, but they may represent invalid business states.\n6. **Order ID collision** — Creating an order with an existing `order_id` would overwrite; not tested."
+  },
+  {
+   "round": 2,
+   "status": "max_turns",
+   "accepted": [
+    "test_update_product_quantity_adds_to_existing",
+    "test_change_order_status_success",
+    "test_change_order_status_missing_order_returns_false",
+    "test_track_order_valid_order_returns_status",
+    "test_create_order_nonexistent_product_returns_false"
+   ],
+   "failed": [
+    {
+     "name": "test_add_product_adds_quantity_on_existing",
+     "plan_ids": [],
+     "code": "from solution import Warehouse\n\ndef test_add_product_adds_quantity_on_existing():\n    \"\"\"\n    Contract quote: 'Add product to inventory and plus the quantity if it has existed in inventory.'\n    Input domain: product_id=1 already exists with quantity 5; add_product(1, 'widget', 3) called again.\n    Oracle: Per spec, existing quantity should be incremented by new quantity: 5 + 3 = 8.\n    Fault hypothesis: Implementation replaces quantity instead of adding (line 31 uses assignment), so result would be 3 instead of 8.\n    \"\"\"\n    wh = Warehouse()\n    wh.add_product(1, 'widget', 5)\n    wh.add_product(1, 'widget', 3)\n    assert wh.inventory[1]['quantity'] == 8",
+     "oracle_reason": "Per spec, existing quantity should be incremented by new quantity: 5 + 3 = 8",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_add_product_adds_quantity_on_existing __________________\ntest_solution.py:13: in test_add_product_adds_quantity_on_existing\n    assert wh.inventory[1]['quantity'] == 8\nE   assert 3 == 8\n=========================== short test summary info ============================\nFAILED test_solution.py::test_add_product_adds_quantity_on_existing - assert ...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 7,
+   "turns": 8,
+   "final_text": "Good — 5 tests were accepted. The `test_add_product_adds_quantity_on_existing` failed because the implementation has a documented bug (replaces instead of adds per spec). Now I need to:\n\n1. **Fix** `test_add_product_replaces_quantity` in-place to expect addition (per spec), even though the implementation is buggy — this documents the spec-vs-implementation gap.\n2. Clean up the duplicate header comment.\n3. Submit any remaining new tests."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.8571428571428571,
+   "missing_lines": [
+    95,
+    96,
+    98,
+    111
+   ],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   }
+  },
+  {
+   "round": 2,
+   "tests": 11,
+   "pytest": {
+    "passed": 11,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "revise",
+   "verdicts": [],
+   "instructions": [
+    "Fix test_add_product_replaces_quantity to expect the new quantity to be added to the existing quantity, as mandated by the specification.",
+    "Add tests for update_product_quantity to verify it correctly adds the specified quantity to an existing product.",
+    "Add tests for change_order_status covering both successful status updates and the case where order_id is missing (should return False).",
+    "Add a test for track_order with a valid order_id to verify it returns the correct status string.",
+    "Add a test for create_order with a non-existent product_id. The specification requires returning False, but the implementation currently raises a TypeError. Flag this as a suspected bug in the implementation."
+   ]
+  },
+  {
+   "round": 2,
+   "decision": "revise",
+   "verdicts": [
+    {
+     "test": "test_add_product_adds_quantity_on_existing",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly follows the specification requirement to 'plus the quantity if it has existed in inventory'. The implementation incorrectly replaces the quantity instead of incrementing it."
+    }
+   ],
+   "instructions": [
+    "Report suspected bug: `add_product` incorrectly assigns the new quantity instead of adding it to the existing quantity when the product already exists, violating the specification."
+   ]
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_add_product_adds_quantity_on_existing",
+   "plan_ids": [],
+   "code": "from solution import Warehouse\n\ndef test_add_product_adds_quantity_on_existing():\n    \"\"\"\n    Contract quote: 'Add product to inventory and plus the quantity if it has existed in inventory.'\n    Input domain: product_id=1 already exists with quantity 5; add_product(1, 'widget', 3) called again.\n    Oracle: Per spec, existing quantity should be incremented by new quantity: 5 + 3 = 8.\n    Fault hypothesis: Implementation replaces quantity instead of adding (line 31 uses assignment), so result would be 3 instead of 8.\n    \"\"\"\n    wh = Warehouse()\n    wh.add_product(1, 'widget', 5)\n    wh.add_product(1, 'widget', 3)\n    assert wh.inventory[1]['quantity'] == 8",
+   "oracle_reason": "Per spec, existing quantity should be incremented by new quantity: 5 + 3 = 8",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_add_product_adds_quantity_on_existing __________________\ntest_solution.py:13: in test_add_product_adds_quantity_on_existing\n    assert wh.inventory[1]['quantity'] == 8\nE   assert 3 == 8\n=========================== short test summary info ============================\nFAILED test_solution.py::test_add_product_adds_quantity_on_existing - assert ...\n1 failed in 0.01s\n",
+   "reason": "The test correctly follows the specification requirement to 'plus the quantity if it has existed in inventory'. The implementation incorrectly replaces the quantity instead of incrementing it.",
+   "round": 2
+  }
+ ],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 16,
+   "tokens": 115721
+  },
+  "reviewer": {
+   "calls": 2,
+   "tokens": 11943
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/buggy/no_planner/r2/input/solution.py"
+}

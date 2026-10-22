@@ -1,0 +1,104 @@
+{
+ "summary": "Simulates a vending machine that manages product inventory, customer balance, purchases, restocking, and status display.",
+ "input_domain": "item_name (str), price (float), quantity (int), amount (float). Internal state comprises a dictionary mapping item names to {'price': float, 'quantity': int} and a float balance.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Initialize machine state",
+   "input": "v = VendingMachine()",
+   "expected": "v.inventory == {} and v.balance == 0.0",
+   "rationale": "Docstring states it 'Initializes the vending machine's inventory and balance.' Doctest examples implicitly show an empty dict and zero balance.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Add a new product to inventory",
+   "input": "v.add_item('Coke', 1.25, 10)",
+   "expected": "v.inventory['Coke'] == {'price': 1.25, 'quantity': 10}",
+   "rationale": "Directly matches the doctest example showing the expected dictionary structure after addition.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Insert coins into the machine",
+   "input": "v.insert_coin(2.50)",
+   "expected": "2.50",
+   "rationale": "Docstring specifies ':return: The balance of the vending machine after the coins are inserted, float.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Purchase item with exact balance",
+   "input": "v.inventory={'Coke':{'price':1.25,'quantity':5}}; v.balance=1.25; v.purchase_item('Coke')",
+   "expected": "0.0",
+   "rationale": "Doctest example shows purchasing with exact funds returns a balance of 0.0, implying price deduction from balance.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "state",
+   "behavior": "Attempt purchase when out of stock",
+   "input": "v.inventory={'Soda':{'price':1.0,'quantity':0}}; v.balance=1.0; v.purchase_item('Soda')",
+   "expected": "False",
+   "rationale": "Specification states it 'returns False... if the product is out of stock.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "Restock an existing item",
+   "input": "v.inventory={'Coke':{'price':1.25,'quantity':10}}; v.restock_item('Coke', 5)",
+   "expected": "True and v.inventory['Coke']['quantity'] == 15",
+   "rationale": "Docstring example returns True for existing items; the method description 'Replenishes the inventory' implies incrementing the quantity.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P7",
+   "category": "empty",
+   "behavior": "Display items when inventory is empty",
+   "input": "v.display_items()",
+   "expected": "False",
+   "rationale": "Docstring explicitly states: 'If the vending machine is empty, returns False'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Display items when inventory has one product",
+   "input": "v.inventory={'Coke':{'price':1.25,'quantity':10}}; v.display_items()",
+   "expected": "'Coke - $1.25 [10]'",
+   "rationale": "Doctest example provides the exact formatting pattern for a single item entry.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Transaction sequence invariant",
+   "input": "v.add_item('X', 5.0, 2); v.insert_coin(5.0); v.purchase_item('X')",
+   "expected": "v.balance == 0.0 and v.inventory['X']['quantity'] == 1",
+   "rationale": "Specification implies balance tracks funds and quantity decrements upon successful purchase, maintaining state consistency across calls.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "boundary",
+   "behavior": "Insert zero-value coin",
+   "input": "v.insert_coin(0.0)",
+   "expected": "0.0",
+   "rationale": "Float type permits 0.0; logically adds nothing to balance, returning the current balance (0.0). Spec does not restrict zero amounts.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when insert_coin or purchase_item receives negative float values.",
+  "Behavior when add_item is called with quantity <= 0.",
+  "Behavior when purchase_item is called with insufficient balance (balance < price).",
+  "Formatting/output structure when display_items contains multiple distinct products.",
+  "Whether restock_item accepts negative quantities or how it handles them.",
+  "Floating-point precision and rounding rules for balance calculations and price comparisons."
+ ]
+}

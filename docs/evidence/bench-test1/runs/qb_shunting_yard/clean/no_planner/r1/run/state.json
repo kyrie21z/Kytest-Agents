@@ -1,0 +1,84 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n            opstack.append(token)\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/no_planner/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_basic_subtraction",
+    "test_mixed_precedence",
+    "test_complex_expression",
+    "test_empty_input",
+    "test_single_number",
+    "test_left_associativity_multiplication"
+   ],
+   "failed": [],
+   "attempts": 7,
+   "turns": 5,
+   "final_text": "eses handling**: Parenthesized subexpressions aren't in the token vocabulary (`'+-*/'` only), so this isn't tested — but it means the function can't handle grouping.\n3. **No negative number literals**: Tokens like `-5` would be misinterpreted as an operator followed by a number. The precondition allows this ambiguity.\n4. **No invalid-input validation**: Per instructions, we don't assume the function validates inputs; passing non-int/non-operator tokens could cause `KeyError` or `TypeError`.\n5. **Limited arithmetic depth**: Only small examples are used; no stress testing of long expressions or many repeated operators.\n6. **Return-type checked only for empty/single cases**: Other tests implicitly check return type via equality assertion but don't explicitly assert `isinstance(result, list)`."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.6666666666666666,
+    "killed": 2,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 5,
+   "tokens": 23315
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 4331
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/no_planner/r1/input/solution.py"
+}

@@ -1,0 +1,93 @@
+{
+ "summary": "Converts a comma-separated string of tags into a deduplicated, ordered list of lowercase, whitespace-stripped tags.",
+ "input_domain": "Strings containing comma-separated substrings, potentially with leading/trailing whitespace, internal spaces, mixed case, and duplicate values.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Standard mixed case and whitespace handling with duplicates and empty slots",
+   "input": "\" Python, ML ,python,, Data \"",
+   "expected": "['python', 'ml', 'data']",
+   "rationale": "Matches the provided doctest example. Spec states tags are stripped, lower-cased, empty tags dropped, duplicates removed keeping first occurrence and original order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Input is an empty string",
+   "input": "\"\"",
+   "expected": "[]",
+   "rationale": "Spec says 'A string without any non-empty tag gives an empty list.' An empty string contains no tags to parse.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Input contains only commas and whitespace",
+   "input": "\"   , ,  \"",
+   "expected": "[]",
+   "rationale": "Spec states 'Empty tags (including ones that are only whitespace) are dropped.' All resulting tokens are empty/whitespace-only and thus removed.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Duplicate tags with different casing",
+   "input": "\"Apple, apple, APPLE\"",
+   "expected": "['apple']",
+   "rationale": "Spec requires removing duplicates 'compared after normalization' and keeping 'only the first occurrence'. After normalization, all three become 'apple', so only the first remains.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Preservation of original order with interleaved duplicates",
+   "input": "\"B, A, b, a\"",
+   "expected": "['b', 'a']",
+   "rationale": "Spec mandates that 'the remaining tags keep their original order.' First occurrences are 'B' and 'A'; subsequent 'b' and 'a' are duplicates and dropped.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Tags containing internal spaces",
+   "input": "\"Data Science, Machine Learning\"",
+   "expected": "['data science', 'machine learning']",
+   "rationale": "Spec says each tag is 'stripped of surrounding whitespace and lower-cased.' Internal spaces are not surrounding, so they are preserved.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Single tag with leading/trailing whitespace",
+   "input": "\"  hello  \"",
+   "expected": "['hello']",
+   "rationale": "Spec states tags are stripped of surrounding whitespace and lower-cased. A single valid tag should return a list with one element.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "String with only commas",
+   "input": "\",,,,\"",
+   "expected": "[]",
+   "rationale": "Splitting by comma yields only empty strings. Spec says 'Empty tags ... are dropped.', resulting in an empty list.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "Mixed valid and invalid (empty) tags with duplicates",
+   "input": "\"  Tag1 , TAG2 , tag1 ,  \"",
+   "expected": "['tag1', 'tag2']",
+   "rationale": "Stripping and lowercasing yields 'tag1', 'tag2', 'tag1'. The third is a duplicate of the first and is dropped. Order of first occurrences is preserved.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when `text` is not a string (e.g., int, None, bytes). The spec does not define type checking or error handling.",
+  "Definition of 'whitespace': whether it strictly means ASCII spaces, or also tabs (`\\t`) and newlines (`\\n`). Python's `.strip()` handles all, but the spec wording is implicit.",
+  "Behavior with non-comma delimiters (e.g., semicolons or spaces acting as separators). Spec explicitly says 'comma-separated', implying other delimiters are not supported or treated as part of the tag.",
+  "Performance constraints or maximum string length limits. Not specified."
+ ]
+}

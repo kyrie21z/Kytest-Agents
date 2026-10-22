@@ -1,0 +1,74 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n            opstack.append(token)\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_empty_input",
+    "test_single_number",
+    "test_left_associativity_same_precedence",
+    "test_precedence_multiplication_over_addition",
+    "test_division_and_subtraction_ordering",
+    "test_complex_docstring_example",
+    "test_consecutive_same_precedence_ops",
+    "test_higher_then_lower_precedence_drain"
+   ],
+   "failed": [],
+   "attempts": 16,
+   "turns": 8,
+   "final_text": "/` associativity test** — The algorithm treats division as left-associative, which differs from standard mathematical convention. A dedicated test could catch this if the contract expected right-associativity.\n2. **No multi-operator interaction test** — All four operators (`+`, `-`, `*`, `/`) together in one expression would stress the full precedence matrix.\n3. **No invalid-input behavior** — The precondition guarantees valid tokens but does not promise error handling; tests don't cover what happens with strings or floats.\n4. **No large-scale stress test** — Long token chains could expose stack-depth or off-by-one issues, though the algorithm is O(n).\n5. **No negative number handling** — While integers can be negative, the algorithm doesn't distinguish unary minus from binary subtraction."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 8,
+   "pytest": {
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.6666666666666666,
+    "killed": 2,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 58118
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/single/r1/input/solution.py"
+}

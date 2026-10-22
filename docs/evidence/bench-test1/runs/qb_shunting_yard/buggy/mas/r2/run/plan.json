@@ -1,0 +1,84 @@
+{
+ "summary": "Transforms a list of integer and operator tokens representing an infix arithmetic expression into an equivalent list of tokens in Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm.",
+ "input_domain": "Lists of tokens where every token is either an integer or one of the string characters '+', '-', '*', '/'.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Converts a simple left-associative subtraction chain to RPN",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Directly matches Example 1 in the specification, verifying basic left-to-right processing of equal-precedence operators.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Handles mixed operator precedence (division over subtraction)",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Matches Example 2. Demonstrates that higher-precedence operators appear earlier in the RPN output than lower-precedence ones.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Processes a complex expression with interleaved addition, multiplication, and subtraction",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Matches Example 3. Validates correct stack management and precedence handling across multiple operator types.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Returns unchanged list for a single operand",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Minimal valid input satisfying the precondition. An RPN expression with one value requires no reordering.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Converts the simplest non-trivial infix expression",
+   "input": "[3, '+', 7]",
+   "expected": "[3, 7, '+']",
+   "rationale": "Tests the base conversion step for two operands and one operator, ensuring the operator correctly follows its operands in RPN.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "empty",
+   "behavior": "Handles an empty input list gracefully",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "The precondition holds vacuously for an empty list. The specification implies transformation of tokens, so an empty input should yield an empty output.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Preserves all original tokens (multiset equality)",
+   "input": "[1, '+', 2, '*', 3, '-', 4]",
+   "expected": "Output list contains exactly the same elements as input (one '1', one '2', one '3', one '4', one '+', one '*', one '-') in some order.",
+   "rationale": "Specification states output is 'The input tokens reordered'. This verifies the algorithm does not drop, duplicate, or alter tokens.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Enforces standard mathematical precedence (multiplication before addition)",
+   "input": "[5, '+', 6, '*', 2]",
+   "expected": "[5, 6, 2, '*', '+']",
+   "rationale": "Cites 'equivalent Reverse Polish Notation'. In standard arithmetic, '*' has higher precedence than '+', so '6 * 2' must be evaluated first, placing '*' before '+' in RPN.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "How should the function behave when the precondition is violated (e.g., tokens containing parentheses, floats, or other strings)? The spec defines this as undefined behaviour.",
+  "Does the function modify the input list in-place or return a new list? The spec says 'reordered', which typically implies a new list, but this is not explicit.",
+  "Are unary operators supported? The precondition only allows binary-looking tokens, but real-world shunting-yard handles unary minus. The spec does not clarify.",
+  "What is the associativity rule for operators of equal precedence (e.g., left vs right)? Standard math uses left-associativity, but the spec does not explicitly state it."
+ ]
+}

@@ -1,0 +1,97 @@
+{
+ "summary": "Distributes a non-negative integer total into integer shares proportional to a list of non-negative weights. Base shares are computed via floor division, and remaining units are allocated to entries with the largest fractional remainders, breaking ties by lower index. Zero-weight entries always receive zero.",
+ "input_domain": "total: int >= 0; weights: list[int], len >= 1, all elements >= 0, at least one element > 0",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns equal-ish distribution when weights are uniform and total is not evenly divisible by count.",
+   "input": "(100, [1, 1, 1])",
+   "expected": "[34, 33, 33]",
+   "rationale": "Directly matches the first docstring example. Verifies floor allocation plus remainder distribution.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Handles zero-weight entries correctly while distributing proportionally among positive weights.",
+   "input": "(10, [3, 0, 7])",
+   "expected": "[3, 0, 7]",
+   "rationale": "Matches the second docstring example. Spec states: 'Entries with weight 0 always receive 0.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Returns all zeros when total is at its minimum allowed value.",
+   "input": "(0, [2, 3])",
+   "expected": "[0, 0]",
+   "rationale": "Spec restricts total to non-negative integers. At total=0, floor(0*w/S)=0 for all w, leaving no units to distribute.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Applies tie-breaking rule when multiple entries share the largest fractional remainder.",
+   "input": "(5, [1, 1])",
+   "expected": "[3, 2]",
+   "rationale": "Spec states: 'ties go to the entry with the lower index.' Both indices have remainder 1 (fraction 0.5); index 0 receives the extra unit.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Result list sums exactly to the input total.",
+   "input": "(10, [1, 2, 3])",
+   "expected": "[1, 3, 6]",
+   "rationale": "Spec guarantees: 'The result is a new list of ints... summing to total.' Floors yield [1,3,5] (sum 9); remainder 1 goes to index 2 (largest remainder 4 vs 2 vs 0).",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Rejects negative total values.",
+   "input": "(-5, [1, 2])",
+   "expected": "Raises ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if total is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "Rejects empty weight lists.",
+   "input": "(10, [])",
+   "expected": "Raises ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if ... weights is empty'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Rejects lists where all weights are zero.",
+   "input": "(10, [0, 0])",
+   "expected": "Raises ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if ... all weights are zero'. Division by zero would otherwise occur.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "Rejects lists containing negative weights.",
+   "input": "(10, [1, -1])",
+   "expected": "Raises ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if ... any weight is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "boundary",
+   "behavior": "Handles single-element weight list correctly.",
+   "input": "(42, [7])",
+   "expected": "[42]",
+   "rationale": "Spec requires at least one positive entry. With a single weight, floor(42*7/7)=42 and remainder=0, so the sole entry receives the full total.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": []
+}

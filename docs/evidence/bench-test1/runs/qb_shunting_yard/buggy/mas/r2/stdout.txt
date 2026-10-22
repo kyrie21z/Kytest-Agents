@@ -1,0 +1,8 @@
+status: accepted   rounds: 2   path: planner -> testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+plan: 8 items, 4 ambiguities
+tests: 2 accepted   coverage: 0.8333333333333333   dev mutants killed: 0/3   plan cited: 1.0
+review r1: revise  test_p1_simple_left_associative_subtraction=suspected_bug, test_p2_mixed_precedence_division_over_subtraction=suspected_bug, test_p3_complex_interleaved_operators=suspected_bug, test_p5_simplest_non_trivial_infix=suspected_bug
+review r2: accept  test_p1_left_assoc_subtraction=suspected_bug, test_p2_division_over_subtraction=suspected_bug, test_p3_complex_interleaved=suspected_bug, test_p5_simplest_infix=suspected_bug, test_p7_token_preservation=suspected_bug, test_p8_precedence_multiplication_before_addition=suspected_bug
+suspected bugs: 10 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/mas/r2/run/bug_report.md
+usage: {"planner": {"calls": 1, "tokens": 7145}, "testgen": {"calls": 16, "tokens": 105681}, "reviewer": {"calls": 2, "tokens": 14493}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/mas/r2/run

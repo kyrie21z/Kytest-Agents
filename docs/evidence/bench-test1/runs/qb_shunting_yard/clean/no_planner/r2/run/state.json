@@ -1,0 +1,84 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n            opstack.append(token)\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/no_planner/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_empty_input",
+    "test_single_number",
+    "test_simple_subtraction",
+    "test_mixed_precedence",
+    "test_complex_expression",
+    "test_left_to_right_associativity"
+   ],
+   "failed": [],
+   "attempts": 10,
+   "turns": 5,
+   "final_text": "rs**: The function treats `-` strictly as an operator, not a unary negation sign. No test covers negative literals like `[-5]` (though these are valid per the precondition since `-5` is an int).\n\n3. **Zero and edge-case integers**: Only positive values like `42`, `10`, `34` are tested. Zero, `0`, and very large integers aren't covered, though they should pass trivially.\n\n4. **Operator-only sequences**: Cases like `['+', '-']` or `['*', '*', '*']` (operators without operands) satisfy the precondition but produce semantically meaningless RPN. These could reveal stack-underflow bugs if the implementation were different.\n\n5. **Return type consistency**: While we check `isinstance(result, list)`, there's no explicit check that all elements in the output are either ints or strings from `'+-*/'`."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.6666666666666666,
+    "killed": 2,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 5,
+   "tokens": 25198
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 5128
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/no_planner/r2/input/solution.py"
+}

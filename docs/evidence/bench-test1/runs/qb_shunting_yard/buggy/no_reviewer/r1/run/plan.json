@@ -1,0 +1,84 @@
+{
+ "summary": "Converts a list of integer operands and binary operator tokens ('+', '-', '*', '/') from infix notation to equivalent Reverse Polish Notation (RPN) using standard precedence (*, / > +, -) and left associativity.",
+ "input_domain": "List of tokens where each token is either an int or one of the strings '+', '-', '*', '/'",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Converts simple left-associative subtraction chain",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Directly matches Example 1 in specification.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Handles mixed precedence (subtraction vs division)",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Directly matches Example 2 in specification.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Handles complex mix of addition, multiplication, and subtraction",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Directly matches Example 3 in specification.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Returns empty list for empty input",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "Precondition holds vacuously for empty lists; logically, no tokens to reorder yields empty output.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Returns single-element list unchanged for single operand",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Boundary case with minimum non-empty input; no operators require reordering per shunting-yard rules.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Verifies higher precedence of multiplication over addition",
+   "input": "[2, '*', 3, '+', 4]",
+   "expected": "[2, 3, '*', 4, '+']",
+   "rationale": "Tests standard operator precedence where '*' binds tighter than '+', consistent with Dijkstra's shunting-yard algorithm description.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Verifies left associativity of equal precedence operators",
+   "input": "[10, '+', 20, '-', 5]",
+   "expected": "[10, 20, '+', 5, '-']",
+   "rationale": "Tests that '+' and '-' (same precedence) are processed left-to-right, matching Example 1 pattern and standard arithmetic rules.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Maintains correct output queue and operator stack through chained operations",
+   "input": "[1, '+', 2, '*', 3, '/', 4]",
+   "expected": "[1, 2, '+', 3, 4, '/', '*']",
+   "rationale": "Property test verifying cumulative state transitions of the shunting-yard algorithm across multiple precedence levels without intermediate side effects.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Float operands (e.g., [1.5, '+', 2]): Precondition specifies isinstance(token, int), making floats invalid. Behavior on violation is undefined.",
+  "Parenthesized expressions (e.g., [1, '+', 2, '*', 3]): Precondition restricts tokens to ints and '+-*/'; parentheses are excluded. If present, behavior is undefined.",
+  "Malformed infix expressions (e.g., [1, '+']): Token types satisfy precondition, but syntactic validity isn't checked. Expected behavior for unbalanced expressions is unspecified.",
+  "Negative numbers represented as separate tokens (e.g., [-, 5, '+', 3]): Precondition allows '-' as a token. It's unclear if '-' acts as unary negation or binary subtraction. Shunting-yard typically handles unary via distinct tokens or flags, which isn't specified."
+ ]
+}

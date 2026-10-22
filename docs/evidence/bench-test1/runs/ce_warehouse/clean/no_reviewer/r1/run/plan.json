@@ -1,0 +1,103 @@
+{
+ "summary": "Manages warehouse inventory and orders, supporting product addition/quantity updates/retrieval, order creation/status tracking/modification, with explicit failure returns for missing products/orders or inadequate stock.",
+ "input_domain": "product_id: int, name: str, quantity: int, order_id: int, status: str. All identifiers are integers. Quantities and statuses are integers and strings respectively.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add a new product to inventory",
+   "input": "warehouse.add_product(1, \"A\", 5)",
+   "expected": "warehouse.inventory[1] == {\"name\": \"A\", \"quantity\": 5}",
+   "rationale": "Docstring states: 'Or just add new product to dict otherwise.' and provides example showing the exact structure.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Accumulate quantity for an existing product",
+   "input": "warehouse.add_product(1, \"A\", 3)",
+   "expected": "warehouse.inventory[1][\"quantity\"] == 8",
+   "rationale": "Docstring states: 'plus the quantity if it has existed in inventory.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Decrease quantity using a negative update value",
+   "input": "warehouse.update_product_quantity(1, -2)",
+   "expected": "warehouse.inventory[1][\"quantity\"] == 6",
+   "rationale": "Docstring example demonstrates: 'warehouse.update_product_quantity(1, -1)' reducing the quantity, implying arithmetic addition of the provided integer.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Retrieve quantity for a non-existent product",
+   "input": "warehouse.get_product_quantity(999)",
+   "expected": "False",
+   "rationale": "Docstring specifies: 'if the product_id is in inventory then return the corresponding quantity, or False otherwise.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Create an order referencing a non-existent product",
+   "input": "warehouse.create_order(10, 999, 2)",
+   "expected": "False",
+   "rationale": "Docstring specifies: ':return False: only if product_id is not in inventory'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Create an order with insufficient stock",
+   "input": "warehouse.create_order(11, 1, 100)",
+   "expected": "False",
+   "rationale": "Docstring specifies: ':return False: only if ... the quantity is not adequate'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "Verify default order status upon creation and retrieval",
+   "input": "warehouse.create_order(12, 1, 1) followed by warehouse.track_order(12)",
+   "expected": "'Shipped'",
+   "rationale": "Docstring states: 'The default value of status is \\'Shipped\\'.' and track_order returns the order status.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "state",
+   "behavior": "Successfully update an existing order's status",
+   "input": "warehouse.change_order_status(12, \"Delivered\")",
+   "expected": "warehouse.orders[12][\"status\"] == \"Delivered\"",
+   "rationale": "Docstring states: 'Change the status of order if the input order_id is in self.orders.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "Attempt to change status of a non-existent order",
+   "input": "warehouse.change_order_status(999, \"Cancelled\")",
+   "expected": "False",
+   "rationale": "Docstring specifies: ':return False: only if the order_id is not in self.orders'",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "boundary",
+   "behavior": "Create an order with quantity exactly equal to available stock",
+   "input": "warehouse.create_order(13, 1, 6)",
+   "expected": "Order successfully added to warehouse.orders",
+   "rationale": "Docstring failure condition is 'quantity is not adequate', which implies a strict less-than check (<); exact equality should satisfy the requirement.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "What is the return value of add_product, update_product_quantity, create_order, and change_order_status on successful execution? (Only failures specify returning False)",
+  "Does create_order deduct the ordered quantity from self.inventory after checking adequacy? (Spec mentions checking but not updating inventory)",
+  "How does update_product_quantity behave if called with a product_id not present in inventory? (Spec does not define)",
+  "What happens if create_order is called with an order_id that already exists in self.orders? (Spec does not specify overwrite vs error)",
+  "Are negative total quantities allowed in inventory after add_product or update_product_quantity? (Spec only shows one negative delta example)"
+ ]
+}

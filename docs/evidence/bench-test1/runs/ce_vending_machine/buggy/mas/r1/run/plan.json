@@ -1,0 +1,84 @@
+{
+ "summary": "Simulates a vending machine that manages product inventory, tracks customer balance, processes purchases, handles restocking, and displays current items.",
+ "input_domain": "Strings for item names, floats for prices and coin amounts, integers for quantities. Internal state comprises a dictionary mapping item names to price/quantity objects and a float balance initialized to 0.0.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "add_item populates inventory with correct structure",
+   "input": "v.add_item('Coke', 1.25, 10)",
+   "expected": "v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}",
+   "rationale": "Docstring example explicitly defines the inventory dictionary structure with 'price' and 'quantity' keys upon adding an item.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "insert_coin accumulates balance correctly",
+   "input": "v.insert_coin(2.5)",
+   "expected": "2.5",
+   "rationale": "Specification states the method returns 'The balance of the vending machine after the coins are inserted'. Starting balance is implicitly 0.0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "state",
+   "behavior": "purchase_item succeeds with exact funds and updates state",
+   "input": "v.inventory={'A':{'price':1.0,'quantity':1}}, v.balance=1.0, v.purchase_item('A')",
+   "expected": "0.0",
+   "rationale": "Docstring example demonstrates that a successful purchase returns the remaining balance (0.0) and implies inventory quantity is decremented.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "display_items returns False when inventory is empty",
+   "input": "v.display_items() (on fresh instance)",
+   "expected": "False",
+   "rationale": "Specification explicitly states: 'If the vending machine is empty, returns False'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "purchase_item returns False for non-existent items",
+   "input": "v.purchase_item('Missing')",
+   "expected": "False",
+   "rationale": "Specification states: 'returns False' if the product is out of stock or purchase is unsuccessful.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "insert_coin accepts zero amount without altering balance",
+   "input": "v.insert_coin(0.0)",
+   "expected": "0.0",
+   "rationale": "Zero is a valid numeric boundary for float amounts; the method should handle it gracefully per the float contract without side effects.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "restock_item increments quantity for existing items",
+   "input": "v.inventory={'B':{'price':2.0,'quantity':3}}, v.restock_item('B', 4)",
+   "expected": "True (quantity becomes 7)",
+   "rationale": "Specification states it 'Replenishes the inventory' and returns True if the product already exists.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "purchase_item prevents negative balance on insufficient funds",
+   "input": "v.inventory={'C':{'price':5.0,'quantity':1}}, v.balance=2.0, v.purchase_item('C')",
+   "expected": "False",
+   "rationale": "Specification mandates returning False for unsuccessful purchases; logical invariant dictates balance cannot go negative.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "display_items return type contradiction: docstring claims 'returns a list of the products... str' but example shows a single formatted string. Formatting rules for multiple items are undefined.",
+  "Insufficient funds behavior: spec says returns False if unsuccessful, but does not specify whether partial payments are refunded, if quantity is decremented on failed attempts, or how it differs from out-of-stock logic.",
+  "Degenerate inputs: spec defines price as float and quantity as int but does not restrict negative prices, zero quantities, or negative coin amounts. These violate implicit business rules but lack explicit preconditions.",
+  "Initial state assumptions: __init__ docstring says it initializes inventory and balance but does not specify default values (assumed {} and 0.0). Tests relying on these defaults may break if implementation differs."
+ ]
+}

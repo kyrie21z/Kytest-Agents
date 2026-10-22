@@ -1,0 +1,430 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 2,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def allocate(total, weights):\n    \"\"\"Split a non-negative integer total into integer shares proportional to weights.\n\n    weights is a list of non-negative ints with at least one positive entry.\n    Every entry first receives floor(total * w / sum(weights)). The units left\n    over are then handed out one each to the entries with the largest fractional\n    remainder (total * w mod sum(weights)); ties go to the entry with the lower\n    index. The result is a new list of ints, one per weight, summing to total.\n    Entries with weight 0 always receive 0.\n\n    Raises ValueError if total is negative, weights is empty, any weight is\n    negative, or all weights are zero.\n\n    >>> allocate(100, [1, 1, 1])\n    [34, 33, 33]\n    >>> allocate(10, [3, 0, 7])\n    [3, 0, 7]\n    \"\"\"\n    if total < 0 or not weights or any(w < 0 for w in weights) or not any(weights):\n        raise ValueError(\"invalid allocation request\")\n    whole = sum(weights)\n    shares = [total * w // whole for w in weights]\n    remainders = [total * w % whole for w in weights]\n    leftover = total - sum(shares)\n    order = sorted(range(len(weights)), key=lambda i: (-remainders[i], -i))\n    for i in order[:leftover]:\n        shares[i] += 1\n    return shares\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/mas/r2/run/workspace",
+ "spec": "def allocate(total, weights):\n    \"\"\"Split a non-negative integer total into integer shares proportional to weights.\n\n    weights is a list of non-negative ints with at least one positive entry.\n    Every entry first receives floor(total * w / sum(weights)). The units left\n    over are then handed out one each to the entries with the largest fractional\n    remainder (total * w mod sum(weights)); ties go to the entry with the lower\n    index. The result is a new list of ints, one per weight, summing to total.\n    Entries with weight 0 always receive 0.\n\n    Raises ValueError if total is negative, weights is empty, any weight is\n    negative, or all weights are zero.\n\n    >>> allocate(100, [1, 1, 1])\n    [34, 33, 33]\n    >>> allocate(10, [3, 0, 7])\n    [3, 0, 7]\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Allocates a non-negative integer total into a list of integer shares proportional to a list of non-negative weights. Uses floor division for initial allocation, distributes remaining units to entries with the largest fractional remainders (breaking ties by lower index), ensures zero-weight entries receive zero, and guarantees the result sums to total.",
+  "input_domain": "total: int >= 0; weights: list[int] with length >= 1, all elements >= 0, and at least one element > 0",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Equal weights with odd total requiring remainder distribution",
+    "input": "allocate(100, [1, 1, 1])",
+    "expected": "[34, 33, 33]",
+    "rationale": "Directly matches the first docstring example. Verifies floor division (33 each) and remainder distribution (1 unit to index 0).",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Mixed weights including a zero entry with exact division",
+    "input": "allocate(10, [3, 0, 7])",
+    "expected": "[3, 0, 7]",
+    "rationale": "Matches the second docstring example. Confirms proportional allocation and explicitly validates the rule: 'Entries with weight 0 always receive 0.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "boundary",
+    "behavior": "Minimum valid total (zero)",
+    "input": "allocate(0, [2, 3])",
+    "expected": "[0, 0]",
+    "rationale": "Spec allows non-negative total. With total=0, floor(0*w/S)=0 for all, leaving 0 remainder. Result must be all zeros.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Single weight entry",
+    "input": "allocate(5, [1])",
+    "expected": "[5]",
+    "rationale": "With one weight, floor(5*1/1)=5, remainder=0. Must return a list of length 1 containing the full total.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "Remainder distribution without ties",
+    "input": "allocate(10, [1, 2, 3])",
+    "expected": "[2, 3, 5]",
+    "rationale": "S=6. Base: floor(10/6)=1, floor(20/6)=3, floor(30/6)=5. Sum=9, leftover=1. Remainders: 10%6=4, 20%6=2, 30%6=0. Largest remainder is index 0, which receives the extra unit. Validates remainder logic.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "normal",
+    "behavior": "Tie-breaking rule for equal fractional remainders",
+    "input": "allocate(1, [1, 1])",
+    "expected": "[1, 0]",
+    "rationale": "S=2. Base: 0, 0. Leftover=1. Remainders: 1%2=1 for both. Spec states 'ties go to the entry with the lower index', so index 0 gets the unit. Result [1, 0].",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "property",
+    "behavior": "Result list length matches input weights length",
+    "input": "allocate(50, [10, 20, 30])",
+    "expected": "[9, 16, 25]",
+    "rationale": "Verifies structural invariant: output length == len(weights). Calculation: S=60, base=[8,16,25], leftover=1, rem=[50,40,30] -> idx0 gets +1. Sum=50 matches total.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "error",
+    "behavior": "Negative total triggers ValueError",
+    "input": "allocate(-5, [1, 2])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if total is negative'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "error",
+    "behavior": "Empty weights list triggers ValueError",
+    "input": "allocate(10, [])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if ... weights is empty'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P10",
+    "category": "error",
+    "behavior": "Negative weight triggers ValueError",
+    "input": "allocate(10, [1, -1])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if ... any weight is negative'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P11",
+    "category": "error",
+    "behavior": "All-zero weights triggers ValueError",
+    "input": "allocate(10, [0, 0])",
+    "expected": "ValueError",
+    "rationale": "Spec explicitly states: 'Raises ValueError if ... all weights are zero'. Prevents division by zero in sum(weights).",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": []
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p3_minimum_total_zero",
+    "test_p4_single_weight_entry",
+    "test_p5_remainder_distribution_no_ties",
+    "test_p2_mixed_weights_zero_entry_exact",
+    "test_p8_negative_total",
+    "test_p9_empty_weights",
+    "test_p10_negative_weight",
+    "test_p11_all_zero_weights",
+    "test_extra_large_weights_small_total"
+   ],
+   "failed": [
+    {
+     "name": "test_p6_tie_breaking_lower_index",
+     "plan_ids": [
+      "P6"
+     ],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_p6_tie_breaking_lower_index():\n    \"\"\"P6: Tie-breaking rule for equal fractional remainders.\n    \n    Plan rationale: S=2. Base: 0, 0. Leftover=1. Remainders: 1%2=1 for both. Spec states 'ties go to the entry with the lower index', so index 0 gets the unit. Result [1, 0].\n    Input domain: total=1, weights=[1,1].\n    Oracle: result=[1,0].\n    Fault hypothesis: tie-breaking might give unit to higher index.\n    \"\"\"\n    result = allocate(1, [1, 1])\n    assert result == [1, 0]\n    assert sum(result) == 1\n",
+     "oracle_reason": "S=2, base=[floor(1/2),floor(2/2)]=[0,0], leftover=1, remainders=[1%2,2%2]=[1,0], wait: remainders=[1*1%2,1*1%2]=[1,1], both equal, tie goes to lower index 0, result=[1,0]",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p6_tie_breaking_lower_index _______________________\ntest_solution.py:13: in test_p6_tie_breaking_lower_index\n    assert result == [1, 0]\nE   assert [0, 1] == [1, 0]\nE     \nE     At index 0 diff: 0 != 1\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_tie_breaking_lower_index - assert [0, 1] == ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p1_equal_weights_odd_remainder",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_p1_equal_weights_odd_remainder():\n    \"\"\"P1: Equal weights with odd total requiring remainder distribution.\n    \n    Docstring quote: 'Every entry first receives floor(total * w / sum(weights)).'\n    Input domain: total=100, weights=[1,1,1].\n    Oracle: S=3, base=floor(100/3)=33 each, leftover=1, rem=[1,1,1], idx0 gets +1.\n    Fault hypothesis: implementation might distribute remainder differently or use round().\n    \"\"\"\n    result = allocate(100, [1, 1, 1])\n    assert result == [34, 33, 33]\n    assert len(result) == 3\n    assert sum(result) == 100\n",
+     "oracle_reason": "S=3, base=floor(100*1/3)=33 each, leftover=100-99=1, remainders all equal at 1, tie goes to lower index 0, so result=[34,33,33]",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_p1_equal_weights_odd_remainder ______________________\ntest_solution.py:13: in test_p1_equal_weights_odd_remainder\n    assert result == [34, 33, 33]\nE   assert [33, 33, 34] == [34, 33, 33]\nE     \nE     At index 0 diff: 33 != 34\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_equal_weights_odd_remainder - assert [33, 33...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p7_result_length_matches",
+     "plan_ids": [
+      "P7"
+     ],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_p7_result_length_matches():\n    \"\"\"P7: Result list length matches input weights length.\n    \n    Spec quote: 'The result is a new list of ints, one per weight'\n    Input domain: total=50, weights=[10,20,30].\n    Oracle: S=60, base=[8,16,25], leftover=1, rem=[50,40,30], idx0 gets +1 -> [9,16,25]. Sum=50.\n    Fault hypothesis: output might have wrong length or sum mismatch.\n    \"\"\"\n    result = allocate(50, [10, 20, 30])\n    assert result == [9, 16, 25]\n    assert len(result) == 3\n    assert sum(result) == 50\n",
+     "oracle_reason": "S=60, base=[floor(500/60),floor(1000/60),floor(1500/60)]=[8,16,25], sum=49, leftover=1, remainders=[500%60,1000%60,1500%60]=[50,40,30], largest is idx0, result=[9,16,25]",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p7_result_length_matches _________________________\ntest_solution.py:13: in test_p7_result_length_matches\n    assert result == [9, 16, 25]\nE   assert [8, 17, 25] == [9, 16, 25]\nE     \nE     At index 0 diff: 8 != 9\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p7_result_length_matches - assert [8, 17, 25] =...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_zero_weight_with_remainder",
+     "plan_ids": [],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_extra_zero_weight_with_remainder():\n    \"\"\"Extra: Zero-weight entry never gets extra units even with remainder.\n    \n    Spec quote: 'Entries with weight 0 always receive 0.'\n    Input domain: total=11, weights=[0,5,5].\n    Oracle: S=10, base=[0,5,5], leftover=1, remainders=[0,5,5], idx1 gets +1 -> [0,6,5].\n    Fault hypothesis: zero-weight entry might incorrectly receive an extra unit.\n    \"\"\"\n    result = allocate(11, [0, 5, 5])\n    assert result == [0, 6, 5]\n    assert result[0] == 0\n    assert sum(result) == 11\n",
+     "oracle_reason": "S=10, base=[floor(0/10),floor(55/10),floor(55/10)]=[0,5,5], leftover=1, remainders=[0,5,5], idx1 and idx2 tied at 5, tie goes to lower idx1, result=[0,6,5]",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________ test_extra_zero_weight_with_remainder _____________________\ntest_solution.py:13: in test_extra_zero_weight_with_remainder\n    assert result == [0, 6, 5]\nE   assert [0, 5, 6] == [0, 6, 5]\nE     \nE     At index 1 diff: 5 != 6\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_zero_weight_with_remainder - assert [0, 5...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 15,
+   "turns": 8,
+   "final_text": "P1 now FAILS — implementation returns `[33, 33, 34]` instead of `[34, 33, 33]`. This reveals the same tie-breaking bug as P6: the sort key `-i` puts higher indices first on ties, contrary to spec (\"ties go to the entry with the lower index\"). Per instructions, I leave the expected value unchanged.\n\nNow let me submit additional tests."
+  },
+  {
+   "round": 2,
+   "status": "completed",
+   "accepted": [
+    "test_p7_result_length_and_sum"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_equal_weights_remainder",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_p1_equal_weights_remainder():\n    \"\"\"P1: Equal weights with odd total requiring remainder distribution.\n\n    Docstring quote: '>>> allocate(100, [1, 1, 1])\\n    [34, 33, 33]'\n    Input domain: total=100, weights=[1,1,1].\n    Oracle: S=3, base=[33,33,33], remainders=[1,1,1], leftover=1. All remainders tied; spec says 'ties go to the entry with the lower index', so index 0 gets +1 → [34,33,33].\n    Fault hypothesis: sorting key (-remainders[i], -i) breaks ties by higher index, producing [33,33,34] instead.\n    \"\"\"\n    result = allocate(100, [1, 1, 1])\n    assert result == [34, 33, 33]\n    assert sum(result) == 100\n    assert len(result) == 3\n",
+     "oracle_reason": "S=3, base=[33,33,33], remainders=[1,1,1], leftover=1. Tie among all three; lower index (0) wins per spec.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p1_equal_weights_remainder ________________________\ntest_solution.py:13: in test_p1_equal_weights_remainder\n    assert result == [34, 33, 33]\nE   assert [33, 33, 34] == [34, 33, 33]\nE     \nE     At index 0 diff: 33 != 34\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_equal_weights_remainder - assert [33, 33, 34...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p6_tie_lower_index_wins",
+     "plan_ids": [
+      "P6"
+     ],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_p6_tie_lower_index_wins():\n    \"\"\"P6: Tie-breaking rule for equal fractional remainders.\n\n    Spec quote: 'ties go to the entry with the lower index'\n    Input domain: total=1, weights=[1,1].\n    Oracle: S=2, base=[0,0], remainders=[1,1], leftover=1. Both tied at remainder 1; lower index 0 wins → [1,0].\n    Fault hypothesis: implementation gives priority to higher index, producing [0,1].\n    \"\"\"\n    result = allocate(1, [1, 1])\n    assert result == [1, 0]\n    assert sum(result) == 1\n    assert len(result) == 2\n",
+     "oracle_reason": "S=2, base=[0,0], remainders=[1,1], leftover=1. Tie between indices 0 and 1; spec mandates lower index wins → [1,0].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p6_tie_lower_index_wins _________________________\ntest_solution.py:13: in test_p6_tie_lower_index_wins\n    assert result == [1, 0]\nE   assert [0, 1] == [1, 0]\nE     \nE     At index 0 diff: 0 != 1\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_tie_lower_index_wins - assert [0, 1] == [1, 0]\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_zero_weight_with_remainder",
+     "plan_ids": [],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_extra_zero_weight_with_remainder():\n    \"\"\"Extra: Zero-weight entry with tie involving non-zero entries.\n\n    Spec quote: 'ties go to the entry with the lower index'\n    Input domain: total=1, weights=[1,0,1].\n    Oracle: S=2, base=[0,0,0], remainders=[1,0,1], leftover=1. Indices 0 and 2 tied at remainder 1; lower index 0 wins → [1,0,0]. Weight-0 entry stays 0.\n    Fault hypothesis: higher index wins the tie (producing [0,0,1]), violating both the tie-breaking rule and potentially zero-weight guarantee.\n    \"\"\"\n    result = allocate(1, [1, 0, 1])\n    assert result == [1, 0, 0]\n    assert sum(result) == 1\n    assert result[1] == 0  # zero-weight entry must stay 0\n",
+     "oracle_reason": "S=2, base=[0,0,0], remainders=[1,0,1], leftover=1. Tie between idx 0 and 2; lower index wins → [1,0,0].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________ test_extra_zero_weight_with_remainder _____________________\ntest_solution.py:13: in test_extra_zero_weight_with_remainder\n    assert result == [1, 0, 0]\nE   assert [0, 0, 1] == [1, 0, 0]\nE     \nE     At index 0 diff: 0 != 1\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_zero_weight_with_remainder - assert [0, 0...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 5,
+   "turns": 6,
+   "final_text": "ual remainders, two-way tie, zero-weight tie), but not every possible combination of equal remainders across arbitrary list lengths.\n\n2. **No large-scale stress testing**: The tests use small inputs. Edge cases with very large totals or many weights could reveal additional issues (e.g., integer overflow in Python is not a concern, but performance degradation might exist).\n\n3. **No type-checking tests**: The contract doesn't specify behavior for non-integer inputs; we don't test what happens with floats, strings, etc.\n\n4. **P7 reviewer note**: The reviewer suggested updating P7's expected result to `[8, 16, 25]`, but this sums to 49 ≠ 50. The mathematically correct result per the spec is `[8, 17, 25]` (remainder 40 at index 1 is largest, so index 1 gets +1). Our test uses the correct value."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 9,
+   "pytest": {
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 7,
+    "total": 7,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9",
+     "P10",
+     "P11"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  },
+  {
+   "round": 2,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 7,
+    "total": 7,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9",
+     "P10",
+     "P11"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "revise",
+   "verdicts": [
+    {
+     "test": "test_p6_tie_breaking_lower_index",
+     "judgement": "suspected_bug",
+     "reason": "Implementation violates the spec's tie-breaking rule ('ties go to the entry with the lower index'). The sort key (-remainders[i], -i) incorrectly prioritizes higher indices on ties."
+    },
+    {
+     "test": "test_p1_equal_weights_odd_remainder",
+     "judgement": "suspected_bug",
+     "reason": "Same tie-breaking bug as above; implementation gives the leftover unit to index 2 instead of index 0."
+    },
+    {
+     "test": "test_p7_result_length_matches",
+     "judgement": "test_wrong",
+     "reason": "Expected value is incorrect. With total=50 and weights=[10,20,30], remainders are [20, 40, 0]. Index 1 has the largest remainder and receives the leftover unit, making the correct result [8, 16, 25], not [9, 16, 25]."
+    },
+    {
+     "test": "test_extra_zero_weight_with_remainder",
+     "judgement": "suspected_bug",
+     "reason": "Implementation violates the tie-breaking rule; gives the leftover unit to index 2 instead of index 1 due to the -i sort key."
+    }
+   ],
+   "instructions": [
+    "Fix test_p7_result_length_matches: update the expected result to [8, 16, 25] because the remainders are [20, 40, 0] and index 1 correctly receives the single leftover unit.",
+    "Report suspected bugs for test_p1, test_p6, and test_extra_zero_weight_with_remainder: the implementation's sorting key (-remainders[i], -i) breaks ties by giving priority to higher indices, contradicting the specification's requirement that 'ties go to the entry with the lower index'."
+   ]
+  },
+  {
+   "round": 2,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_p1_equal_weights_remainder",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly follows the spec requirement that ties go to the lower index. The implementation's sorting key (-remainders[i], -i) incorrectly prioritizes higher indices, violating the specification."
+    },
+    {
+     "test": "test_p6_tie_lower_index_wins",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly implements the spec's tie-breaking rule. The implementation breaks ties by higher index instead of lower index, contradicting the specification."
+    },
+    {
+     "test": "test_extra_zero_weight_with_remainder",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly validates the zero-weight guarantee and lower-index tie-breaking. The implementation fails both due to the incorrect tie-breaking sort key."
+    }
+   ],
+   "instructions": [
+    "All failing tests correctly reflect the specification. The implementation contains a confirmed bug in the tie-breaking logic (the sort key should use `i` instead of `-i` to prioritize lower indices). No test revisions or additions are needed."
+   ]
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_p6_tie_breaking_lower_index",
+   "plan_ids": [
+    "P6"
+   ],
+   "code": "import pytest\nfrom solution import allocate\n\ndef test_p6_tie_breaking_lower_index():\n    \"\"\"P6: Tie-breaking rule for equal fractional remainders.\n    \n    Plan rationale: S=2. Base: 0, 0. Leftover=1. Remainders: 1%2=1 for both. Spec states 'ties go to the entry with the lower index', so index 0 gets the unit. Result [1, 0].\n    Input domain: total=1, weights=[1,1].\n    Oracle: result=[1,0].\n    Fault hypothesis: tie-breaking might give unit to higher index.\n    \"\"\"\n    result = allocate(1, [1, 1])\n    assert result == [1, 0]\n    assert sum(result) == 1\n",
+   "oracle_reason": "S=2, base=[floor(1/2),floor(2/2)]=[0,0], leftover=1, remainders=[1%2,2%2]=[1,0], wait: remainders=[1*1%2,1*1%2]=[1,1], both equal, tie goes to lower index 0, result=[1,0]",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p6_tie_breaking_lower_index _______________________\ntest_solution.py:13: in test_p6_tie_breaking_lower_index\n    assert result == [1, 0]\nE   assert [0, 1] == [1, 0]\nE     \nE     At index 0 diff: 0 != 1\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_tie_breaking_lower_index - assert [0, 1] == ...\n1 failed in 0.01s\n",
+   "reason": "Implementation violates the spec's tie-breaking rule ('ties go to the entry with the lower index'). The sort key (-remainders[i], -i) incorrectly prioritizes higher indices on ties.",
+   "round": 1
+  },
+  {
+   "name": "test_p1_equal_weights_odd_remainder",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "import pytest\nfrom solution import allocate\n\ndef test_p1_equal_weights_odd_remainder():\n    \"\"\"P1: Equal weights with odd total requiring remainder distribution.\n    \n    Docstring quote: 'Every entry first receives floor(total * w / sum(weights)).'\n    Input domain: total=100, weights=[1,1,1].\n    Oracle: S=3, base=floor(100/3)=33 each, leftover=1, rem=[1,1,1], idx0 gets +1.\n    Fault hypothesis: implementation might distribute remainder differently or use round().\n    \"\"\"\n    result = allocate(100, [1, 1, 1])\n    assert result == [34, 33, 33]\n    assert len(result) == 3\n    assert sum(result) == 100\n",
+   "oracle_reason": "S=3, base=floor(100*1/3)=33 each, leftover=100-99=1, remainders all equal at 1, tie goes to lower index 0, so result=[34,33,33]",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_p1_equal_weights_odd_remainder ______________________\ntest_solution.py:13: in test_p1_equal_weights_odd_remainder\n    assert result == [34, 33, 33]\nE   assert [33, 33, 34] == [34, 33, 33]\nE     \nE     At index 0 diff: 33 != 34\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_equal_weights_odd_remainder - assert [33, 33...\n1 failed in 0.01s\n",
+   "reason": "Same tie-breaking bug as above; implementation gives the leftover unit to index 2 instead of index 0.",
+   "round": 1
+  },
+  {
+   "name": "test_extra_zero_weight_with_remainder",
+   "plan_ids": [],
+   "code": "import pytest\nfrom solution import allocate\n\ndef test_extra_zero_weight_with_remainder():\n    \"\"\"Extra: Zero-weight entry never gets extra units even with remainder.\n    \n    Spec quote: 'Entries with weight 0 always receive 0.'\n    Input domain: total=11, weights=[0,5,5].\n    Oracle: S=10, base=[0,5,5], leftover=1, remainders=[0,5,5], idx1 gets +1 -> [0,6,5].\n    Fault hypothesis: zero-weight entry might incorrectly receive an extra unit.\n    \"\"\"\n    result = allocate(11, [0, 5, 5])\n    assert result == [0, 6, 5]\n    assert result[0] == 0\n    assert sum(result) == 11\n",
+   "oracle_reason": "S=10, base=[floor(0/10),floor(55/10),floor(55/10)]=[0,5,5], leftover=1, remainders=[0,5,5], idx1 and idx2 tied at 5, tie goes to lower idx1, result=[0,6,5]",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________ test_extra_zero_weight_with_remainder _____________________\ntest_solution.py:13: in test_extra_zero_weight_with_remainder\n    assert result == [0, 6, 5]\nE   assert [0, 5, 6] == [0, 6, 5]\nE     \nE     At index 1 diff: 5 != 6\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_zero_weight_with_remainder - assert [0, 5...\n1 failed in 0.01s\n",
+   "reason": "Implementation violates the tie-breaking rule; gives the leftover unit to index 2 instead of index 1 due to the -i sort key.",
+   "round": 1
+  },
+  {
+   "name": "test_p1_equal_weights_remainder",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "import pytest\nfrom solution import allocate\n\ndef test_p1_equal_weights_remainder():\n    \"\"\"P1: Equal weights with odd total requiring remainder distribution.\n\n    Docstring quote: '>>> allocate(100, [1, 1, 1])\\n    [34, 33, 33]'\n    Input domain: total=100, weights=[1,1,1].\n    Oracle: S=3, base=[33,33,33], remainders=[1,1,1], leftover=1. All remainders tied; spec says 'ties go to the entry with the lower index', so index 0 gets +1 → [34,33,33].\n    Fault hypothesis: sorting key (-remainders[i], -i) breaks ties by higher index, producing [33,33,34] instead.\n    \"\"\"\n    result = allocate(100, [1, 1, 1])\n    assert result == [34, 33, 33]\n    assert sum(result) == 100\n    assert len(result) == 3\n",
+   "oracle_reason": "S=3, base=[33,33,33], remainders=[1,1,1], leftover=1. Tie among all three; lower index (0) wins per spec.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p1_equal_weights_remainder ________________________\ntest_solution.py:13: in test_p1_equal_weights_remainder\n    assert result == [34, 33, 33]\nE   assert [33, 33, 34] == [34, 33, 33]\nE     \nE     At index 0 diff: 33 != 34\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_equal_weights_remainder - assert [33, 33, 34...\n1 failed in 0.01s\n",
+   "reason": "Test correctly follows the spec requirement that ties go to the lower index. The implementation's sorting key (-remainders[i], -i) incorrectly prioritizes higher indices, violating the specification.",
+   "round": 2
+  },
+  {
+   "name": "test_p6_tie_lower_index_wins",
+   "plan_ids": [
+    "P6"
+   ],
+   "code": "import pytest\nfrom solution import allocate\n\ndef test_p6_tie_lower_index_wins():\n    \"\"\"P6: Tie-breaking rule for equal fractional remainders.\n\n    Spec quote: 'ties go to the entry with the lower index'\n    Input domain: total=1, weights=[1,1].\n    Oracle: S=2, base=[0,0], remainders=[1,1], leftover=1. Both tied at remainder 1; lower index 0 wins → [1,0].\n    Fault hypothesis: implementation gives priority to higher index, producing [0,1].\n    \"\"\"\n    result = allocate(1, [1, 1])\n    assert result == [1, 0]\n    assert sum(result) == 1\n    assert len(result) == 2\n",
+   "oracle_reason": "S=2, base=[0,0], remainders=[1,1], leftover=1. Tie between indices 0 and 1; spec mandates lower index wins → [1,0].",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p6_tie_lower_index_wins _________________________\ntest_solution.py:13: in test_p6_tie_lower_index_wins\n    assert result == [1, 0]\nE   assert [0, 1] == [1, 0]\nE     \nE     At index 0 diff: 0 != 1\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_tie_lower_index_wins - assert [0, 1] == [1, 0]\n1 failed in 0.01s\n",
+   "reason": "Test correctly implements the spec's tie-breaking rule. The implementation breaks ties by higher index instead of lower index, contradicting the specification.",
+   "round": 2
+  },
+  {
+   "name": "test_extra_zero_weight_with_remainder",
+   "plan_ids": [],
+   "code": "import pytest\nfrom solution import allocate\n\ndef test_extra_zero_weight_with_remainder():\n    \"\"\"Extra: Zero-weight entry with tie involving non-zero entries.\n\n    Spec quote: 'ties go to the entry with the lower index'\n    Input domain: total=1, weights=[1,0,1].\n    Oracle: S=2, base=[0,0,0], remainders=[1,0,1], leftover=1. Indices 0 and 2 tied at remainder 1; lower index 0 wins → [1,0,0]. Weight-0 entry stays 0.\n    Fault hypothesis: higher index wins the tie (producing [0,0,1]), violating both the tie-breaking rule and potentially zero-weight guarantee.\n    \"\"\"\n    result = allocate(1, [1, 0, 1])\n    assert result == [1, 0, 0]\n    assert sum(result) == 1\n    assert result[1] == 0  # zero-weight entry must stay 0\n",
+   "oracle_reason": "S=2, base=[0,0,0], remainders=[1,0,1], leftover=1. Tie between idx 0 and 2; lower index wins → [1,0,0].",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________ test_extra_zero_weight_with_remainder _____________________\ntest_solution.py:13: in test_extra_zero_weight_with_remainder\n    assert result == [1, 0, 0]\nE   assert [0, 0, 1] == [1, 0, 0]\nE     \nE     At index 0 diff: 0 != 1\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_zero_weight_with_remainder - assert [0, 0...\n1 failed in 0.01s\n",
+   "reason": "Test correctly validates the zero-weight guarantee and lower-index tie-breaking. The implementation fails both due to the incorrect tie-breaking sort key.",
+   "round": 2
+  }
+ ],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6406
+  },
+  "testgen": {
+   "calls": 14,
+   "tokens": 114753
+  },
+  "reviewer": {
+   "calls": 2,
+   "tokens": 16684
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/mas/r2/input/solution.py"
+}

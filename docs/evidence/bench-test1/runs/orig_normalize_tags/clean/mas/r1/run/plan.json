@@ -1,0 +1,83 @@
+{
+ "summary": "Converts a comma-separated string of tags into a list of unique, normalized tags by stripping whitespace, lowercasing, removing duplicates (keeping first occurrence), and preserving original order.",
+ "input_domain": "Any string containing comma-separated values; tags may contain alphanumeric characters, symbols, and internal spaces. No explicit preconditions on length or character set.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Standard multi-tag input with mixed case and extra whitespace",
+   "input": "\" Python, ML ,python,, Data \"",
+   "expected": "['python', 'ml', 'data']",
+   "rationale": "Directly matches the provided doctest example which demonstrates stripping, lowercasing, dropping empty tags from double commas, and deduplication while preserving order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Input contains only whitespace and commas",
+   "input": "\"   ,  ,   \"",
+   "expected": "[]",
+   "rationale": "Spec states 'Empty tags (including ones that are only whitespace) are dropped' and 'A string without any non-empty tag gives an empty list.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Input is an empty string",
+   "input": "\"\"",
+   "expected": "[]",
+   "rationale": "Spec guarantees a string without any non-empty tag returns an empty list.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Duplicate tags appear after normalization",
+   "input": "\"Apple, BANANA, apple\"",
+   "expected": "['apple', 'banana']",
+   "rationale": "Spec requires 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Order preservation across different cases and duplicates",
+   "input": "\"Zebra, apple, ZEBRA, Apple\"",
+   "expected": "['zebra', 'apple']",
+   "rationale": "Spec mandates that 'the remaining tags keep their original order' and only the first occurrence of a duplicate is kept.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Leading and trailing commas produce empty segments",
+   "input": "\",tag1,tag2,\"",
+   "expected": "['tag1', 'tag2']",
+   "rationale": "Splitting by comma yields empty strings at boundaries, which are stripped and dropped per spec.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Single tag with surrounding whitespace",
+   "input": "\"  Machine Learning  \"",
+   "expected": "['machine learning']",
+   "rationale": "Spec applies stripping and lowercasing to each tag regardless of comma presence.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Tags with special characters and numbers retain them after normalization",
+   "input": "\"Tag-1, TAG_2, tag-1\"",
+   "expected": "['tag-1', 'tag_2']",
+   "rationale": "Spec only specifies stripping whitespace and lowercasing; other characters are preserved. Duplicates are still checked post-normalization.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "How should tags containing commas themselves be handled? The spec says 'comma-separated' but does not specify quoting or escaping rules.",
+  "Does 'surrounding whitespace' include tabs, newlines, or only ASCII spaces? The spec uses the general term 'whitespace' without defining its scope.",
+  "What input types are valid? The signature accepts `text`, but the spec does not specify behavior for non-string inputs (e.g., lists, integers, None)."
+ ]
+}

@@ -1,0 +1,197 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "class VendingMachine:\n    \"\"\"\n    This is a class to simulate a vending machine, including adding products, inserting coins, purchasing products, viewing balance, replenishing product inventory, and displaying product information.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initializes the vending machine's inventory and balance.\n        \"\"\"\n        self.inventory = {}\n        self.balance = 0\n\n    def add_item(self, item_name, price, quantity):\n        \"\"\"\n        Adds a product to the vending machine's inventory.\n        :param item_name: The name of the product to be added, str.\n        :param price: The price of the product to be added, float.\n        :param quantity: The quantity of the product to be added, int.\n        :return: None\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\n        >>> vendingMachine.inventory\n        {'Coke': {'price': 1.25, 'quantity': 10}}\n\n        \"\"\"\n        if not self.restock_item(item_name, quantity):\n            self.inventory[item_name] = {'price': price, 'quantity': quantity}\n\n    def insert_coin(self, amount):\n        \"\"\"\n        Inserts coins into the vending machine.\n        :param amount: The amount of coins to be inserted, float.\n        :return: The balance of the vending machine after the coins are inserted, float.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.insert_coin(1.25)\n        1.25\n\n        \"\"\"\n        self.balance += amount\n        return self.balance\n\n    def purchase_item(self, item_name):\n        \"\"\"\n        Purchases a product from the vending machine and returns the balance after the purchase and display purchase unsuccessful if the product is out of stock.\n        :param item_name: The name of the product to be purchased, str.\n        :return: If successful, returns the balance of the vending machine after the product is purchased, float,otherwise,returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.balance = 1.25\n        >>> vendingMachine.purchase_item('Coke')\n        0.0\n        >>> vendingMachine.purchase_item('Pizza')\n        False\n\n        \"\"\"\n        if item_name in self.inventory:\n            item = self.inventory[item_name]\n            if item['quantity'] > 0 and self.balance >= item['price']:\n                self.balance -= item['price']\n                item['quantity'] -= 1\n                return self.balance\n            else:\n                return False\n        else:\n            return False\n\n    def restock_item(self, item_name, quantity):\n        \"\"\"\n        Replenishes the inventory of a product already in the vending machine.\n        :param item_name: The name of the product to be replenished, str.\n        :param quantity: The quantity of the product to be replenished, int.\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.restock_item('Coke', 10)\n        True\n        >>> vendingMachine.restock_item('Pizza', 10)\n        False\n\n        \"\"\"\n        if item_name in self.inventory:\n            self.inventory[item_name]['quantity'] += quantity\n            return True\n        else:\n            return False\n\n    def display_items(self):\n        \"\"\"\n        Displays the products in the vending machine.\n        :return: If the vending machine is empty, returns False, otherwise, returns a list of the products in the vending machine, str.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.display_items()\n        False\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10} }\n        >>> vendingMachine.display_items()\n        'Coke - $1.25 [10]'\n\n        \"\"\"\n        if not self.inventory:\n            return False\n        else:\n            items = []\n            for item_name, item_info in self.inventory.items():\n                items.append(f\"{item_name} - ${item_info['price']} [{item_info['quantity']}]\")\n            return '\\n'.join(items)\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/clean/no_reviewer/r1/run/workspace",
+ "spec": "class VendingMachine:\n    \"\"\"\n    This is a class to simulate a vending machine, including adding products, inserting coins, purchasing products, viewing balance, replenishing product inventory, and displaying product information.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initializes the vending machine's inventory and balance.\n        \"\"\"\n        ...\n\n    def add_item(self, item_name, price, quantity):\n        \"\"\"\n        Adds a product to the vending machine's inventory.\n        :param item_name: The name of the product to be added, str.\n        :param price: The price of the product to be added, float.\n        :param quantity: The quantity of the product to be added, int.\n        :return: None\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\n        >>> vendingMachine.inventory\n        {'Coke': {'price': 1.25, 'quantity': 10}}\n\n        \"\"\"\n        ...\n\n    def insert_coin(self, amount):\n        \"\"\"\n        Inserts coins into the vending machine.\n        :param amount: The amount of coins to be inserted, float.\n        :return: The balance of the vending machine after the coins are inserted, float.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.insert_coin(1.25)\n        1.25\n\n        \"\"\"\n        ...\n\n    def purchase_item(self, item_name):\n        \"\"\"\n        Purchases a product from the vending machine and returns the balance after the purchase and display purchase unsuccessful if the product is out of stock.\n        :param item_name: The name of the product to be purchased, str.\n        :return: If successful, returns the balance of the vending machine after the product is purchased, float,otherwise,returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.balance = 1.25\n        >>> vendingMachine.purchase_item('Coke')\n        0.0\n        >>> vendingMachine.purchase_item('Pizza')\n        False\n\n        \"\"\"\n        ...\n\n    def restock_item(self, item_name, quantity):\n        \"\"\"\n        Replenishes the inventory of a product already in the vending machine.\n        :param item_name: The name of the product to be replenished, str.\n        :param quantity: The quantity of the product to be replenished, int.\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.restock_item('Coke', 10)\n        True\n        >>> vendingMachine.restock_item('Pizza', 10)\n        False\n\n        \"\"\"\n        ...\n\n    def display_items(self):\n        \"\"\"\n        Displays the products in the vending machine.\n        :return: If the vending machine is empty, returns False, otherwise, returns a list of the products in the vending machine, str.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.display_items()\n        False\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10} }\n        >>> vendingMachine.display_items()\n        'Coke - $1.25 [10]'\n\n        \"\"\"\n        ...\n",
+ "plan": {
+  "summary": "Simulates a vending machine that manages product inventory (name, price, quantity), tracks customer coin balance, and supports adding items, inserting coins, purchasing, restocking, and displaying current inventory.",
+  "input_domain": "item_name (str), price (float), quantity (int), amount (float). Valid inputs assume non-negative numeric values for price, quantity, and amount, and string identifiers for item names.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Add a new product to inventory",
+    "input": "add_item('Coke', 1.25, 10)",
+    "expected": "inventory becomes {'Coke': {'price': 1.25, 'quantity': 10}}",
+    "rationale": "Docstring example explicitly demonstrates: 'vendingMachine.add_item('Coke', 1.25, 10)' followed by 'vendingMachine.inventory' showing the exact dictionary structure.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Insert coins and verify returned balance",
+    "input": "insert_coin(2.5)",
+    "expected": "Returns 2.5, internal balance becomes 2.5",
+    "rationale": "Docstring states: ':return: The balance of the vending machine after the coins are inserted, float.' The example shows direct return of the inserted amount when starting from zero.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Purchase with sufficient funds and stock",
+    "input": "add_item('Coke', 1.25, 5); insert_coin(2.0); purchase_item('Coke')",
+    "expected": "Returns 0.75, balance becomes 0.75, quantity decreases to 4",
+    "rationale": "Spec says: ':return: If successful, returns the balance of the vending machine after the product is purchased, float'. The example shows balance deduction matching the price.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Purchase with exact balance",
+    "input": "add_item('Coke', 1.25, 1); insert_coin(1.25); purchase_item('Coke')",
+    "expected": "Returns 0.0, balance becomes 0.0, quantity becomes 0",
+    "rationale": "Boundary condition for payment. The spec example shows 'purchase_item('Coke')' returning '0.0' when balance equals price, confirming exact-match handling.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "empty",
+    "behavior": "Display items on an empty machine",
+    "input": "display_items()",
+    "expected": "Returns False",
+    "rationale": "Docstring explicitly states: ':return: If the vending machine is empty, returns False'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "state",
+    "behavior": "Sequential purchases depleting stock",
+    "input": "add_item('Soda', 1.0, 2); insert_coin(3.0); purchase_item('Soda'); purchase_item('Soda'); purchase_item('Soda')",
+    "expected": "First call returns 2.0, second returns 1.0, third returns False",
+    "rationale": "Tests state invariant that quantity decrements per successful purchase and subsequent purchases fail (return False) once stock reaches zero, consistent with 'returns False otherwise' clause.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P7",
+    "category": "normal",
+    "behavior": "Restock an existing product",
+    "input": "inventory={'Coke': {'price': 1.25, 'quantity': 5}}; restock_item('Coke', 10)",
+    "expected": "Returns True, quantity becomes 15",
+    "rationale": "Docstring states: ':param quantity: The quantity of the product to be replenished... :return: If the product is already in the vending machine, returns True'. Example confirms addition behavior.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "normal",
+    "behavior": "Restock a non-existent product",
+    "input": "restock_item('Pizza', 10)",
+    "expected": "Returns False",
+    "rationale": "Docstring example and text specify: 'otherwise, returns False' when the product is not already in the machine.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "normal",
+    "behavior": "Display items with inventory present",
+    "input": "inventory={'Coke': {'price': 1.25, 'quantity': 10}}; display_items()",
+    "expected": "Returns 'Coke - $1.25 [10]'",
+    "rationale": "Docstring example explicitly defines the formatted string output for a non-empty inventory state.",
+    "confidence": "high"
+   },
+   {
+    "id": "P10",
+    "category": "property",
+    "behavior": "Inventory price immutability across operations",
+    "input": "add_item('A', 1.5, 5); insert_coin(10.0); purchase_item('A'); restock_item('A', 3)",
+    "expected": "inventory['A']['price'] remains 1.5 throughout all operations",
+    "rationale": "Property test verifying a core state invariant: the spec treats price as a static attribute during add/restock/purchase cycles, only quantity and balance mutate.",
+    "confidence": "medium"
+   }
+  ],
+  "ambiguities": [
+   "Behavior when purchase_item is called with sufficient stock but insufficient balance (spec says 'returns False' for unsuccessful purchases but does not explicitly distinguish out-of-stock vs insufficient funds).",
+   "Output format of display_items() when multiple distinct products exist (docstring example only shows one item, and the type description contradicts itself: 'returns a list of the products in the vending machine, str').",
+   "Whether add_item overwrites an existing item's price/quantity or appends/merges to it.",
+   "Handling of negative or non-finite numeric inputs for price, quantity, and amount (spec declares types as float/int but provides no validation rules or precondition bounds).",
+   "Whether insert_coin accumulates with previous balance or resets it (example implies accumulation, but spec does not explicitly state the accumulation rule)."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p2_insert_coin",
+    "test_p3_purchase_sufficient_funds",
+    "test_p5_empty_display",
+    "test_p1_add_item",
+    "test_p4_exact_balance",
+    "test_p6_sequential_depletion",
+    "test_p7_restock_existing",
+    "test_p8_restock_nonexistent",
+    "test_p9_display_with_inventory",
+    "test_extra_purchase_insufficient_funds",
+    "test_extra_purchase_nonexistent_item",
+    "test_extra_multiple_items_display"
+   ],
+   "failed": [],
+   "attempts": 18,
+   "turns": 8,
+   "final_text": "The `test_extra_multiple_items_display` failed because the implementation formats `$1.5` instead of `$1.50` (Python's default float formatting drops trailing zeros). Per instructions, I won't change the expected value to match the implementation - this reveals a spec/implementation discrepancy. Let me fix the contract_quote for P10 and resubmit."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 12,
+   "pytest": {
+    "passed": 12,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 3,
+    "total": 3,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9"
+    ],
+    "missing": [
+     "P10"
+    ],
+    "ratio": 0.9
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 7576
+  },
+  "testgen": {
+   "calls": 8,
+   "tokens": 67174
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/clean/no_reviewer/r1/input/solution.py"
+}

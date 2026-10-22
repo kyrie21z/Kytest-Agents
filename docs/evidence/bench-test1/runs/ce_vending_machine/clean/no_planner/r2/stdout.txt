@@ -1,0 +1,7 @@
+status: forced   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 15 accepted   coverage: 1.0   dev mutants killed: 3/3   plan cited: None
+review r1: revise  test_display_multiple_items=suspected_bug
+review r2: revise  test_display_price_two_decimals=suspected_bug, test_display_multiple_items=suspected_bug, test_display_integer_price=suspected_bug, test_display_three_items=suspected_bug
+suspected bugs: 5 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/clean/no_planner/r2/run/bug_report.md
+usage: {"testgen": {"calls": 16, "tokens": 110676}, "reviewer": {"calls": 2, "tokens": 12571}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/clean/no_planner/r2/run

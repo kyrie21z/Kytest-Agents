@@ -1,0 +1,246 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return sorted(set(seen))\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/mas/r2/run/workspace",
+ "spec": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a comma-separated string of tags into a deduplicated, ordered list of lowercase, whitespace-stripped tags.",
+  "input_domain": "Strings containing comma-separated substrings, potentially with leading/trailing whitespace, internal spaces, mixed case, and duplicate values.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Standard mixed case and whitespace handling with duplicates and empty slots",
+    "input": "\" Python, ML ,python,, Data \"",
+    "expected": "['python', 'ml', 'data']",
+    "rationale": "Matches the provided doctest example. Spec states tags are stripped, lower-cased, empty tags dropped, duplicates removed keeping first occurrence and original order.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "empty",
+    "behavior": "Input is an empty string",
+    "input": "\"\"",
+    "expected": "[]",
+    "rationale": "Spec says 'A string without any non-empty tag gives an empty list.' An empty string contains no tags to parse.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "empty",
+    "behavior": "Input contains only commas and whitespace",
+    "input": "\"   , ,  \"",
+    "expected": "[]",
+    "rationale": "Spec states 'Empty tags (including ones that are only whitespace) are dropped.' All resulting tokens are empty/whitespace-only and thus removed.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "normal",
+    "behavior": "Duplicate tags with different casing",
+    "input": "\"Apple, apple, APPLE\"",
+    "expected": "['apple']",
+    "rationale": "Spec requires removing duplicates 'compared after normalization' and keeping 'only the first occurrence'. After normalization, all three become 'apple', so only the first remains.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "Preservation of original order with interleaved duplicates",
+    "input": "\"B, A, b, a\"",
+    "expected": "['b', 'a']",
+    "rationale": "Spec mandates that 'the remaining tags keep their original order.' First occurrences are 'B' and 'A'; subsequent 'b' and 'a' are duplicates and dropped.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "normal",
+    "behavior": "Tags containing internal spaces",
+    "input": "\"Data Science, Machine Learning\"",
+    "expected": "['data science', 'machine learning']",
+    "rationale": "Spec says each tag is 'stripped of surrounding whitespace and lower-cased.' Internal spaces are not surrounding, so they are preserved.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "boundary",
+    "behavior": "Single tag with leading/trailing whitespace",
+    "input": "\"  hello  \"",
+    "expected": "['hello']",
+    "rationale": "Spec states tags are stripped of surrounding whitespace and lower-cased. A single valid tag should return a list with one element.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "boundary",
+    "behavior": "String with only commas",
+    "input": "\",,,,\"",
+    "expected": "[]",
+    "rationale": "Splitting by comma yields only empty strings. Spec says 'Empty tags ... are dropped.', resulting in an empty list.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "normal",
+    "behavior": "Mixed valid and invalid (empty) tags with duplicates",
+    "input": "\"  Tag1 , TAG2 , tag1 ,  \"",
+    "expected": "['tag1', 'tag2']",
+    "rationale": "Stripping and lowercasing yields 'tag1', 'tag2', 'tag1'. The third is a duplicate of the first and is dropped. Order of first occurrences is preserved.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Behavior when `text` is not a string (e.g., int, None, bytes). The spec does not define type checking or error handling.",
+   "Definition of 'whitespace': whether it strictly means ASCII spaces, or also tabs (`\\t`) and newlines (`\\n`). Python's `.strip()` handles all, but the spec wording is implicit.",
+   "Behavior with non-comma delimiters (e.g., semicolons or spaces acting as separators). Spec explicitly says 'comma-separated', implying other delimiters are not supported or treated as part of the tag.",
+   "Performance constraints or maximum string length limits. Not specified."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p2_empty_string",
+    "test_p7_single_tag",
+    "test_p8_only_commas",
+    "test_p3_whitespace_only",
+    "test_p4_duplicate_casing",
+    "test_p6_internal_spaces",
+    "test_p9_mixed_valid_invalid",
+    "test_extra_single_char_tags"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_standard_mixed",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "def test_p1_standard_mixed():\n    from solution import normalize_tags\n    result = normalize_tags(\" Python, ML ,python,, Data \")\n    assert result == ['python', 'ml', 'data']",
+     "oracle_reason": "Splitting by comma yields [' Python', ' ML ', 'python', '', ' Data ']. After strip+lower: ['python', 'ml', 'python', '', 'data']. Dropping empty and keeping first occurrence of duplicates preserves order: python (1st), ml (2nd), data (5th). Result is ['python', 'ml', 'data'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________________ test_p1_standard_mixed ____________________________\ntest_solution.py:4: in test_p1_standard_mixed\n    assert result == ['python', 'ml', 'data']\nE   AssertionError: assert ['data', 'ml', 'python'] == ['python', 'ml', 'data']\nE     \nE     At index 0 diff: 'data' != 'python'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_standard_mixed - AssertionError: assert ['da...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p5_order_preservation",
+     "plan_ids": [
+      "P5"
+     ],
+     "code": "def test_p5_order_preservation():\n    from solution import normalize_tags\n    result = normalize_tags(\"B, A, b, a\")\n    assert result == ['b', 'a']",
+     "oracle_reason": "Tags normalize to ['b', 'a', 'b', 'a']. First occurrences are 'b' and 'a' in that order. Subsequent 'b' and 'a' are duplicates and dropped. Result is ['b', 'a'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p5_order_preservation __________________________\ntest_solution.py:4: in test_p5_order_preservation\n    assert result == ['b', 'a']\nE   AssertionError: assert ['a', 'b'] == ['b', 'a']\nE     \nE     At index 0 diff: 'a' != 'b'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p5_order_preservation - AssertionError: assert ...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 12,
+   "turns": 4,
+   "final_text": " it because the assertions (`isinstance` checks) don't compare against a specific target result value.\n\n## Remaining Limitations\n\n1. **Order-preservation tests (P1, P5)** are currently failing against the actual implementation. They faithfully follow the spec contract but expose a clear bug: `solution.py` uses `sorted(set(seen))` which destroys insertion order. These are valuable bug-detection tests.\n\n2. **No edge cases for non-string inputs** — the spec doesn't define behavior for `None`, integers, or other types, so we don't test them.\n\n3. **No Unicode/special-character tests** — the spec only mentions stripping, lowercasing, and deduplication; no mention of Unicode normalization or special characters.\n\n4. **No performance/boundary tests** — e.g., very long strings, many duplicates, etc."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 8,
+   "pytest": {
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_p1_standard_mixed",
+     "judgement": "suspected_bug",
+     "reason": "The specification explicitly requires preserving the original order of first occurrences after deduplication. The implementation incorrectly sorts the output alphabetically via `sorted(set(seen))`, violating this requirement."
+    },
+    {
+     "test": "test_p5_order_preservation",
+     "judgement": "suspected_bug",
+     "reason": "Same issue: the implementation sorts the result, contradicting the specification's mandate to maintain the original order of normalized tags."
+    }
+   ],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_p1_standard_mixed",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "def test_p1_standard_mixed():\n    from solution import normalize_tags\n    result = normalize_tags(\" Python, ML ,python,, Data \")\n    assert result == ['python', 'ml', 'data']",
+   "oracle_reason": "Splitting by comma yields [' Python', ' ML ', 'python', '', ' Data ']. After strip+lower: ['python', 'ml', 'python', '', 'data']. Dropping empty and keeping first occurrence of duplicates preserves order: python (1st), ml (2nd), data (5th). Result is ['python', 'ml', 'data'].",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________________ test_p1_standard_mixed ____________________________\ntest_solution.py:4: in test_p1_standard_mixed\n    assert result == ['python', 'ml', 'data']\nE   AssertionError: assert ['data', 'ml', 'python'] == ['python', 'ml', 'data']\nE     \nE     At index 0 diff: 'data' != 'python'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_standard_mixed - AssertionError: assert ['da...\n1 failed in 0.01s\n",
+   "reason": "The specification explicitly requires preserving the original order of first occurrences after deduplication. The implementation incorrectly sorts the output alphabetically via `sorted(set(seen))`, violating this requirement.",
+   "round": 1
+  },
+  {
+   "name": "test_p5_order_preservation",
+   "plan_ids": [
+    "P5"
+   ],
+   "code": "def test_p5_order_preservation():\n    from solution import normalize_tags\n    result = normalize_tags(\"B, A, b, a\")\n    assert result == ['b', 'a']",
+   "oracle_reason": "Tags normalize to ['b', 'a', 'b', 'a']. First occurrences are 'b' and 'a' in that order. Subsequent 'b' and 'a' are duplicates and dropped. Result is ['b', 'a'].",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p5_order_preservation __________________________\ntest_solution.py:4: in test_p5_order_preservation\n    assert result == ['b', 'a']\nE   AssertionError: assert ['a', 'b'] == ['b', 'a']\nE     \nE     At index 0 diff: 'a' != 'b'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p5_order_preservation - AssertionError: assert ...\n1 failed in 0.01s\n",
+   "reason": "Same issue: the implementation sorts the result, contradicting the specification's mandate to maintain the original order of normalized tags.",
+   "round": 1
+  }
+ ],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 2,
+   "tokens": 10174
+  },
+  "testgen": {
+   "calls": 4,
+   "tokens": 24706
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 4861
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/mas/r2/input/solution.py"
+}

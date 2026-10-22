@@ -1,0 +1,92 @@
+{
+ "summary": "Converts a list of integer and operator tokens in infix notation to equivalent Reverse Polish Notation (RPN) using standard operator precedence and left-associativity rules.",
+ "input_domain": "A list of tokens where each token is either an integer or a string from '+-*/', forming a syntactically valid infix arithmetic expression.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Converts a simple chain of subtractions to RPN",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Directly matches specification example; verifies basic left-associative subtraction.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Converts an expression with mixed operator precedence to RPN",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Matches specification example; verifies that '/' (higher precedence) is processed before '-' (lower precedence).",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Converts a complex infix expression with interleaved operators to RPN",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Matches specification example; verifies correct handling of precedence and left-associativity across multiple operators.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Returns a single operand unchanged",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Valid per precondition; RPN of a standalone number is the number itself.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Converts a minimal valid expression (two operands, one operator)",
+   "input": "[3, '+', 7]",
+   "expected": "[3, 7, '+']",
+   "rationale": "Simplest non-trivial case; verifies basic operand-operator ordering.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Verifies left-associativity of identical precedence operators",
+   "input": "[10, '*', 2, '*', 5]",
+   "expected": "[10, 2, '*', 5, '*']",
+   "rationale": "Tests standard shunting-yard left-associativity rule: (10 * 2) * 5 becomes 10 2 * 5 *.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Verifies precedence ordering between addition and multiplication",
+   "input": "[2, '+', 3, '*', 4]",
+   "expected": "[2, 3, 4, '*', '+']",
+   "rationale": "Standard arithmetic rule: * binds tighter than +, so 2 + (3 * 4) converts to 2 3 4 * +.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "empty",
+   "behavior": "Handles an empty token list gracefully",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "Vacuously satisfies precondition; conversion of empty expression yields empty RPN.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Preserves the multiset of tokens during conversion",
+   "input": "[1, '+', 2, '*', 3]",
+   "expected": "Output contains exactly the same integers and operators as input, reordered.",
+   "rationale": "Infix-to-RPN conversion rearranges tokens without duplication or loss; implicit correctness invariant.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Handling of unary operators (e.g., negative numbers represented as ['-', 5]) is unspecified; the precondition allows it but standard shunting-yard behavior differs for unary vs binary minus.",
+  "Parentheses are not included in the token set or precondition, so grouped/nested expressions cannot be represented or tested.",
+  "Syntactically invalid infix sequences that still satisfy the type/precondition check (e.g., [1, '+', '+', 2] or [1, 2, '+']) are undefined behavior; the spec does not specify whether to raise an error or return a result."
+ ]
+}

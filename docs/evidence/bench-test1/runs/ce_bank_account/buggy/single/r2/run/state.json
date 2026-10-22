@@ -1,0 +1,69 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "class BankAccount:\n    \"\"\"\n    This is a class as a bank account system, which supports deposit money, withdraw money, view balance, and transfer money.\n    \"\"\"\n\n    def __init__(self, balance=0):\n        \"\"\"\n        Initializes a bank account object with an attribute balance, default value is 0.\n        \"\"\"\n        self.balance = balance\n\n    def deposit(self, amount):\n        \"\"\"\n        Deposits a certain amount into the account, increasing the account balance, return the current account balance.\n        If amount is negative, raise a ValueError(\"Invalid amount\").\n        :param amount: int\n        \"\"\"\n        if amount < 0:\n            raise ValueError('Invalid amount')\n        self.balance += amount\n        return self.balance\n\n    def withdraw(self, amount):\n        \"\"\"\n        Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.\n        If amount is negative, raise a ValueError(\"Invalid amount\").\n        If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").\n        :param amount: int\n        \"\"\"\n        if amount < 0:\n            raise ValueError('Invalid amount')\n        if amount >= self.balance:\n            raise ValueError('Insufficient balance.')\n        self.balance -= amount\n        return self.balance\n\n    def view_balance(self):\n        \"\"\"\n        Return the account balance.\n        \"\"\"\n        return self.balance\n\n    def transfer(self, other_account, amount):\n        \"\"\"\n        Transfers a certain amount from the current account to another account.\n        :param other_account: BankAccount\n        :param amount: int\n        >>> account1 = BankAccount()\n        >>> account2 = BankAccount()\n        >>> account1.deposit(1000)\n        >>> account1.transfer(account2, 300)\n        account1.balance = 700 account2.balance = 300\n        \"\"\"\n        self.withdraw(amount)\n        other_account.deposit(amount)\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_bank_account/buggy/single/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_deposit_negative_raises_value_error",
+    "test_withdraw_valid_amount",
+    "test_deposit_positive_increases_balance",
+    "test_withdraw_exactly_full_balance_raises",
+    "test_transfer_between_accounts",
+    "test_withdraw_zero_from_nonzero_balance",
+    "test_deposit_zero_is_valid",
+    "test_withdraw_negative_raises"
+   ],
+   "failed": [],
+   "attempts": 16,
+   "turns": 8,
+   "final_text": "tly through assertions on `acc.view_balance()`. A dedicated test confirming it returns the exact stored value would add coverage.\n3. **Transfer with insufficient funds**: If `transfer` calls `withdraw` which raises for insufficient funds, this propagates — but no test explicitly exercises that path (e.g., transferring more than the sender has).\n4. **Transfer to self**: Transferring to the same account (`acc.transfer(acc, x)`) is not tested. This could expose issues if `withdraw` and `deposit` interact unexpectedly on the same object.\n5. **Multiple sequential transfers**: No test chains multiple transfers to verify cumulative correctness.\n6. **Type enforcement**: The contract says `amount: int` but Python won't enforce this at runtime. Tests don't cover behavior with float or string inputs."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 8,
+   "pytest": {
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 3,
+    "total": 3,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 54325
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_bank_account/buggy/single/r2/input/solution.py"
+}

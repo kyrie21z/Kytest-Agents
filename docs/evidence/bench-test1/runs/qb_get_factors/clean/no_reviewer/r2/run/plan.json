@@ -1,0 +1,83 @@
+{
+ "summary": "Computes the prime factorization of a positive integer n, returning a sorted list of its prime factors including repetitions.",
+ "input_domain": "Integers n where n >= 1",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Factor a composite number with repeated prime factors",
+   "input": "n=100",
+   "expected": "[2, 2, 5, 5]",
+   "rationale": "Directly matches explicit example: '>>> get_factors(100)\\n[2, 2, 5, 5]'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Factor a composite number with distinct prime factors",
+   "input": "n=30",
+   "expected": "[2, 3, 5]",
+   "rationale": "Spec requires output in 'sorted order with repetition'; 30 = 2*3*5",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Factor the smallest prime number",
+   "input": "n=2",
+   "expected": "[2]",
+   "rationale": "Boundary case for primes; spec implies a prime input returns itself as a single-element list",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Factor the unit value",
+   "input": "n=1",
+   "expected": "[]",
+   "rationale": "Matches explicit example: '>>> get_factors(1)\\n[]'; 1 has no prime factors",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Factor a power of a single prime",
+   "input": "n=8",
+   "expected": "[2, 2, 2]",
+   "rationale": "Tests high multiplicity; spec explicitly requires 'repetition' in the output list",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Verify product of returned factors equals original input",
+   "input": "n=12",
+   "expected": "[2, 2, 3] (product == 12)",
+   "rationale": "Mathematically required by 'Prime Factorization' title and fundamental theorem of arithmetic",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Verify all output elements are prime numbers",
+   "input": "n=49",
+   "expected": "[7, 7] (all elements prime)",
+   "rationale": "Spec explicitly states output is 'A list of the prime factors'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Factor a large prime number",
+   "input": "n=101",
+   "expected": "[101]",
+   "rationale": "Matches explicit example; verifies prime detection and single-factor boundary",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Inputs violating precondition (n < 1) are undefined behavior; spec does not specify exception handling or fallback.",
+  "Non-integer inputs (e.g., floats, strings, booleans) are not addressed; docstring says 'An int' but lacks type validation contract.",
+  "Upper magnitude limit for n is unspecified; behavior, performance, or potential overflow for extremely large integers is undefined."
+ ]
+}

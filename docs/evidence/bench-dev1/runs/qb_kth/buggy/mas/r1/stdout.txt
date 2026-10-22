@@ -1,0 +1,8 @@
+status: forced   rounds: 2   path: planner -> testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+plan: 8 items, 4 ambiguities
+tests: 12 accepted   coverage: 0.9090909090909091   dev mutants killed: 1/2   plan cited: 0.625
+review r1: revise  test_p5_negative_ints=suspected_bug
+review r2: revise  
+suspected bugs: 1 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_kth/buggy/mas/r1/run/bug_report.md
+usage: {"planner": {"calls": 1, "tokens": 5548}, "testgen": {"calls": 14, "tokens": 106108}, "reviewer": {"calls": 2, "tokens": 12335}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_kth/buggy/mas/r1/run

@@ -1,0 +1,83 @@
+{
+ "summary": "Counts the frequency of every contiguous two-letter substring in a given word and returns a dictionary containing all 650 possible ordered permutations of lowercase English letters as keys, assigning 0 to combinations that do not appear in the word.",
+ "input_domain": "Strings containing alphabetic characters (including empty strings and single-character strings)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Count contiguous bigrams in a standard multi-character word",
+   "input": "'hello'",
+   "expected": "{'he': 1, 'el': 1, 'll': 2, 'lo': 1} plus 646 other keys with value 0",
+   "rationale": "Spec states values represent the frequency of two-letter combinations in the word. 'hello' contains the contiguous substrings 'he', 'el', 'll', 'lo'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Handle overlapping identical bigrams",
+   "input": "'aaaa'",
+   "expected": "{'aa': 3} plus 649 other keys with value 0",
+   "rationale": "Overlapping length-2 substrings in 'aaaa' occur at indices 0, 1, and 2, yielding three 'aa' occurrences.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Return all zero counts for empty input",
+   "input": "''",
+   "expected": "All 650 keys map to 0",
+   "rationale": "No characters exist to form two-letter combinations, so frequencies must be zero.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Return all zero counts for single-character input",
+   "input": "'z'",
+   "expected": "All 650 keys map to 0",
+   "rationale": "String length < 2 cannot produce any two-letter combinations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Return exactly one non-zero count for minimum-length input",
+   "input": "'xy'",
+   "expected": "{'xy': 1} plus 649 other keys with value 0",
+   "rationale": "Length 2 is the minimum required to form a single bigram.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Verify dictionary size matches permutations count",
+   "input": "any valid word",
+   "expected": "len(result) == 650",
+   "rationale": "Spec requires using itertools.permutations on lowercase alphabets (26 letters), yielding 26*25 = 650 unique ordered pairs.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Verify keys are exactly all lowercase letter permutations",
+   "input": "any valid word",
+   "expected": "set(result.keys()) == set(itertools.permutations(string.ascii_lowercase, 2))",
+   "rationale": "Spec mandates generating all two-letter combinations of lowercase English alphabets using itertools.permutations and string.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Accumulate counts across repeated patterns",
+   "input": "'abcabc'",
+   "expected": "{'ab': 2, 'bc': 2, 'ca': 2} plus 647 other keys with value 0",
+   "rationale": "Verifies collections.Counter correctly sums frequencies of recurring bigrams across the entire string.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Case sensitivity: Spec mentions 'lowercase English alphabets' for keys and 'alphabetic characters' for input. It is unclear if uppercase/mixed-case inputs should be normalized to lowercase before counting or matched case-sensitively (which would yield 0 counts for lowercase keys).",
+  "Non-alphabetic characters: Spec states input contains 'alphabetic characters', but does not define behavior for digits, spaces, or punctuation. Should they be ignored, treated as delimiters, or cause undefined behavior?",
+  "Bigram definition: While 'bigram' conventionally implies contiguous substrings, the use of itertools.permutations suggests keys are non-contiguous. The spec does not explicitly confirm whether counts are derived from contiguous sliding windows or subsequence occurrences."
+ ]
+}

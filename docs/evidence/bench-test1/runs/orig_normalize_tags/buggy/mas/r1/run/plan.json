@@ -1,0 +1,101 @@
+{
+ "summary": "Converts a comma-separated string of tags into a list of unique, normalized tags by stripping surrounding whitespace, lowercasing, dropping empty/whitespace-only entries, and removing duplicates while preserving the order of first occurrences.",
+ "input_domain": "Strings containing any combination of alphanumeric characters, punctuation, whitespace, and commas.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Validates the documented example with mixed case, extra whitespace, and consecutive commas.",
+   "input": "\" Python, ML ,python,, Data \"",
+   "expected": "[\"python\", \"ml\", \"data\"]",
+   "rationale": "Docstring example: 'Each tag is stripped of surrounding whitespace and lower-cased. Empty tags ... are dropped. Duplicates ... are removed so that only the first occurrence is kept'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Tests a single tag without any commas or surrounding whitespace.",
+   "input": "\"hello\"",
+   "expected": "[\"hello\"]",
+   "rationale": "Implied by 'Turn a comma-separated tag string into a list' and 'A string without any non-empty tag gives an empty list'; single tokens should be processed normally.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Tests an empty string input.",
+   "input": "\"\"",
+   "expected": "[]",
+   "rationale": "Spec states: 'A string without any non-empty tag gives an empty list.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Tests a string composed entirely of commas and whitespace.",
+   "input": "\", , , \"",
+   "expected": "[]",
+   "rationale": "Splitting on commas yields only whitespace/empty segments, which are dropped per 'Empty tags (including ones that are only whitespace) are dropped.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Tests case-insensitive duplicate removal across multiple occurrences.",
+   "input": "\"Apple, apple, APPLE\"",
+   "expected": "[\"apple\"]",
+   "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Verifies that original order is preserved and only the first occurrence of each tag survives.",
+   "input": "\"cherry, banana, cherry, date, banana\"",
+   "expected": "[\"cherry\", \"banana\", \"date\"]",
+   "rationale": "Spec states: 'the remaining tags keep their original order' combined with duplicate removal logic.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Tests leading and trailing commas with a single valid tag in the middle.",
+   "input": "\"  ,tag1,  \"",
+   "expected": "[\"tag1\"]",
+   "rationale": "Tags are stripped of surrounding whitespace and empty ones are dropped, leaving only the central valid tag.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Tests preservation of internal spaces and punctuation within tags.",
+   "input": "\"hello world, foo-bar!\"",
+   "expected": "[\"hello world\", \"foo-bar!\"]",
+   "rationale": "Spec only mandates stripping 'surrounding whitespace' and lowercasing; internal characters are not mentioned for removal.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "boundary",
+   "behavior": "Tests a string containing only whitespace characters.",
+   "input": "\"   \\t\\n   \"",
+   "expected": "[]",
+   "rationale": "After splitting and stripping, all segments become empty/whitespace-only and are dropped, yielding an empty list per spec.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "normal",
+   "behavior": "Tests standard compact comma-separated input without extra spacing.",
+   "input": "\"Tag1,Tag2,Tag3\"",
+   "expected": "[\"tag1\", \"tag2\", \"tag3\"]",
+   "rationale": "Direct application of lowercasing and comma-splitting rules with no edge-case whitespace or duplicates.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when `text` is not a string (e.g., int, None, list) is unspecified.",
+  "Handling of commas inside quoted substrings or alternative delimiters is not defined.",
+  "Unicode case-folding rules (e.g., locale-specific lowercasing, NFKC normalization, or handling of surrogate pairs) are not specified."
+ ]
+}

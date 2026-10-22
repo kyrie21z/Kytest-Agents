@@ -1,0 +1,67 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def lis(arr):\n    \"\"\"\n    Longest Increasing Subsequence\n    longest-increasing-subsequence\n\n\n    Input:\n        arr: A sequence of ints\n\n    Precondition:\n        The ints in arr are unique\n\n    Output:\n        The length of the longest monotonically increasing subsequence of arr\n\n    Example:\n        >>> lis([4, 1, 5, 3, 7, 6, 2])\n        3\n    \"\"\"\n    ends = {}\n    longest = 0\n    for i, val in enumerate(arr):\n        prefix_lengths = [j for j in range(1, longest + 1) if arr[ends[j]] < val]\n        length = max(prefix_lengths) if prefix_lengths else 0\n        if length == longest or val < arr[ends[length + 1]]:\n            ends[length + 1] = i\n            longest = max(longest, length + 1)\n    return longest\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_lis/clean/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_lis_empty",
+    "test_lis_single_element",
+    "test_lis_all_increasing",
+    "test_lis_all_decreasing",
+    "test_lis_two_elements",
+    "test_lis_example_from_docstring"
+   ],
+   "failed": [],
+   "attempts": 7,
+   "turns": 8,
+   "final_text": "n logic.\n2. **No larger arrays** — Tests use at most 5 elements. Bugs in the `ends` dictionary management or the `max(prefix_lengths)` logic might only surface with longer sequences (e.g., interleaved patterns like `[3,1,4,1,5,...]`).\n3. **No duplicate values** — The precondition requires unique ints, so duplicates are out of contract. However, testing that the function *doesn't* crash on duplicates (even if behavior is unspecified) could catch robustness issues.\n4. **No return-type edge cases beyond `int`** — All assertions check `isinstance(result, int)` but don't verify the result is non-negative (a reasonable implicit expectation).\n5. **No stress/medium-size inputs** — A medium array (e.g., length 20–50) would exercise more branches of the algorithm's inner loop and dictionary updates."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 8,
+    "total": 8,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 40391
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_lis/clean/single/r1/input/solution.py"
+}

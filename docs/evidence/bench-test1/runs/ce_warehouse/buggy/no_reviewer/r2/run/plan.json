@@ -1,0 +1,103 @@
+{
+ "summary": "Manages warehouse inventory and orders, supporting product registration and quantity adjustments, order creation with stock validation, order status lifecycle management, and order tracking.",
+ "input_domain": "Integers for product_id, order_id, and quantity; strings for name and status. Inventory and orders dictionaries start empty. Quantities may be positive, zero, or negative (explicitly demonstrated in update_product_quantity).",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "add_product creates a new product entry with initial quantity",
+   "input": "warehouse.add_product(1, \"Widget\", 10)",
+   "expected": "warehouse.inventory == {1: {'name': 'Widget', 'quantity': 10}}",
+   "rationale": "Docstring example shows initializing a new product dict with name and quantity upon first insertion.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "add_product accumulates quantity for existing product",
+   "input": "warehouse.add_product(1, \"Widget\", 5)",
+   "expected": "warehouse.inventory[1]['quantity'] == 15",
+   "rationale": "Spec states: 'Add product to inventory and plus the quantity if it has existed in inventory.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "get_product_quantity returns correct quantity",
+   "input": "warehouse.get_product_quantity(1)",
+   "expected": "15",
+   "rationale": "Docstring example demonstrates returning the stored quantity when the product_id exists.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "get_product_quantity returns False for missing product",
+   "input": "warehouse.get_product_quantity(99)",
+   "expected": "False",
+   "rationale": "Spec explicitly states: 'or False otherwise.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "create_order initializes order with default status",
+   "input": "warehouse.create_order(101, 1, 2)",
+   "expected": "warehouse.orders == {101: {'product_id': 1, 'quantity': 2, 'status': 'Shipped'}}",
+   "rationale": "Docstring example shows the order structure and confirms: 'The default value of status is \\'Shipped\\'.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "create_order rejects non-existent product",
+   "input": "warehouse.create_order(102, 99, 1)",
+   "expected": "False",
+   "rationale": "Spec states: 'return False: only if product_id is not in inventory'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "create_order rejects inadequate quantity",
+   "input": "warehouse.create_order(103, 1, 100)",
+   "expected": "False",
+   "rationale": "Spec states: 'or the quantity is not adequate'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "state",
+   "behavior": "change_order_status updates status and track_order reflects change",
+   "input": "warehouse.change_order_status(101, \"Delivered\"); warehouse.track_order(101)",
+   "expected": "warehouse.orders[101]['status'] == \"Delivered\" and track_order returns \"Delivered\"",
+   "rationale": "Docstring examples demonstrate mutating order status and subsequently retrieving it via tracking.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "update_product_quantity adjusts stock using negative delta",
+   "input": "warehouse.update_product_quantity(1, -2)",
+   "expected": "warehouse.inventory[1]['quantity'] == 13",
+   "rationale": "Docstring example shows: 'warehouse.update_product_quantity(1, -1)' reducing quantity, confirming additive updates allow negatives.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "boundary",
+   "behavior": "create_order accepts zero quantity",
+   "input": "warehouse.create_order(104, 1, 0)",
+   "expected": "warehouse.orders[104] == {'product_id': 1, 'quantity': 0, 'status': 'Shipped'}",
+   "rationale": "Zero is a boundary value for quantity. Spec does not explicitly forbid it, so it should succeed if deemed adequate.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Does create_order deduct the ordered quantity from self.inventory? The spec describes populating self.orders but omits inventory mutation.",
+  "What is the behavior if update_product_quantity is called with a product_id not in self.inventory? No precondition or error return is documented.",
+  "Is quantity strictly non-negative for add_product and create_order? The spec permits negatives in update_product_quantity but lacks explicit validation rules elsewhere.",
+  "What threshold defines 'adequate' quantity for create_order? Strictly > 0 or >= 0 is unspecified.",
+  "How are duplicate product_id or order_id handled? Dict semantics imply overwriting, but the spec does not confirm whether duplicates replace existing entries or trigger an error."
+ ]
+}

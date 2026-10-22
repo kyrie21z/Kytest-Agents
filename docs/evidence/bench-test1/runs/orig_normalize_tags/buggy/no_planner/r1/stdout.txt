@@ -1,0 +1,7 @@
+status: accepted   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 8 accepted   coverage: 1.0   dev mutants killed: 0/0   plan cited: None
+review r1: revise  
+review r2: accept  test_basic_example_preserves_order=suspected_bug, test_non_alphabetical_input_preserves_order=suspected_bug, test_dedup_keeps_first_occurrence_position=suspected_bug, test_mixed_case_order_preservation=suspected_bug
+suspected bugs: 4 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/no_planner/r1/run/bug_report.md
+usage: {"testgen": {"calls": 12, "tokens": 66620}, "reviewer": {"calls": 2, "tokens": 8316}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/no_planner/r1/run

@@ -1,0 +1,84 @@
+{
+ "summary": "A BankAccount class managing monetary transactions including initialization, deposits, withdrawals, balance inquiries, and peer-to-peer transfers, with strict validation against negative amounts and insufficient funds.",
+ "input_domain": "Integer amounts for financial operations; non-negative integers for withdrawals; any integer for deposits; BankAccount instances for transfers; optional integer for initial balance.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit a positive amount into a new account",
+   "input": "account = BankAccount(); account.deposit(100)",
+   "expected": "Returns 100; account.balance equals 100",
+   "rationale": "Docstring states: 'Deposits a certain amount into the account, increasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Deposit zero amount",
+   "input": "account = BankAccount(); account.deposit(0)",
+   "expected": "Returns 0; account.balance remains 0",
+   "rationale": "Specification only prohibits negative amounts ('If amount is negative, raise a ValueError'). Zero is mathematically neutral and falls outside the negative range.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Withdraw a partial amount from a funded account",
+   "input": "account = BankAccount(200); account.withdraw(50)",
+   "expected": "Returns 150; account.balance equals 150",
+   "rationale": "Docstring states: 'Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Withdraw exact account balance",
+   "input": "account = BankAccount(100); account.withdraw(100)",
+   "expected": "Returns 0; account.balance equals 0",
+   "rationale": "Error condition specifies 'greater than the account balance'. Equal amount is permitted by the boundary of the specification.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Attempt to deposit a negative amount",
+   "input": "account = BankAccount(); account.deposit(-10)",
+   "expected": "Raises ValueError('Invalid amount')",
+   "rationale": "Docstring explicitly states: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Attempt to withdraw more than available balance",
+   "input": "account = BankAccount(50); account.withdraw(100)",
+   "expected": "Raises ValueError('Insufficient balance.')",
+   "rationale": "Docstring explicitly states: 'If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "Transfer funds between two accounts",
+   "input": "a1 = BankAccount(); a1.deposit(1000); a2 = BankAccount(); a1.transfer(a2, 300)",
+   "expected": "a1.balance equals 700; a2.balance equals 300",
+   "rationale": "Docstring example demonstrates: 'account1.balance = 700 account2.balance = 300' after depositing 1000 and transferring 300.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Query account balance",
+   "input": "account = BankAccount(500); account.view_balance()",
+   "expected": "Returns 500",
+   "rationale": "Docstring states: 'Return the account balance.'",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Return value of the transfer() method is not specified in the docstring.",
+  "Error handling for invalid amounts (negative or exceeding balance) during transfer() is undocumented, though likely expected based on deposit/withdraw patterns.",
+  "Whether transfer() validates that other_account is a BankAccount instance or safely handles None/wrong types.",
+  "Behavior when amount is passed as a float instead of int, despite the :param amount: int type hint."
+ ]
+}

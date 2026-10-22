@@ -1,0 +1,101 @@
+{
+ "summary": "Computes the prime factorization of a positive integer using naive trial division, returning a sorted list of prime factors with repetition.",
+ "input_domain": "Integers n where n >= 1",
+ "items": [
+  {
+   "id": "P1",
+   "category": "boundary",
+   "behavior": "Test smallest valid input",
+   "input": "n = 1",
+   "expected": "[]",
+   "rationale": "Docstring example explicitly states '>>> get_factors(1)\\n        []'. Matches spec output description.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Test smallest prime number",
+   "input": "n = 2",
+   "expected": "[2]",
+   "rationale": "Spec requires 'sorted order with repetition'. 2 is the smallest prime and satisfies n >= 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Test composite number from example",
+   "input": "n = 100",
+   "expected": "[2, 2, 5, 5]",
+   "rationale": "Directly matches the provided docstring example: '>>> get_factors(100)\\n        [2, 2, 5, 5]'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Test prime number from example",
+   "input": "n = 101",
+   "expected": "[101]",
+   "rationale": "Directly matches the provided docstring example: '>>> get_factors(101)\\n        [101]'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Test power of a single prime",
+   "input": "n = 8",
+   "expected": "[2, 2, 2]",
+   "rationale": "Spec requires 'repetition' of prime factors. 8 = 2^3, so three 2s are expected.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Test product of distinct primes",
+   "input": "n = 6",
+   "expected": "[2, 3]",
+   "rationale": "Spec requires 'sorted order'. 6 = 2 * 3, so factors must appear in ascending order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Verify reconstruction invariant",
+   "input": "n = 12",
+   "expected": "math.prod(get_factors(12)) == 12",
+   "rationale": "Fundamental property of prime factorization: the product of returned factors must reconstruct the original input n.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Test perfect square of a prime",
+   "input": "n = 49",
+   "expected": "[7, 7]",
+   "rationale": "Verifies correct handling of repeated factors for non-trivial squares without mixing bases.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "Test larger composite with mixed bases",
+   "input": "n = 1000",
+   "expected": "[2, 2, 2, 5, 5, 5]",
+   "rationale": "Ensures naive trial division correctly iterates through multiple prime bases and handles higher multiplicities.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "property",
+   "behavior": "Verify primality of output elements",
+   "input": "n = 12",
+   "expected": "All elements in get_factors(12) are prime numbers",
+   "rationale": "Spec explicitly states output is 'A list of the prime factors of n'. Composite factors would violate this contract.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when n is passed as a non-integer type (e.g., float, string, None). The docstring specifies 'n: An int', but Python's dynamic typing leaves coercion versus strict type-checking ambiguous.",
+  "Behavior when n < 1 (e.g., 0 or negative integers). The precondition 'n >= 1' is stated, but the spec notes preconditions are not promises to raise. Violations result in undefined behavior, so the exact exception or fallback is unspecified.",
+  "Expected runtime/performance limits for large primes or semiprimes given the 'naive trial division' description. No explicit bounds or timeouts are provided in the specification."
+ ]
+}

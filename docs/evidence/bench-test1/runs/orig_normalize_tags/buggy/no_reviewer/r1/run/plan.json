@@ -1,0 +1,101 @@
+{
+ "summary": "Converts a comma-separated string of tags into a list of unique, normalized tags by stripping surrounding whitespace, lowercasing, dropping empty entries, and preserving the order of first occurrences.",
+ "input_domain": "text: a string containing zero or more comma-separated tokens.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Normalizes mixed-case tags with surrounding whitespace, drops empty entries from consecutive commas, removes duplicates, and preserves order.",
+   "input": "\" Python, ML ,python,, Data \"",
+   "expected": "[\"python\", \"ml\", \"data\"]",
+   "rationale": "Directly matches the docstring example. Spec states: 'Each tag is stripped of surrounding whitespace and lower-cased. Empty tags... are dropped. Duplicates, compared after normalization, are removed so that only the first occurrence is kept, and the remaining tags keep their original order.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Returns an empty list when given an empty string.",
+   "input": "\"\"",
+   "expected": "[]",
+   "rationale": "Spec explicitly states: 'A string without any non-empty tag gives an empty list.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Returns an empty list when all tokens are whitespace-only.",
+   "input": "\", ,  , \"",
+   "expected": "[]",
+   "rationale": "Splitting yields only whitespace tokens, which become empty after stripping. Spec says: 'Empty tags (including ones that are only whitespace) are dropped.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Handles a single tag with no delimiters, stripping only surrounding whitespace.",
+   "input": "\"  Hello World  \"",
+   "expected": "[\"hello world\"]",
+   "rationale": "No commas means one token. Spec requires: 'Each tag is stripped of surrounding whitespace and lower-cased.' Internal spaces are preserved as they are not 'surrounding'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Removes case-insensitive duplicates, keeping only the first occurrence.",
+   "input": "\"Data,data,DATA\"",
+   "expected": "[\"data\"]",
+   "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'. After normalization, all three equal 'data', so only the first remains.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Correctly handles leading, trailing, and consecutive commas.",
+   "input": "\",tag1,,tag2,\"",
+   "expected": "[\"tag1\", \"tag2\"]",
+   "rationale": "Leading/trailing/consecutive commas produce empty strings upon splitting. Spec mandates: 'Empty tags... are dropped.' Remaining tags retain original order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Preserves original order while filtering out subsequent duplicates.",
+   "input": "\"a,b,a,c,b,d\"",
+   "expected": "[\"a\", \"b\", \"c\", \"d\"]",
+   "rationale": "Verifies the deduplication invariant: 'only the first occurrence is kept, and the remaining tags keep their original order' across interleaved duplicates.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Preserves internal whitespace while stripping only surrounding whitespace.",
+   "input": "\"Machine Learning , Deep Learning\"",
+   "expected": "[\"machine learning\", \"deep learning\"]",
+   "rationale": "Spec says: 'Each tag is stripped of surrounding whitespace and lower-cased.' This confirms internal spaces are intentional and should not be removed.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "Applies normalization uniformly to tags containing hyphens, underscores, and symbols.",
+   "input": "\"Tag-1, Tag_2, TAG#3\"",
+   "expected": "[\"tag-1\", \"tag_2\", \"tag#3\"]",
+   "rationale": "The specification does not restrict tag content to alphanumeric characters. It applies the strip/lowercase/filter/dedup pipeline to all tokens generically.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P10",
+   "category": "boundary",
+   "behavior": "Returns a single-element list for a tag with no surrounding whitespace.",
+   "input": "\"exact\"",
+   "expected": "[\"exact\"]",
+   "rationale": "Tests the minimal valid input where normalization changes nothing except ensuring it wraps correctly in a list, consistent with 'Turn a comma-separated tag string into a list of normalized tags.'",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when `text` is not a string (e.g., `None`, integer, list), as no type precondition or error handling is documented.",
+  "How Unicode case-folding interacts with locale-specific characters, since the spec only says 'lower-cased' without specifying Python's default `.lower()` vs `.casefold()` semantics.",
+  "Whether tabs or newline characters embedded in a tag are treated as 'surrounding whitespace' or internal content, as the spec's definition of whitespace is implicit."
+ ]
+}

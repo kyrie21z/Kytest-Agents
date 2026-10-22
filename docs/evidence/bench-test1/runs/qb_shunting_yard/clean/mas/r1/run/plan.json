@@ -1,0 +1,84 @@
+{
+ "summary": "Converts a list of integer and operator tokens from infix notation to Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm.",
+ "input_domain": "A list containing integers and the characters '+', '-', '*', '/', satisfying the precondition that every element is either an int or one of the four operators.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Converts a chain of subtractions",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Matches Example 1 in specification. Verifies basic infix-to-RPN transformation and left-associative subtraction.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Converts mixed subtraction and division",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Matches Example 2. Demonstrates correct reordering based on operator precedence, as implied by the shunting-yard algorithm citation.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Converts complex expression with interleaved +, *, -",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Matches Example 3. Tests handling of multiple precedence levels and operators in a longer sequence.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Returns single operand unchanged",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Boundary case: minimal valid expression. Specification states output is 'The input tokens reordered', so a single-token list remains unchanged.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P5",
+   "category": "empty",
+   "behavior": "Returns empty list for empty input",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "Degenerate case. Precondition holds vacuously. Specification implies output mirrors input structure, so empty input yields empty output.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Higher precedence operator (*) binds tighter than (+)",
+   "input": "[2, '*', 3, '+', 4]",
+   "expected": "[2, 3, '*', 4, '+']",
+   "rationale": "Standard shunting-yard behavior implied by the algorithm name in the docstring and demonstrated in Example 2. '*' must appear before '+' in RPN output.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Left associativity of division",
+   "input": "[10, '/', 2, '/', 5]",
+   "expected": "[10, 2, '/', 5, '/']",
+   "rationale": "Tests associativity. Standard arithmetic is left-associative; RPN reflects evaluation order. Consistent with shunting-yard algorithm semantics.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Same precedence operators maintain left-to-right evaluation order",
+   "input": "[1, '+', 2, '+', 3]",
+   "expected": "[1, 2, '+', 3, '+']",
+   "rationale": "Verifies left-associativity for addition, consistent with standard infix evaluation rules implied by the algorithm name cited in the docstring.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Handling of syntactically invalid infix sequences (e.g., [1, '+', '*', 2]) that satisfy the type precondition but lack proper operand-operator alternation.",
+  "Support for parentheses '(' and ')' which are standard in infix notation but entirely absent from the spec, examples, and token set.",
+  "Behavior for unary operators (e.g., [-5, '+', 3]) which are not mentioned in the token types or examples.",
+  "Whether floats or other numeric types are supported despite the precondition explicitly requiring isinstance(token, int)."
+ ]
+}

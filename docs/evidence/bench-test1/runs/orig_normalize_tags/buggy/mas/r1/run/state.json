@@ -1,0 +1,301 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return sorted(set(seen))\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/mas/r1/run/workspace",
+ "spec": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a comma-separated string of tags into a list of unique, normalized tags by stripping surrounding whitespace, lowercasing, dropping empty/whitespace-only entries, and removing duplicates while preserving the order of first occurrences.",
+  "input_domain": "Strings containing any combination of alphanumeric characters, punctuation, whitespace, and commas.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Validates the documented example with mixed case, extra whitespace, and consecutive commas.",
+    "input": "\" Python, ML ,python,, Data \"",
+    "expected": "[\"python\", \"ml\", \"data\"]",
+    "rationale": "Docstring example: 'Each tag is stripped of surrounding whitespace and lower-cased. Empty tags ... are dropped. Duplicates ... are removed so that only the first occurrence is kept'",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "boundary",
+    "behavior": "Tests a single tag without any commas or surrounding whitespace.",
+    "input": "\"hello\"",
+    "expected": "[\"hello\"]",
+    "rationale": "Implied by 'Turn a comma-separated tag string into a list' and 'A string without any non-empty tag gives an empty list'; single tokens should be processed normally.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "empty",
+    "behavior": "Tests an empty string input.",
+    "input": "\"\"",
+    "expected": "[]",
+    "rationale": "Spec states: 'A string without any non-empty tag gives an empty list.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "Tests a string composed entirely of commas and whitespace.",
+    "input": "\", , , \"",
+    "expected": "[]",
+    "rationale": "Splitting on commas yields only whitespace/empty segments, which are dropped per 'Empty tags (including ones that are only whitespace) are dropped.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "Tests case-insensitive duplicate removal across multiple occurrences.",
+    "input": "\"Apple, apple, APPLE\"",
+    "expected": "[\"apple\"]",
+    "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "property",
+    "behavior": "Verifies that original order is preserved and only the first occurrence of each tag survives.",
+    "input": "\"cherry, banana, cherry, date, banana\"",
+    "expected": "[\"cherry\", \"banana\", \"date\"]",
+    "rationale": "Spec states: 'the remaining tags keep their original order' combined with duplicate removal logic.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "boundary",
+    "behavior": "Tests leading and trailing commas with a single valid tag in the middle.",
+    "input": "\"  ,tag1,  \"",
+    "expected": "[\"tag1\"]",
+    "rationale": "Tags are stripped of surrounding whitespace and empty ones are dropped, leaving only the central valid tag.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "normal",
+    "behavior": "Tests preservation of internal spaces and punctuation within tags.",
+    "input": "\"hello world, foo-bar!\"",
+    "expected": "[\"hello world\", \"foo-bar!\"]",
+    "rationale": "Spec only mandates stripping 'surrounding whitespace' and lowercasing; internal characters are not mentioned for removal.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "boundary",
+    "behavior": "Tests a string containing only whitespace characters.",
+    "input": "\"   \\t\\n   \"",
+    "expected": "[]",
+    "rationale": "After splitting and stripping, all segments become empty/whitespace-only and are dropped, yielding an empty list per spec.",
+    "confidence": "high"
+   },
+   {
+    "id": "P10",
+    "category": "normal",
+    "behavior": "Tests standard compact comma-separated input without extra spacing.",
+    "input": "\"Tag1,Tag2,Tag3\"",
+    "expected": "[\"tag1\", \"tag2\", \"tag3\"]",
+    "rationale": "Direct application of lowercasing and comma-splitting rules with no edge-case whitespace or duplicates.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Behavior when `text` is not a string (e.g., int, None, list) is unspecified.",
+   "Handling of commas inside quoted substrings or alternative delimiters is not defined.",
+   "Unicode case-folding rules (e.g., locale-specific lowercasing, NFKC normalization, or handling of surrogate pairs) are not specified."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p2_single_tag",
+    "test_p3_empty_string",
+    "test_p4_commas_only",
+    "test_p5_case_insensitive_duplicates",
+    "test_p7_leading_trailing_commas",
+    "test_p9_whitespace_only_string",
+    "test_p10_standard_compact",
+    "test_extra_return_type_list"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_mixed_case_whitespace",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "from solution import normalize_tags\n\ndef test_p1_mixed_case_whitespace():\n    result = normalize_tags(\" Python, ML ,python,, Data \")\n    assert result == [\"python\", \"ml\", \"data\"]",
+     "oracle_reason": "Split on ',' yields [' python', ' ML ', 'python', '', ' Data ']; strip+lower → ['python','ml','python','','data']; drop empties → ['python','ml','python','data']; deduplicate preserving first → ['python','ml','data']",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p1_mixed_case_whitespace _________________________\ntest_solution.py:5: in test_p1_mixed_case_whitespace\n    assert result == [\"python\", \"ml\", \"data\"]\nE   AssertionError: assert ['data', 'ml', 'python'] == ['python', 'ml', 'data']\nE     \nE     At index 0 diff: 'data' != 'python'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_mixed_case_whitespace - AssertionError: asse...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p6_order_preservation",
+     "plan_ids": [
+      "P6"
+     ],
+     "code": "from solution import normalize_tags\n\ndef test_p6_order_preservation():\n    result = normalize_tags(\"cherry, banana, cherry, date, banana\")\n    assert result == [\"cherry\", \"banana\", \"date\"]",
+     "oracle_reason": "Split → ['cherry', ' banana', ' cherry', ' date', ' banana']; strip+lower → ['cherry','banana','cherry','date','banana']; deduplicate first → ['cherry','banana','date']",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p6_order_preservation __________________________\ntest_solution.py:5: in test_p6_order_preservation\n    assert result == [\"cherry\", \"banana\", \"date\"]\nE   AssertionError: assert ['banana', 'cherry', 'date'] == ['cherry', 'banana', 'date']\nE     \nE     At index 0 diff: 'banana' != 'cherry'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_order_preservation - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p8_internal_spaces_and_punctuation",
+     "plan_ids": [
+      "P8"
+     ],
+     "code": "from solution import normalize_tags\n\ndef test_p8_internal_spaces_and_punctuation():\n    \"\"\"Tests preservation of internal spaces and punctuation within tags.\n\n    Contract quote:\n      Each tag is stripped of surrounding whitespace and lower-cased.\n\n    Input domain:\n      Tags containing internal spaces and punctuation: 'hello world, foo-bar!'\n\n    Oracle / expected result:\n      Split on ',' → ['hello world', ' foo-bar!']; strip+lower → ['hello world', 'foo-bar!'];\n      both non-empty and unique → ['hello world', 'foo-bar!'].\n\n    Fault hypothesis:\n      If the implementation removes internal characters (e.g. via regex), the output\n      would differ from the expected preserved content.\n    \"\"\"\n    result = normalize_tags(\"hello world, foo-bar!\")\n    assert result == [\"hello world\", \"foo-bar!\"]",
+     "oracle_reason": "Split on ',' → ['hello world', ' foo-bar!']; strip+lower → ['hello world', 'foo-bar!']; both valid → ['hello world', 'foo-bar!']",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________ test_p8_internal_spaces_and_punctuation ____________________\ntest_solution.py:21: in test_p8_internal_spaces_and_punctuation\n    assert result == [\"hello world\", \"foo-bar!\"]\nE   AssertionError: assert ['foo-bar!', 'hello world'] == ['hello world', 'foo-bar!']\nE     \nE     At index 0 diff: 'foo-bar!' != 'hello world'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p8_internal_spaces_and_punctuation - AssertionE...\n1 failed in 0.02s\n"
+    },
+    {
+     "name": "test_extra_duplicate_removal_first_kept",
+     "plan_ids": [],
+     "code": "from solution import normalize_tags\n\ndef test_extra_duplicate_removal_first_kept():\n    \"\"\"Verifies that when duplicates exist, only the first occurrence's position is kept.\n\n    Contract quote:\n      Duplicates, compared after normalization, are removed so that only the first\n      occurrence is kept.\n\n    Input domain:\n      'Zebra, apple, ZEBRA' — 'Zebra' appears twice with different casing.\n\n    Oracle / expected result:\n      Normalized: ['zebra', 'apple', 'zebra']; deduplicate keeping first → ['zebra', 'apple'].\n      Note: this also tests that order is preserved (first occurrence at index 0).\n\n    Fault hypothesis:\n      If sorted() is used, result becomes ['apple', 'zebra'], losing original order.\n      If last occurrence is kept instead of first, result would be ['apple', 'zebra'].\n    \"\"\"\n    result = normalize_tags(\"Zebra, apple, ZEBRA\")\n    assert result == [\"zebra\", \"apple\"]",
+     "oracle_reason": "Split → ['Zebra', ' apple', ' ZEBRA']; strip+lower → ['zebra', 'apple', 'zebra']; dedup first → ['zebra', 'apple']",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________ test_extra_duplicate_removal_first_kept ____________________\ntest_solution.py:22: in test_extra_duplicate_removal_first_kept\n    assert result == [\"zebra\", \"apple\"]\nE   AssertionError: assert ['apple', 'zebra'] == ['zebra', 'apple']\nE     \nE     At index 0 diff: 'apple' != 'zebra'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_duplicate_removal_first_kept - AssertionE...\n1 failed in 0.02s\n"
+    }
+   ],
+   "attempts": 18,
+   "turns": 8,
+   "final_text": "Let me read the current state of `test_solution.py` to confirm what's been written."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 8,
+   "pytest": {
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9",
+     "P10"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_p1_mixed_case_whitespace",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement."
+    },
+    {
+     "test": "test_p6_order_preservation",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement."
+    },
+    {
+     "test": "test_p8_internal_spaces_and_punctuation",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement."
+    },
+    {
+     "test": "test_extra_duplicate_removal_first_kept",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement."
+    }
+   ],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_p1_mixed_case_whitespace",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "from solution import normalize_tags\n\ndef test_p1_mixed_case_whitespace():\n    result = normalize_tags(\" Python, ML ,python,, Data \")\n    assert result == [\"python\", \"ml\", \"data\"]",
+   "oracle_reason": "Split on ',' yields [' python', ' ML ', 'python', '', ' Data ']; strip+lower → ['python','ml','python','','data']; drop empties → ['python','ml','python','data']; deduplicate preserving first → ['python','ml','data']",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p1_mixed_case_whitespace _________________________\ntest_solution.py:5: in test_p1_mixed_case_whitespace\n    assert result == [\"python\", \"ml\", \"data\"]\nE   AssertionError: assert ['data', 'ml', 'python'] == ['python', 'ml', 'data']\nE     \nE     At index 0 diff: 'data' != 'python'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_mixed_case_whitespace - AssertionError: asse...\n1 failed in 0.01s\n",
+   "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement.",
+   "round": 1
+  },
+  {
+   "name": "test_p6_order_preservation",
+   "plan_ids": [
+    "P6"
+   ],
+   "code": "from solution import normalize_tags\n\ndef test_p6_order_preservation():\n    result = normalize_tags(\"cherry, banana, cherry, date, banana\")\n    assert result == [\"cherry\", \"banana\", \"date\"]",
+   "oracle_reason": "Split → ['cherry', ' banana', ' cherry', ' date', ' banana']; strip+lower → ['cherry','banana','cherry','date','banana']; deduplicate first → ['cherry','banana','date']",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p6_order_preservation __________________________\ntest_solution.py:5: in test_p6_order_preservation\n    assert result == [\"cherry\", \"banana\", \"date\"]\nE   AssertionError: assert ['banana', 'cherry', 'date'] == ['cherry', 'banana', 'date']\nE     \nE     At index 0 diff: 'banana' != 'cherry'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_order_preservation - AssertionError: assert ...\n1 failed in 0.01s\n",
+   "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement.",
+   "round": 1
+  },
+  {
+   "name": "test_p8_internal_spaces_and_punctuation",
+   "plan_ids": [
+    "P8"
+   ],
+   "code": "from solution import normalize_tags\n\ndef test_p8_internal_spaces_and_punctuation():\n    \"\"\"Tests preservation of internal spaces and punctuation within tags.\n\n    Contract quote:\n      Each tag is stripped of surrounding whitespace and lower-cased.\n\n    Input domain:\n      Tags containing internal spaces and punctuation: 'hello world, foo-bar!'\n\n    Oracle / expected result:\n      Split on ',' → ['hello world', ' foo-bar!']; strip+lower → ['hello world', 'foo-bar!'];\n      both non-empty and unique → ['hello world', 'foo-bar!'].\n\n    Fault hypothesis:\n      If the implementation removes internal characters (e.g. via regex), the output\n      would differ from the expected preserved content.\n    \"\"\"\n    result = normalize_tags(\"hello world, foo-bar!\")\n    assert result == [\"hello world\", \"foo-bar!\"]",
+   "oracle_reason": "Split on ',' → ['hello world', ' foo-bar!']; strip+lower → ['hello world', 'foo-bar!']; both valid → ['hello world', 'foo-bar!']",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________ test_p8_internal_spaces_and_punctuation ____________________\ntest_solution.py:21: in test_p8_internal_spaces_and_punctuation\n    assert result == [\"hello world\", \"foo-bar!\"]\nE   AssertionError: assert ['foo-bar!', 'hello world'] == ['hello world', 'foo-bar!']\nE     \nE     At index 0 diff: 'foo-bar!' != 'hello world'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p8_internal_spaces_and_punctuation - AssertionE...\n1 failed in 0.02s\n",
+   "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement.",
+   "round": 1
+  },
+  {
+   "name": "test_extra_duplicate_removal_first_kept",
+   "plan_ids": [],
+   "code": "from solution import normalize_tags\n\ndef test_extra_duplicate_removal_first_kept():\n    \"\"\"Verifies that when duplicates exist, only the first occurrence's position is kept.\n\n    Contract quote:\n      Duplicates, compared after normalization, are removed so that only the first\n      occurrence is kept.\n\n    Input domain:\n      'Zebra, apple, ZEBRA' — 'Zebra' appears twice with different casing.\n\n    Oracle / expected result:\n      Normalized: ['zebra', 'apple', 'zebra']; deduplicate keeping first → ['zebra', 'apple'].\n      Note: this also tests that order is preserved (first occurrence at index 0).\n\n    Fault hypothesis:\n      If sorted() is used, result becomes ['apple', 'zebra'], losing original order.\n      If last occurrence is kept instead of first, result would be ['apple', 'zebra'].\n    \"\"\"\n    result = normalize_tags(\"Zebra, apple, ZEBRA\")\n    assert result == [\"zebra\", \"apple\"]",
+   "oracle_reason": "Split → ['Zebra', ' apple', ' ZEBRA']; strip+lower → ['zebra', 'apple', 'zebra']; dedup first → ['zebra', 'apple']",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________ test_extra_duplicate_removal_first_kept ____________________\ntest_solution.py:22: in test_extra_duplicate_removal_first_kept\n    assert result == [\"zebra\", \"apple\"]\nE   AssertionError: assert ['apple', 'zebra'] == ['zebra', 'apple']\nE     \nE     At index 0 diff: 'apple' != 'zebra'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_duplicate_removal_first_kept - AssertionE...\n1 failed in 0.02s\n",
+   "reason": "The test correctly expects order preservation per the specification. The implementation incorrectly applies sorted() to the result, violating the 'keep their original order' requirement.",
+   "round": 1
+  }
+ ],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 4240
+  },
+  "testgen": {
+   "calls": 8,
+   "tokens": 61419
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 6176
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/mas/r1/input/solution.py"
+}

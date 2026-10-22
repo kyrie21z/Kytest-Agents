@@ -1,0 +1,84 @@
+{
+ "summary": "Returns a dictionary mapping every permutation of two lowercase English letters to its occurrence count as an adjacent bigram in the input word, defaulting to 0 for unobserved pairs.",
+ "input_domain": "Strings consisting exclusively of lowercase English alphabetic characters (a-z), with length greater than or equal to 0.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Distinct adjacent bigrams are counted correctly",
+   "input": "'abcd'",
+   "expected": "Dictionary contains 650 keys; 'ab': 1, 'bc': 1, 'cd': 1, all other keys 0",
+   "rationale": "Spec states: 'The dictionary values represent the frequency of these two-letter combinations in the given word.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Overlapping bigrams are counted independently",
+   "input": "'ana'",
+   "expected": "'an': 1, 'na': 1, all other keys 0",
+   "rationale": "Spec defines values as frequency counts; standard n-gram frequency counting processes overlapping adjacent pairs sequentially.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Empty input yields all zero counts",
+   "input": "''",
+   "expected": "Dictionary with 650 keys, all values 0",
+   "rationale": "Spec guarantees: 'If a combination does not appear in the word, its value will be 0.' An empty string contains no combinations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Single character input yields all zero counts",
+   "input": "'z'",
+   "expected": "Dictionary with 650 keys, all values 0",
+   "rationale": "No two-letter combinations can be formed from a single character, triggering the zero-value rule for all keys.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Keys exactly match permutations of 2 lowercase letters",
+   "input": "'test'",
+   "expected": "len(result) == 650 and set(result.keys()) == set(itertools.permutations(string.ascii_lowercase, 2))",
+   "rationale": "Spec requires: 'The function uses the itertools.permutations method to generate all two-letter combinations of alphabets.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "All values are non-negative integers",
+   "input": "'hello'",
+   "expected": "All values in result are instances of int and >= 0",
+   "rationale": "Values represent frequencies/counts, which are mathematically constrained to non-negative integers.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Repeated bigrams are summed correctly",
+   "input": "'abab'",
+   "expected": "'ab': 2, 'ba': 1, all other keys 0",
+   "rationale": "Spec defines values as frequency counts in the given word; multiple occurrences accumulate.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Keys with identical letters are absent due to permutations constraint",
+   "input": "'aa'",
+   "expected": "Key ('a','a') is absent from dictionary; all present keys have value 0",
+   "rationale": "Spec mandates itertools.permutations, which yields ordered selections without replacement from unique source characters, excluding identical-pair keys.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Handling of non-alphabetic characters (e.g., digits, punctuation, whitespace) in the input string is not specified.",
+  "Case sensitivity: whether uppercase input should be normalized to lowercase before counting is not stated.",
+  "Exact counting mechanism for overlapping substrings (e.g., whether 'aaa' counts 'aa' once or twice) is not explicitly defined.",
+  "Behavior when passed non-string types (e.g., None, int) is undefined; spec does not declare a precondition or explicit exception type."
+ ]
+}

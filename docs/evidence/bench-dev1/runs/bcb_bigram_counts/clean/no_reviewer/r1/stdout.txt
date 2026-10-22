@@ -1,0 +1,5 @@
+status: completed   rounds: 1   path: planner -> testgen -> verifier
+plan: 8 items, 4 ambiguities
+tests: 1 accepted   coverage: 1.0   dev mutants killed: 4/4   plan cited: 0.5
+usage: {"planner": {"calls": 1, "tokens": 6286}, "testgen": {"calls": 8, "tokens": 67230}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/bcb_bigram_counts/clean/no_reviewer/r1/run

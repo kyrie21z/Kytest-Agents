@@ -1,0 +1,104 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "class ShoppingCart:\n    \"\"\"\n    The class manages items, their prices, quantities, and allows to for add, removie, view items, and calculate the total price.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initialize the items representing the shopping list as an empty dictionary\n        \"\"\"\n        self.items = {}\n\n    def add_item(self, item, price, quantity=1):\n        \"\"\"\n        Add item information to the shopping list items, including price and quantity. The default quantity is 1\n        :param item: string, Item to be added\n        :param price: float, The price of the item\n        :param quantity:int, The number of items, defaults to 1\n        :return:None\n        >>> shoppingcart = ShoppingCart()\n        >>> shoppingcart.add_item(\"apple\", 1, 5)\n        self.items = {\"apple\":{\"price\":1, \"quantity\":5}}\n        \"\"\"\n        if item in self.items:\n            self.items[item] = {'price': price, 'quantity': quantity}\n        else:\n            self.items[item] = {'price': price, 'quantity': quantity}\n\n    def remove_item(self, item, quantity=1):\n        \"\"\"\n        Subtract the specified quantity of item from the shopping list items\n        :param item:string, Item to be subtracted in quantity\n        :param quantity:int, Quantity to be subtracted\n        :return:None\n        >>> shoppingcart.add_item(\"apple\", 1, 5)\n        >>> shoppingcart.remove_item(\"apple\", 3)\n        self.items = {\"apple\":{\"price\":1, \"quantity\":2}}\n        \"\"\"\n        if item in self.items:\n            self.items[item]['quantity'] -= quantity\n        else:\n            pass\n\n    def view_items(self) -> dict:\n        \"\"\"\n        Return the current shopping list items\n        :return:dict, the current shopping list items\n        >>> shoppingcart.add_item(\"apple\", 1, 5)\n        >>> shoppingcart.remove_item(\"apple\", 3)\n        >>> shoppingcart.view_items()\n        {\"apple\":{\"price\":1, \"quantity\":2}}\n        \"\"\"\n        return self.items\n\n    def total_price(self) -> float:\n        \"\"\"\n        Calculate the total price of all items in the shopping list, which is the quantity of each item multiplied by the price\n        :return:float, the total price of all items in the shopping list\n        >>> shoppingcart = ShoppingCart()\n        >>> shoppingcart.add_item(\"apple\", 1, 5)\n        >>> shoppingcart.add_item(\"banana\", 2, 3)\n        >>> shoppingcart.total_price()\n        11.0\n        \"\"\"\n        return sum([item['price'] for item in self.items.values()])\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/ce_shopping_cart/buggy/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_add_item_replaces_existing",
+    "test_remove_item_nonexistent"
+   ],
+   "failed": [
+    {
+     "name": "test_total_price_basic",
+     "plan_ids": [],
+     "code": "def test_total_price_basic():\n    \"\"\"Test basic total_price calculation with multiple items.\"\"\"\n    from solution import ShoppingCart\n    cart = ShoppingCart()\n    cart.add_item(\"apple\", 1.0, 5)\n    cart.add_item(\"banana\", 2.0, 3)\n    # Docstring example: apple(1*5=5) + banana(2*3=6) = 11.0\n    result = cart.total_price()\n    assert isinstance(result, float), f\"Expected float, got {type(result)}\"\n    assert result == 11.0, f\"Expected 11.0 (1*5 + 2*3), got {result}\"",
+     "oracle_reason": "Per docstring: total = sum(price_i * quantity_i) = 1*5 + 2*3 = 11.0",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________________ test_total_price_basic ____________________________\ntest_solution.py:10: in test_total_price_basic\n    assert result == 11.0, f\"Expected 11.0 (1*5 + 2*3), got {result}\"\nE   AssertionError: Expected 11.0 (1*5 + 2*3), got 3.0\nE   assert 3.0 == 11.0\n=========================== short test summary info ============================\nFAILED test_solution.py::test_total_price_basic - AssertionError: Expected 11...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_total_price_single_item",
+     "plan_ids": [],
+     "code": "def test_total_price_single_item():\n    \"\"\"Test total_price with a single item having quantity > 1.\"\"\"\n    from solution import ShoppingCart\n    cart = ShoppingCart()\n    cart.add_item(\"milk\", 3.5, 4)\n    # Expected: 3.5 * 4 = 14.0\n    result = cart.total_price()\n    assert result == 14.0, f\"Expected 14.0 (3.5*4), got {result}\"",
+     "oracle_reason": "Per docstring: total = 3.5 * 4 = 14.0",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_total_price_single_item _________________________\ntest_solution.py:8: in test_total_price_single_item\n    assert result == 14.0, f\"Expected 14.0 (3.5*4), got {result}\"\nE   AssertionError: Expected 14.0 (3.5*4), got 3.5\nE   assert 3.5 == 14.0\n=========================== short test summary info ============================\nFAILED test_solution.py::test_total_price_single_item - AssertionError: Expec...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_total_price_empty_cart",
+     "plan_ids": [],
+     "code": "def test_total_price_empty_cart():\n    \"\"\"Test total_price on an empty shopping cart.\"\"\"\n    from solution import ShoppingCart\n    cart = ShoppingCart()\n    result = cart.total_price()\n    assert result == 0.0, f\"Expected 0.0 for empty cart, got {result}\"\n    assert isinstance(result, float), f\"Expected float, got {type(result)}\"",
+     "oracle_reason": "Sum over empty set is 0.0; return type annotation says float",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_total_price_empty_cart __________________________\ntest_solution.py:7: in test_total_price_empty_cart\n    assert isinstance(result, float), f\"Expected float, got {type(result)}\"\nE   AssertionError: Expected float, got <class 'int'>\nE   assert False\nE    +  where False = isinstance(0, float)\n=========================== short test summary info ============================\nFAILED test_solution.py::test_total_price_empty_cart - AssertionError: Expect...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_remove_item_exceeds_quantity",
+     "plan_ids": [],
+     "code": "def test_remove_item_exceeds_quantity():\n    \"\"\"Test remove_item when requested quantity exceeds current quantity.\"\"\"\n    from solution import ShoppingCart\n    cart = ShoppingCart()\n    cart.add_item(\"apple\", 1.0, 3)\n    cart.remove_item(\"apple\", 5)\n    items = cart.view_items()\n    # Bug: quantity becomes negative (-2) instead of being clamped to 0 or removing item\n    assert items[\"apple\"][\"quantity\"] >= 0, f\"Quantity should not be negative, got {items['apple']['quantity']}\"",
+     "oracle_reason": "A reasonable contract would clamp to 0 or remove the item entirely; negative quantity is nonsensical",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________________ test_remove_item_exceeds_quantity _______________________\ntest_solution.py:9: in test_remove_item_exceeds_quantity\n    assert items[\"apple\"][\"quantity\"] >= 0, f\"Quantity should not be negative, got {items['apple']['quantity']}\"\nE   AssertionError: Quantity should not be negative, got -2\nE   assert -2 >= 0\n=========================== short test summary info ============================\nFAILED test_solution.py::test_remove_item_exceeds_quantity - AssertionError: ...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 12,
+   "turns": 6,
+   "final_text": "ion guards: if the SUT were fixed, these tests would pass; if the bugs are re-introduced, they'd fail again.\n\n### Remaining Limitations\n\n1. **No boundary test for `quantity=0`**: What happens when adding with quantity 0? Should it be stored or ignored?\n2. **No test for zero/negative price**: Prices like 0.0 or -1.0 aren't validated.\n3. **No test for `remove_item` with exact quantity**: Removing exactly the current quantity should ideally remove the item entirely (edge case).\n4. **No test for `view_items` return type**: The docstring says `-> dict`; no assertion checks this explicitly.\n5. **No test for default quantity=1**: Adding without specifying quantity should default to 1.\n6. **No test for floating-point precision**: Large prices/quantities could introduce rounding issues not covered."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 2,
+   "pytest": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.8666666666666667,
+   "missing_lines": [
+    39,
+    64
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 2,
+    "survivors": [
+     {
+      "line": 12,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 28,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 6,
+   "tokens": 39502
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/ce_shopping_cart/buggy/single/r1/input/solution.py"
+}

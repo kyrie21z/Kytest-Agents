@@ -1,0 +1,8 @@
+status: accepted   rounds: 2   path: planner -> testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+plan: 8 items, 4 ambiguities
+tests: 7 accepted   coverage: 0.7931034482758621   dev mutants killed: 3/5   plan cited: 1.0
+review r1: revise  test_p1_add_item_structure=suspected_bug
+review r2: accept  test_p1_add_item_populates=suspected_bug, test_extra_restock_nonexistent=suspected_bug
+suspected bugs: 3 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/mas/r1/run/bug_report.md
+usage: {"planner": {"calls": 1, "tokens": 7059}, "testgen": {"calls": 16, "tokens": 132070}, "reviewer": {"calls": 2, "tokens": 14301}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/mas/r1/run

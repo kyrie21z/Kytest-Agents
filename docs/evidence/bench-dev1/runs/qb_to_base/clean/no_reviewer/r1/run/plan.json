@@ -1,0 +1,75 @@
+{
+ "summary": "Converts a positive base-10 integer into its string representation in a specified target base ranging from 2 to 36.",
+ "input_domain": "num: positive integer (num >= 1); b: integer such that 2 <= b <= 36",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "matches provided example",
+   "input": "(31, 16)",
+   "expected": "'1F'",
+   "rationale": "Directly validates the specification example: >>> to_base(31, 16) -> '1F'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "minimum valid num",
+   "input": "(1, 2)",
+   "expected": "'1'",
+   "rationale": "Tests the lower boundary of the precondition num > 0. The smallest positive integer in any base >= 2 is '1'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "minimum valid base",
+   "input": "(7, 2)",
+   "expected": "'111'",
+   "rationale": "Tests the lower boundary of the precondition 2 <= b <= 36. Binary representation of 7 is '111'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "maximum valid base single digit",
+   "input": "(35, 36)",
+   "expected": "'Z'",
+   "rationale": "Tests the upper boundary of the precondition b <= 36. Base 36 requires the highest single digit, which the example implies uses uppercase letters.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "base-10 identity",
+   "input": "(42, 10)",
+   "expected": "'42'",
+   "rationale": "Converting a base-10 integer to base 10 should yield its standard decimal string representation, consistent with num being described as a 'base-10 integer'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "positional notation verification",
+   "input": "(256, 16)",
+   "expected": "'100'",
+   "rationale": "256 equals 16^2. In base 16, this must be represented as '100', verifying correct place-value arithmetic as implied by 'representing the value of num in base b'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "multi-character alphanumeric output",
+   "input": "(1000, 16)",
+   "expected": "'3E8'",
+   "rationale": "Tests generation of multiple alphabetic characters in the result string for bases > 10, extending the pattern shown in the example ('1F').",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Case convention for digits above 9: The example uses uppercase 'F', but the specification does not explicitly mandate uppercase over lowercase for bases > 10.",
+  "Precondition violation handling: Inputs where num <= 0, b < 2, b > 36, or non-integer types violate the stated preconditions. The specification defines this as undefined behavior and does not specify whether to raise ValueError, TypeError, or allow silent failure.",
+  "Exact symbol mapping for bases > 10: While 0-9 followed by A-Z is standard, the specification does not formally define the character set used for radix > 10.",
+  "Handling of zero or negative numbers: Although excluded by the precondition num > 0, it is unclear if the implementation should support them or strictly enforce the precondition."
+ ]
+}

@@ -1,0 +1,7 @@
+status: accepted   rounds: 1   path: planner -> testgen -> verifier -> reviewer
+plan: 8 items, 3 ambiguities
+tests: 7 accepted   coverage: 1.0   dev mutants killed: 4/4   plan cited: 1.0
+review r1: accept  test_p1_standard_bigrams=suspected_bug, test_p4_overlapping_repeated=suspected_bug, test_extra_non_symmetric_bigram=suspected_bug
+suspected bugs: 3 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/bcb_bigram_counts/buggy/mas/r1/run/bug_report.md
+usage: {"planner": {"calls": 1, "tokens": 6130}, "testgen": {"calls": 8, "tokens": 64118}, "reviewer": {"calls": 1, "tokens": 6230}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/bcb_bigram_counts/buggy/mas/r1/run

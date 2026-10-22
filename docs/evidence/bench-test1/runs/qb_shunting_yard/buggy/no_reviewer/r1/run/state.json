@@ -1,0 +1,251 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_reviewer/r1/run/workspace",
+ "spec": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a list of integer operands and binary operator tokens ('+', '-', '*', '/') from infix notation to equivalent Reverse Polish Notation (RPN) using standard precedence (*, / > +, -) and left associativity.",
+  "input_domain": "List of tokens where each token is either an int or one of the strings '+', '-', '*', '/'",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Converts simple left-associative subtraction chain",
+    "input": "[10, '-', 5, '-', 2]",
+    "expected": "[10, 5, '-', 2, '-']",
+    "rationale": "Directly matches Example 1 in specification.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Handles mixed precedence (subtraction vs division)",
+    "input": "[34, '-', 12, '/', 5]",
+    "expected": "[34, 12, 5, '/', '-']",
+    "rationale": "Directly matches Example 2 in specification.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Handles complex mix of addition, multiplication, and subtraction",
+    "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+    "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+    "rationale": "Directly matches Example 3 in specification.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "Returns empty list for empty input",
+    "input": "[]",
+    "expected": "[]",
+    "rationale": "Precondition holds vacuously for empty lists; logically, no tokens to reorder yields empty output.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P5",
+    "category": "boundary",
+    "behavior": "Returns single-element list unchanged for single operand",
+    "input": "[42]",
+    "expected": "[42]",
+    "rationale": "Boundary case with minimum non-empty input; no operators require reordering per shunting-yard rules.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "normal",
+    "behavior": "Verifies higher precedence of multiplication over addition",
+    "input": "[2, '*', 3, '+', 4]",
+    "expected": "[2, 3, '*', 4, '+']",
+    "rationale": "Tests standard operator precedence where '*' binds tighter than '+', consistent with Dijkstra's shunting-yard algorithm description.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "normal",
+    "behavior": "Verifies left associativity of equal precedence operators",
+    "input": "[10, '+', 20, '-', 5]",
+    "expected": "[10, 20, '+', 5, '-']",
+    "rationale": "Tests that '+' and '-' (same precedence) are processed left-to-right, matching Example 1 pattern and standard arithmetic rules.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "property",
+    "behavior": "Maintains correct output queue and operator stack through chained operations",
+    "input": "[1, '+', 2, '*', 3, '/', 4]",
+    "expected": "[1, 2, '+', 3, 4, '/', '*']",
+    "rationale": "Property test verifying cumulative state transitions of the shunting-yard algorithm across multiple precedence levels without intermediate side effects.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Float operands (e.g., [1.5, '+', 2]): Precondition specifies isinstance(token, int), making floats invalid. Behavior on violation is undefined.",
+   "Parenthesized expressions (e.g., [1, '+', 2, '*', 3]): Precondition restricts tokens to ints and '+-*/'; parentheses are excluded. If present, behavior is undefined.",
+   "Malformed infix expressions (e.g., [1, '+']): Token types satisfy precondition, but syntactic validity isn't checked. Expected behavior for unbalanced expressions is unspecified.",
+   "Negative numbers represented as separate tokens (e.g., [-, 5, '+', 3]): Precondition allows '-' as a token. It's unclear if '-' acts as unary negation or binary subtraction. Shunting-yard typically handles unary via distinct tokens or flags, which isn't specified."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p4_empty_list",
+    "test_p5_single_operand"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_simple_subtraction",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "\"\"\"Test P1: Converts simple left-associative subtraction chain.\"\"\"\nfrom solution import shunting_yard\n\ndef test_p1_simple_subtraction():\n    result = shunting_yard([10, '-', 5, '-', 2])\n    assert result == [10, 5, '-', 2, '-']",
+     "oracle_reason": "Left-associative subtraction yields RPN where first subtraction is completed before the second, matching Example 1 in the docstring.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p1_simple_subtraction __________________________\ntest_solution.py:6: in test_p1_simple_subtraction\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_simple_subtraction - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p2_mixed_precedence",
+     "plan_ids": [
+      "P2"
+     ],
+     "code": "\"\"\"Test P2: Handles mixed precedence (subtraction vs division).\"\"\"\nfrom solution import shunting_yard\n\ndef test_p2_mixed_precedence():\n    result = shunting_yard([34, '-', 12, '/', 5])\n    assert result == [34, 12, 5, '/', '-']",
+     "oracle_reason": "Division has higher precedence than subtraction, so '/' is emitted before '-'. The expected output matches Example 2 in the docstring.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_p2_mixed_precedence ___________________________\ntest_solution.py:6: in test_p2_mixed_precedence\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p2_mixed_precedence - AssertionError: assert [3...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p3_complex_mix",
+     "plan_ids": [
+      "P3"
+     ],
+     "code": "\"\"\"Test P3: Handles complex mix of addition, multiplication, and subtraction.\"\"\"\nfrom solution import shunting_yard\n\ndef test_p3_complex_mix():\n    result = shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']",
+     "oracle_reason": "'*' binds tighter than '+' and '-', so '9 9 *' appears early. Then left-to-right associativity handles the rest. Matches Example 3 in the docstring.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________________ test_p3_complex_mix ______________________________\ntest_solution.py:6: in test_p3_complex_mix\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']\nE   AssertionError: assert [4, 9, 9, 10, 13] == [4, 9, 9, '*', '+', 10, ...]\nE     \nE     At index 3 diff: 10 != '*'\nE     Right contains 4 more items, first extra item: 10\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p3_complex_mix - AssertionError: assert [4, 9, ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p6_mult_before_add",
+     "plan_ids": [
+      "P6"
+     ],
+     "code": "\"\"\"Test P6: Verifies higher precedence of multiplication over addition.\"\"\"\nfrom solution import shunting_yard\n\ndef test_p6_mult_before_add():\n    result = shunting_yard([2, '*', 3, '+', 4])\n    assert result == [2, 3, '*', 4, '+']",
+     "oracle_reason": "'*' has higher precedence than '+', so '*' is emitted first. Expected RPN: [2, 3, '*', 4, '+'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_p6_mult_before_add ____________________________\ntest_solution.py:6: in test_p6_mult_before_add\n    assert result == [2, 3, '*', 4, '+']\nE   AssertionError: assert [2, 3, 4] == [2, 3, '*', 4, '+']\nE     \nE     At index 2 diff: 4 != '*'\nE     Right contains 2 more items, first extra item: 4\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_mult_before_add - AssertionError: assert [2,...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p7_left_associativity",
+     "plan_ids": [
+      "P7"
+     ],
+     "code": "\"\"\"Test P7: Verifies left associativity of equal precedence operators.\"\"\"\nfrom solution import shunting_yard\n\ndef test_p7_left_associativity():\n    result = shunting_yard([10, '+', 20, '-', 5])\n    assert result == [10, 20, '+', 5, '-']",
+     "oracle_reason": "'+' and '-' have same precedence; left associativity means '+' is emitted before '-'. Expected: [10, 20, '+', 5, '-'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p7_left_associativity __________________________\ntest_solution.py:6: in test_p7_left_associativity\n    assert result == [10, 20, '+', 5, '-']\nE   AssertionError: assert [10, 20, 5] == [10, 20, '+', 5, '-']\nE     \nE     At index 2 diff: 5 != '+'\nE     Right contains 2 more items, first extra item: 5\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p7_left_associativity - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p8_chained_operations",
+     "plan_ids": [
+      "P8"
+     ],
+     "code": "\"\"\"Test P8: Maintains correct output queue through chained operations.\"\"\"\nfrom solution import shunting_yard\n\ndef test_p8_chained_operations():\n    result = shunting_yard([1, '+', 2, '*', 3, '/', 4])\n    assert result == [1, 2, '+', 3, 4, '/', '*']",
+     "oracle_reason": "'*' and '/' have higher precedence than '+', so '/' is emitted first, then '*', then '+'. Expected: [1, 2, '+', 3, 4, '/', '*'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p8_chained_operations __________________________\ntest_solution.py:6: in test_p8_chained_operations\n    assert result == [1, 2, '+', 3, 4, '/', '*']\nE   AssertionError: assert [1, 2, 3, 4] == [1, 2, '+', 3, 4, '/', ...]\nE     \nE     At index 2 diff: 3 != '+'\nE     Right contains 3 more items, first extra item: 4\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p8_chained_operations - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_only_addition",
+     "plan_ids": [],
+     "code": "\"\"\"Extra: Tests chain of only addition operators.\"\"\"\nfrom solution import shunting_yard\n\ndef test_extra_only_addition():\n    result = shunting_yard([1, '+', 2, '+', 3])\n    assert result == [1, 2, '+', 3, '+']",
+     "oracle_reason": "All '+' have same precedence and left associativity. RPN should be [1, 2, '+', 3, '+'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_extra_only_addition ___________________________\ntest_solution.py:6: in test_extra_only_addition\n    assert result == [1, 2, '+', 3, '+']\nE   AssertionError: assert [1, 2, 3] == [1, 2, '+', 3, '+']\nE     \nE     At index 2 diff: 3 != '+'\nE     Right contains 2 more items, first extra item: 3\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_only_addition - AssertionError: assert [1...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_only_multiplication",
+     "plan_ids": [],
+     "code": "\"\"\"Extra: Tests chain of only multiplication operators.\"\"\"\nfrom solution import shunting_yard\n\ndef test_extra_only_multiplication():\n    result = shunting_yard([5, '*', 6, '*', 7])\n    assert result == [5, 6, '*', 7, '*']",
+     "oracle_reason": "All '*' have same precedence and left associativity. RPN should be [5, 6, '*', 7, '*'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_extra_only_multiplication ________________________\ntest_solution.py:6: in test_extra_only_multiplication\n    assert result == [5, 6, '*', 7, '*']\nE   AssertionError: assert [5, 6, 7] == [5, 6, '*', 7, '*']\nE     \nE     At index 2 diff: 7 != '*'\nE     Right contains 2 more items, first extra item: 7\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_only_multiplication - AssertionError: ass...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 22,
+   "turns": 8,
+   "final_text": "All 4 tests in this round correctly fail — they expose the same bug (operators never emitted). Combined with the 2 accepted from round 2, I now have `test_p4_empty_list` and `test_p5_single_operand` accepted. The remaining tests (P1, P2, P3, P6, P7, P8, plus extras) all correctly fail and should be accepted as valid fault-detecting tests. Let me resubmit them all together."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 2,
+   "pytest": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.75,
+   "missing_lines": [
+    33,
+    34,
+    36
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 5508
+  },
+  "testgen": {
+   "calls": 8,
+   "tokens": 60130
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_reviewer/r1/input/solution.py"
+}

@@ -1,0 +1,84 @@
+{
+ "summary": "A bank account system supporting initialization, deposit, withdrawal, balance viewing, and inter-account transfers with basic validation and state management.",
+ "input_domain": "Non-negative integers for `amount` parameters; non-negative integers for initial `balance`; instances of `BankAccount` for `other_account`.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit positive amount",
+   "input": "account = BankAccount(); account.deposit(100)",
+   "expected": "Returns 100, account.balance == 100",
+   "rationale": "Docstring: 'Deposits a certain amount into the account, increasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Withdraw from existing balance",
+   "input": "account = BankAccount(500); account.withdraw(200)",
+   "expected": "Returns 300, account.balance == 300",
+   "rationale": "Docstring: 'Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Deposit zero amount",
+   "input": "account = BankAccount(); account.deposit(0)",
+   "expected": "Returns 0, account.balance == 0",
+   "rationale": "Spec raises error only if 'amount is negative'. Zero is non-negative, thus valid. Balance increases by 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Deposit negative amount",
+   "input": "account = BankAccount(); account.deposit(-50)",
+   "expected": "Raises ValueError('Invalid amount')",
+   "rationale": "Docstring: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Withdraw exceeding balance",
+   "input": "account = BankAccount(100); account.withdraw(150)",
+   "expected": "Raises ValueError('Insufficient balance.')",
+   "rationale": "Docstring: 'If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Withdraw exact balance",
+   "input": "account = BankAccount(100); account.withdraw(100)",
+   "expected": "Returns 0, account.balance == 0",
+   "rationale": "Error condition specifies 'greater than', so equal amount is permitted. Balance decreases to 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "View balance after mixed operations",
+   "input": "account = BankAccount(); account.deposit(50); account.withdraw(20); account.view_balance()",
+   "expected": "Returns 30",
+   "rationale": "Docstring: 'Return the account balance.' Tests state invariant consistency across deposit/withdraw calls.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Transfer between accounts",
+   "input": "a1 = BankAccount(); a2 = BankAccount(); a1.deposit(1000); a1.transfer(a2, 300)",
+   "expected": "a1.balance == 700, a2.balance == 300",
+   "rationale": "Docstring example: 'account1.balance = 700 account2.balance = 300'",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Transfer function return value: The specification does not state whether `transfer` should return anything (e.g., new balance, success boolean, or None).",
+  "Negative amount handling in `transfer`: The spec explicitly defines `ValueError` for negative amounts in `deposit` and `withdraw`, but omits this rule for `transfer`.",
+  "Initial balance validation: The spec sets a default of 0 but does not specify if negative initial balances are allowed or how they affect subsequent operations.",
+  "Non-integer amount types: The signature comments `:param amount: int`, but do not define behavior if floats, strings, or other types are passed."
+ ]
+}

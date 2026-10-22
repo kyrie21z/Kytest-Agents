@@ -1,0 +1,465 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/mas/r1/run/workspace",
+ "spec": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a list of integer and operator tokens in infix notation to equivalent Reverse Polish Notation (RPN) using standard operator precedence and left-associativity rules.",
+  "input_domain": "A list of tokens where each token is either an integer or a string from '+-*/', forming a syntactically valid infix arithmetic expression.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Converts a simple chain of subtractions to RPN",
+    "input": "[10, '-', 5, '-', 2]",
+    "expected": "[10, 5, '-', 2, '-']",
+    "rationale": "Directly matches specification example; verifies basic left-associative subtraction.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Converts an expression with mixed operator precedence to RPN",
+    "input": "[34, '-', 12, '/', 5]",
+    "expected": "[34, 12, 5, '/', '-']",
+    "rationale": "Matches specification example; verifies that '/' (higher precedence) is processed before '-' (lower precedence).",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Converts a complex infix expression with interleaved operators to RPN",
+    "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+    "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+    "rationale": "Matches specification example; verifies correct handling of precedence and left-associativity across multiple operators.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Returns a single operand unchanged",
+    "input": "[42]",
+    "expected": "[42]",
+    "rationale": "Valid per precondition; RPN of a standalone number is the number itself.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "boundary",
+    "behavior": "Converts a minimal valid expression (two operands, one operator)",
+    "input": "[3, '+', 7]",
+    "expected": "[3, 7, '+']",
+    "rationale": "Simplest non-trivial case; verifies basic operand-operator ordering.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "normal",
+    "behavior": "Verifies left-associativity of identical precedence operators",
+    "input": "[10, '*', 2, '*', 5]",
+    "expected": "[10, 2, '*', 5, '*']",
+    "rationale": "Tests standard shunting-yard left-associativity rule: (10 * 2) * 5 becomes 10 2 * 5 *.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "normal",
+    "behavior": "Verifies precedence ordering between addition and multiplication",
+    "input": "[2, '+', 3, '*', 4]",
+    "expected": "[2, 3, 4, '*', '+']",
+    "rationale": "Standard arithmetic rule: * binds tighter than +, so 2 + (3 * 4) converts to 2 3 4 * +.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "empty",
+    "behavior": "Handles an empty token list gracefully",
+    "input": "[]",
+    "expected": "[]",
+    "rationale": "Vacuously satisfies precondition; conversion of empty expression yields empty RPN.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P9",
+    "category": "property",
+    "behavior": "Preserves the multiset of tokens during conversion",
+    "input": "[1, '+', 2, '*', 3]",
+    "expected": "Output contains exactly the same integers and operators as input, reordered.",
+    "rationale": "Infix-to-RPN conversion rearranges tokens without duplication or loss; implicit correctness invariant.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Handling of unary operators (e.g., negative numbers represented as ['-', 5]) is unspecified; the precondition allows it but standard shunting-yard behavior differs for unary vs binary minus.",
+   "Parentheses are not included in the token set or precondition, so grouped/nested expressions cannot be represented or tested.",
+   "Syntactically invalid infix sequences that still satisfy the type/precondition check (e.g., [1, '+', '+', 2] or [1, 2, '+']) are undefined behavior; the spec does not specify whether to raise an error or return a result."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p4_single_operand",
+    "test_p8_empty_list"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_simple_chain_subtraction",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "def test_p1_simple_chain_subtraction():\n    from solution import shunting_yard\n    result = shunting_yard([10, '-', 5, '-', 2])\n    assert result == [10, 5, '-', 2, '-']",
+     "oracle_reason": "Per the docstring example, left-associative subtraction (10 - 5) - 2 converts to RPN as 10 5 - 2 -. The expected output matches the specification verbatim.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p1_simple_chain_subtraction _______________________\ntest_solution.py:4: in test_p1_simple_chain_subtraction\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_simple_chain_subtraction - AssertionError: a...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p2_mixed_precedence",
+     "plan_ids": [
+      "P2"
+     ],
+     "code": "def test_p2_mixed_precedence():\n    from solution import shunting_yard\n    result = shunting_yard([34, '-', 12, '/', 5])\n    assert result == [34, 12, 5, '/', '-']",
+     "oracle_reason": "Division has higher precedence than subtraction. The expression 34 - (12 / 5) in RPN is 34 12 5 / -. Matches the docstring example exactly.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_p2_mixed_precedence ___________________________\ntest_solution.py:4: in test_p2_mixed_precedence\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p2_mixed_precedence - AssertionError: assert [3...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p3_complex_interleaved",
+     "plan_ids": [
+      "P3"
+     ],
+     "code": "def test_p3_complex_interleaved():\n    from solution import shunting_yard\n    result = shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']",
+     "oracle_reason": "Per the docstring example. The infix 4 + 9 * 9 - 10 + 13 parses as ((4 + (9 * 9)) - 10) + 13, which in RPN is 4 9 9 * + 10 - 13 +.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p3_complex_interleaved __________________________\ntest_solution.py:4: in test_p3_complex_interleaved\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']\nE   AssertionError: assert [4, 9, 9, 10, 13] == [4, 9, 9, '*', '+', 10, ...]\nE     \nE     At index 3 diff: 10 != '*'\nE     Right contains 4 more items, first extra item: 10\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p3_complex_interleaved - AssertionError: assert...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p5_minimal_expression",
+     "plan_ids": [
+      "P5"
+     ],
+     "code": "def test_p5_minimal_expression():\n    from solution import shunting_yard\n    result = shunting_yard([3, '+', 7])\n    assert result == [3, 7, '+']",
+     "oracle_reason": "The expression 3 + 7 in RPN is simply 3 7 +. This is the minimal valid infix-to-RPN conversion.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p5_minimal_expression __________________________\ntest_solution.py:4: in test_p5_minimal_expression\n    assert result == [3, 7, '+']\nE   AssertionError: assert [3, 7] == [3, 7, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p5_minimal_expression - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p6_left_associativity_multiplication",
+     "plan_ids": [
+      "P6"
+     ],
+     "code": "def test_p6_left_associativity_multiplication():\n    from solution import shunting_yard\n    result = shunting_yard([10, '*', 2, '*', 5])\n    assert result == [10, 2, '*', 5, '*']",
+     "oracle_reason": "(10 * 2) * 5 in RPN is 10 2 * 5 *. Left-associativity means the first '*' is emitted before the second '*' is pushed.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_p6_left_associativity_multiplication ___________________\ntest_solution.py:4: in test_p6_left_associativity_multiplication\n    assert result == [10, 2, '*', 5, '*']\nE   AssertionError: assert [10, 2, 5] == [10, 2, '*', 5, '*']\nE     \nE     At index 2 diff: 5 != '*'\nE     Right contains 2 more items, first extra item: 5\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_left_associativity_multiplication - Assertio...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p7_precedence_add_mul",
+     "plan_ids": [
+      "P7"
+     ],
+     "code": "def test_p7_precedence_add_mul():\n    from solution import shunting_yard\n    result = shunting_yard([2, '+', 3, '*', 4])\n    assert result == [2, 3, 4, '*', '+']",
+     "oracle_reason": "Multiplication binds tighter than addition. The expression 2 + (3 * 4) in RPN is 2 3 4 * +.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p7_precedence_add_mul __________________________\ntest_solution.py:4: in test_p7_precedence_add_mul\n    assert result == [2, 3, 4, '*', '+']\nE   AssertionError: assert [2, 3, 4] == [2, 3, 4, '*', '+']\nE     \nE     Right contains 2 more items, first extra item: '*'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p7_precedence_add_mul - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p9_multiset_preservation",
+     "plan_ids": [
+      "P9"
+     ],
+     "code": "def test_p9_multiset_preservation():\n    from solution import shunting_yard\n    result = shunting_yard([1, '+', 2, '*', 3])\n    # Verify the multiset of tokens is preserved\n    sorted_input = sorted([1, '+', 2, '*', 3], key=lambda x: (isinstance(x, str), x))\n    sorted_output = sorted(result, key=lambda x: (isinstance(x, str), x))\n    assert sorted_input == sorted_output",
+     "oracle_reason": "Infix-to-RPN conversion rearranges tokens without duplication or loss. The output must contain exactly the same integers and operators as the input.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p9_multiset_preservation _________________________\ntest_solution.py:7: in test_p9_multiset_preservation\n    assert sorted_input == sorted_output\nE   AssertionError: assert [1, 2, 3, '*', '+'] == [1, 2, 3]\nE     \nE     Left contains 2 more items, first extra item: '*'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p9_multiset_preservation - AssertionError: asse...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_negative_operands",
+     "plan_ids": [],
+     "code": "def test_extra_negative_operands():\n    from solution import shunting_yard\n    result = shunting_yard([-5, '+', -3])\n    assert result == [-5, -3, '+']",
+     "oracle_reason": "Negative integers are valid per precondition (isinstance(-5, int) is True). RPN of (-5) + (-3) is -5 -3 +.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_extra_negative_operands _________________________\ntest_solution.py:4: in test_extra_negative_operands\n    assert result == [-5, -3, '+']\nE   AssertionError: assert [-5, -3] == [-5, -3, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_negative_operands - AssertionError: asser...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_division_precedence",
+     "plan_ids": [],
+     "code": "def test_extra_division_precedence():\n    from solution import shunting_yard\n    result = shunting_yard([100, '/', 10, '*', 2])\n    assert result == [100, 10, 2, '*', '/']",
+     "oracle_reason": "Division and multiplication have equal precedence and are left-associative. (100 / 10) * 2 in RPN is 100 10 2 * /. Both '/' and '*' have precedence 2.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_extra_division_precedence ________________________\ntest_solution.py:4: in test_extra_division_precedence\n    assert result == [100, 10, 2, '*', '/']\nE   AssertionError: assert [100, 10, 2] == [100, 10, 2, '*', '/']\nE     \nE     Right contains 2 more items, first extra item: '*'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_division_precedence - AssertionError: ass...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_multiple_operators_same_precedence",
+     "plan_ids": [],
+     "code": "def test_extra_multiple_operators_same_precedence():\n    from solution import shunting_yard\n    result = shunting_yard([1, '+', 2, '+', 3, '+', 4])\n    assert result == [1, 2, '+', 3, '+', 4, '+']",
+     "oracle_reason": "All '+' have equal precedence and are left-associative. (((1+2)+3)+4) in RPN is 1 2 + 3 + 4 +.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_extra_multiple_operators_same_precedence _________________\ntest_solution.py:4: in test_extra_multiple_operators_same_precedence\n    assert result == [1, 2, '+', 3, '+', 4, '+']\nE   AssertionError: assert [1, 2, 3, 4] == [1, 2, '+', 3, '+', 4, ...]\nE     \nE     At index 2 diff: 3 != '+'\nE     Right contains 3 more items, first extra item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_multiple_operators_same_precedence - Asse...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_higher_precedence_first",
+     "plan_ids": [],
+     "code": "def test_extra_higher_precedence_first():\n    from solution import shunting_yard\n    result = shunting_yard([5, '*', 3, '+', 2])\n    assert result == [5, 3, '*', 2, '+']",
+     "oracle_reason": "Multiplication has higher precedence than addition. 5 * 3 + 2 parses as (5 * 3) + 2, which in RPN is 5 3 * 2 +.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________________ test_extra_higher_precedence_first ______________________\ntest_solution.py:4: in test_extra_higher_precedence_first\n    assert result == [5, 3, '*', 2, '+']\nE   AssertionError: assert [5, 3, 2] == [5, 3, '*', 2, '+']\nE     \nE     At index 2 diff: 2 != '*'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_higher_precedence_first - AssertionError:...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 16,
+   "turns": 7,
+   "final_text": "r parentheses are not tested (and likely out of scope).\n- **No type validation testing**: The precondition guarantees valid tokens, but we don't test what happens with invalid inputs (strings other than operators, floats, etc.).\n- **No evaluation correctness**: We verify RPN structure but don't evaluate the RPN to check arithmetic equivalence.\n- **No associativity edge cases beyond left-associativity**: Right-associative operators (like exponentiation, if it existed) aren't tested.\n- **Large expressions**: Only small representative inputs are used; longer chains could expose stack-related bugs.\n\nA reviewer should decide whether the failing tests reveal a bug in `solution.py` (which they do — the missing `opstack.append(token)` on line 34) or whether the specification itself needs revision."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 2,
+   "pytest": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.75,
+   "missing_lines": [
+    33,
+    34,
+    36
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_p1_simple_chain_subtraction",
+     "judgement": "suspected_bug",
+     "reason": "The implementation fails to push operators onto opstack, causing all operators to be omitted from the output. This contradicts the specification's examples and intended behavior."
+    },
+    {
+     "test": "test_p2_mixed_precedence",
+     "judgement": "suspected_bug",
+     "reason": "Same root cause: operators are not pushed to the stack, violating the specification's requirement to reorder tokens into RPN including operators."
+    },
+    {
+     "test": "test_p3_complex_interleaved",
+     "judgement": "suspected_bug",
+     "reason": "Implementation drops all operators due to missing stack push, contradicting the spec example and algorithm description."
+    },
+    {
+     "test": "test_p5_minimal_expression",
+     "judgement": "suspected_bug",
+     "reason": "Follows spec logic; implementation incorrectly returns only operands, omitting the '+' operator."
+    },
+    {
+     "test": "test_p6_left_associativity_multiplication",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly specifies left-associative RPN conversion; implementation bug causes operator loss."
+    },
+    {
+     "test": "test_p7_precedence_add_mul",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly specifies precedence handling; implementation fails to track operators on the stack."
+    },
+    {
+     "test": "test_p9_multiset_preservation",
+     "judgement": "suspected_bug",
+     "reason": "Test enforces a valid correctness invariant (token multiset preservation); implementation violates it by dropping operators."
+    },
+    {
+     "test": "test_extra_negative_operands",
+     "judgement": "suspected_bug",
+     "reason": "Valid extension of spec; negative integers are allowed by precondition, and operators must be preserved in RPN output."
+    },
+    {
+     "test": "test_extra_division_precedence",
+     "judgement": "suspected_bug",
+     "reason": "Valid extension testing equal precedence and left-associativity; implementation drops operators."
+    },
+    {
+     "test": "test_extra_multiple_operators_same_precedence",
+     "judgement": "suspected_bug",
+     "reason": "Valid extension; implementation fails to handle multiple operators due to missing stack push."
+    },
+    {
+     "test": "test_extra_higher_precedence_first",
+     "judgement": "suspected_bug",
+     "reason": "Valid extension testing precedence rules; implementation drops operators entirely."
+    }
+   ],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_p1_simple_chain_subtraction",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "def test_p1_simple_chain_subtraction():\n    from solution import shunting_yard\n    result = shunting_yard([10, '-', 5, '-', 2])\n    assert result == [10, 5, '-', 2, '-']",
+   "oracle_reason": "Per the docstring example, left-associative subtraction (10 - 5) - 2 converts to RPN as 10 5 - 2 -. The expected output matches the specification verbatim.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________ test_p1_simple_chain_subtraction _______________________\ntest_solution.py:4: in test_p1_simple_chain_subtraction\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_simple_chain_subtraction - AssertionError: a...\n1 failed in 0.01s\n",
+   "reason": "The implementation fails to push operators onto opstack, causing all operators to be omitted from the output. This contradicts the specification's examples and intended behavior.",
+   "round": 1
+  },
+  {
+   "name": "test_p2_mixed_precedence",
+   "plan_ids": [
+    "P2"
+   ],
+   "code": "def test_p2_mixed_precedence():\n    from solution import shunting_yard\n    result = shunting_yard([34, '-', 12, '/', 5])\n    assert result == [34, 12, 5, '/', '-']",
+   "oracle_reason": "Division has higher precedence than subtraction. The expression 34 - (12 / 5) in RPN is 34 12 5 / -. Matches the docstring example exactly.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_p2_mixed_precedence ___________________________\ntest_solution.py:4: in test_p2_mixed_precedence\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p2_mixed_precedence - AssertionError: assert [3...\n1 failed in 0.01s\n",
+   "reason": "Same root cause: operators are not pushed to the stack, violating the specification's requirement to reorder tokens into RPN including operators.",
+   "round": 1
+  },
+  {
+   "name": "test_p3_complex_interleaved",
+   "plan_ids": [
+    "P3"
+   ],
+   "code": "def test_p3_complex_interleaved():\n    from solution import shunting_yard\n    result = shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "oracle_reason": "Per the docstring example. The infix 4 + 9 * 9 - 10 + 13 parses as ((4 + (9 * 9)) - 10) + 13, which in RPN is 4 9 9 * + 10 - 13 +.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p3_complex_interleaved __________________________\ntest_solution.py:4: in test_p3_complex_interleaved\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']\nE   AssertionError: assert [4, 9, 9, 10, 13] == [4, 9, 9, '*', '+', 10, ...]\nE     \nE     At index 3 diff: 10 != '*'\nE     Right contains 4 more items, first extra item: 10\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p3_complex_interleaved - AssertionError: assert...\n1 failed in 0.01s\n",
+   "reason": "Implementation drops all operators due to missing stack push, contradicting the spec example and algorithm description.",
+   "round": 1
+  },
+  {
+   "name": "test_p5_minimal_expression",
+   "plan_ids": [
+    "P5"
+   ],
+   "code": "def test_p5_minimal_expression():\n    from solution import shunting_yard\n    result = shunting_yard([3, '+', 7])\n    assert result == [3, 7, '+']",
+   "oracle_reason": "The expression 3 + 7 in RPN is simply 3 7 +. This is the minimal valid infix-to-RPN conversion.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p5_minimal_expression __________________________\ntest_solution.py:4: in test_p5_minimal_expression\n    assert result == [3, 7, '+']\nE   AssertionError: assert [3, 7] == [3, 7, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p5_minimal_expression - AssertionError: assert ...\n1 failed in 0.01s\n",
+   "reason": "Follows spec logic; implementation incorrectly returns only operands, omitting the '+' operator.",
+   "round": 1
+  },
+  {
+   "name": "test_p6_left_associativity_multiplication",
+   "plan_ids": [
+    "P6"
+   ],
+   "code": "def test_p6_left_associativity_multiplication():\n    from solution import shunting_yard\n    result = shunting_yard([10, '*', 2, '*', 5])\n    assert result == [10, 2, '*', 5, '*']",
+   "oracle_reason": "(10 * 2) * 5 in RPN is 10 2 * 5 *. Left-associativity means the first '*' is emitted before the second '*' is pushed.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________ test_p6_left_associativity_multiplication ___________________\ntest_solution.py:4: in test_p6_left_associativity_multiplication\n    assert result == [10, 2, '*', 5, '*']\nE   AssertionError: assert [10, 2, 5] == [10, 2, '*', 5, '*']\nE     \nE     At index 2 diff: 5 != '*'\nE     Right contains 2 more items, first extra item: 5\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_left_associativity_multiplication - Assertio...\n1 failed in 0.01s\n",
+   "reason": "Test correctly specifies left-associative RPN conversion; implementation bug causes operator loss.",
+   "round": 1
+  },
+  {
+   "name": "test_p7_precedence_add_mul",
+   "plan_ids": [
+    "P7"
+   ],
+   "code": "def test_p7_precedence_add_mul():\n    from solution import shunting_yard\n    result = shunting_yard([2, '+', 3, '*', 4])\n    assert result == [2, 3, 4, '*', '+']",
+   "oracle_reason": "Multiplication binds tighter than addition. The expression 2 + (3 * 4) in RPN is 2 3 4 * +.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p7_precedence_add_mul __________________________\ntest_solution.py:4: in test_p7_precedence_add_mul\n    assert result == [2, 3, 4, '*', '+']\nE   AssertionError: assert [2, 3, 4] == [2, 3, 4, '*', '+']\nE     \nE     Right contains 2 more items, first extra item: '*'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p7_precedence_add_mul - AssertionError: assert ...\n1 failed in 0.01s\n",
+   "reason": "Test correctly specifies precedence handling; implementation fails to track operators on the stack.",
+   "round": 1
+  },
+  {
+   "name": "test_p9_multiset_preservation",
+   "plan_ids": [
+    "P9"
+   ],
+   "code": "def test_p9_multiset_preservation():\n    from solution import shunting_yard\n    result = shunting_yard([1, '+', 2, '*', 3])\n    # Verify the multiset of tokens is preserved\n    sorted_input = sorted([1, '+', 2, '*', 3], key=lambda x: (isinstance(x, str), x))\n    sorted_output = sorted(result, key=lambda x: (isinstance(x, str), x))\n    assert sorted_input == sorted_output",
+   "oracle_reason": "Infix-to-RPN conversion rearranges tokens without duplication or loss. The output must contain exactly the same integers and operators as the input.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p9_multiset_preservation _________________________\ntest_solution.py:7: in test_p9_multiset_preservation\n    assert sorted_input == sorted_output\nE   AssertionError: assert [1, 2, 3, '*', '+'] == [1, 2, 3]\nE     \nE     Left contains 2 more items, first extra item: '*'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p9_multiset_preservation - AssertionError: asse...\n1 failed in 0.01s\n",
+   "reason": "Test enforces a valid correctness invariant (token multiset preservation); implementation violates it by dropping operators.",
+   "round": 1
+  },
+  {
+   "name": "test_extra_negative_operands",
+   "plan_ids": [],
+   "code": "def test_extra_negative_operands():\n    from solution import shunting_yard\n    result = shunting_yard([-5, '+', -3])\n    assert result == [-5, -3, '+']",
+   "oracle_reason": "Negative integers are valid per precondition (isinstance(-5, int) is True). RPN of (-5) + (-3) is -5 -3 +.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_extra_negative_operands _________________________\ntest_solution.py:4: in test_extra_negative_operands\n    assert result == [-5, -3, '+']\nE   AssertionError: assert [-5, -3] == [-5, -3, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_negative_operands - AssertionError: asser...\n1 failed in 0.01s\n",
+   "reason": "Valid extension of spec; negative integers are allowed by precondition, and operators must be preserved in RPN output.",
+   "round": 1
+  },
+  {
+   "name": "test_extra_division_precedence",
+   "plan_ids": [],
+   "code": "def test_extra_division_precedence():\n    from solution import shunting_yard\n    result = shunting_yard([100, '/', 10, '*', 2])\n    assert result == [100, 10, 2, '*', '/']",
+   "oracle_reason": "Division and multiplication have equal precedence and are left-associative. (100 / 10) * 2 in RPN is 100 10 2 * /. Both '/' and '*' have precedence 2.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_extra_division_precedence ________________________\ntest_solution.py:4: in test_extra_division_precedence\n    assert result == [100, 10, 2, '*', '/']\nE   AssertionError: assert [100, 10, 2] == [100, 10, 2, '*', '/']\nE     \nE     Right contains 2 more items, first extra item: '*'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_division_precedence - AssertionError: ass...\n1 failed in 0.01s\n",
+   "reason": "Valid extension testing equal precedence and left-associativity; implementation drops operators.",
+   "round": 1
+  },
+  {
+   "name": "test_extra_multiple_operators_same_precedence",
+   "plan_ids": [],
+   "code": "def test_extra_multiple_operators_same_precedence():\n    from solution import shunting_yard\n    result = shunting_yard([1, '+', 2, '+', 3, '+', 4])\n    assert result == [1, 2, '+', 3, '+', 4, '+']",
+   "oracle_reason": "All '+' have equal precedence and are left-associative. (((1+2)+3)+4) in RPN is 1 2 + 3 + 4 +.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_extra_multiple_operators_same_precedence _________________\ntest_solution.py:4: in test_extra_multiple_operators_same_precedence\n    assert result == [1, 2, '+', 3, '+', 4, '+']\nE   AssertionError: assert [1, 2, 3, 4] == [1, 2, '+', 3, '+', 4, ...]\nE     \nE     At index 2 diff: 3 != '+'\nE     Right contains 3 more items, first extra item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_multiple_operators_same_precedence - Asse...\n1 failed in 0.01s\n",
+   "reason": "Valid extension; implementation fails to handle multiple operators due to missing stack push.",
+   "round": 1
+  },
+  {
+   "name": "test_extra_higher_precedence_first",
+   "plan_ids": [],
+   "code": "def test_extra_higher_precedence_first():\n    from solution import shunting_yard\n    result = shunting_yard([5, '*', 3, '+', 2])\n    assert result == [5, 3, '*', 2, '+']",
+   "oracle_reason": "Multiplication has higher precedence than addition. 5 * 3 + 2 parses as (5 * 3) + 2, which in RPN is 5 3 * 2 +.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________________ test_extra_higher_precedence_first ______________________\ntest_solution.py:4: in test_extra_higher_precedence_first\n    assert result == [5, 3, '*', 2, '+']\nE   AssertionError: assert [5, 3, 2] == [5, 3, '*', 2, '+']\nE     \nE     At index 2 diff: 2 != '*'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_higher_precedence_first - AssertionError:...\n1 failed in 0.01s\n",
+   "reason": "Valid extension testing precedence rules; implementation drops operators entirely.",
+   "round": 1
+  }
+ ],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6402
+  },
+  "testgen": {
+   "calls": 7,
+   "tokens": 49294
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 8752
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/mas/r1/input/solution.py"
+}

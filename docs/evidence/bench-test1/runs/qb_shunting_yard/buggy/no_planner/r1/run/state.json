@@ -1,0 +1,178 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_planner/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_empty_input",
+    "test_return_type"
+   ],
+   "failed": [
+    {
+     "name": "test_docstring_example_1",
+     "plan_ids": [],
+     "code": "def test_docstring_example_1():\n    \"\"\"Test the first example from the docstring: 10 - 5 - 2.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([10, '-', 5, '-', 2])\n    assert result == [10, 5, '-', 2, '-']",
+     "oracle_reason": "Left-associative subtraction: (10 - 5) - 2. Infix '10 - 5 - 2' becomes RPN '10 5 - 2 -'. The first '-' is emitted when the second '-' arrives (same precedence, left-associative), then the second '-' is popped at end-of-input.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_docstring_example_1 ___________________________\ntest_solution.py:5: in test_docstring_example_1\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_docstring_example_1 - AssertionError: assert [1...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_docstring_example_2",
+     "plan_ids": [],
+     "code": "def test_docstring_example_2():\n    \"\"\"Test the second example from the docstring: 34 - 12 / 5.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([34, '-', 12, '/', 5])\n    assert result == [34, 12, 5, '/', '-']",
+     "oracle_reason": "Division has higher precedence than subtraction, so '12 / 5' is grouped first. RPN: '34 12 5 / -'. When '/' is processed, '-' stays on stack. At end, '-' is popped after '/'.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_docstring_example_2 ___________________________\ntest_solution.py:5: in test_docstring_example_2\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_docstring_example_2 - AssertionError: assert [3...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_single_operator",
+     "plan_ids": [],
+     "code": "def test_single_operator():\n    \"\"\"Test simplest non-trivial case: 1 + 2.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([1, '+', 2])\n    assert result == [1, 2, '+']",
+     "oracle_reason": "Simplest infix expression with one operator. Infix '1 + 2' maps directly to RPN '1 2 +'. The operator is pushed onto the stack and popped at end-of-input.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________________ test_single_operator _____________________________\ntest_solution.py:5: in test_single_operator\n    assert result == [1, 2, '+']\nE   AssertionError: assert [1, 2] == [1, 2, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_single_operator - AssertionError: assert [1, 2]...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_multiplication_precedence",
+     "plan_ids": [],
+     "code": "def test_multiplication_precedence():\n    \"\"\"Test precedence: 2 * 3 + 4 — multiplication binds before addition.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([2, '*', 3, '+', 4])\n    assert result == [2, 3, '*', 4, '+']",
+     "oracle_reason": "'*' has precedence 2, '+' has precedence 1. When '+' arrives, '*' (precedence 2) is >= '+' (precedence 1), so '*' is popped first. Result: '2 3 * 4 +'. This verifies the precedence comparison logic works correctly.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_multiplication_precedence ________________________\ntest_solution.py:5: in test_multiplication_precedence\n    assert result == [2, 3, '*', 4, '+']\nE   AssertionError: assert [2, 3, 4] == [2, 3, '*', 4, '+']\nE     \nE     At index 2 diff: 4 != '*'\nE     Right contains 2 more items, first extra item: 4\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_multiplication_precedence - AssertionError: ass...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 6,
+   "turns": 8,
+   "final_text": "</think>"
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 2,
+   "pytest": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.8333333333333333,
+   "missing_lines": [
+    34,
+    36
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_docstring_example_1",
+     "judgement": "suspected_bug",
+     "reason": "Test input and expected output match the specification examples exactly. The implementation violates the spec by failing to push operators onto the stack, resulting in missing operators in the output."
+    },
+    {
+     "test": "test_docstring_example_2",
+     "judgement": "suspected_bug",
+     "reason": "Test input and expected output match the specification examples exactly. The implementation violates the spec by failing to push operators onto the stack."
+    },
+    {
+     "test": "test_single_operator",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly validates basic operator handling per the shunting-yard algorithm described in the spec. Implementation omits operators."
+    },
+    {
+     "test": "test_multiplication_precedence",
+     "judgement": "suspected_bug",
+     "reason": "Test correctly validates precedence handling per the algorithm spec. Implementation omits operators."
+    }
+   ],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_docstring_example_1",
+   "plan_ids": [],
+   "code": "def test_docstring_example_1():\n    \"\"\"Test the first example from the docstring: 10 - 5 - 2.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([10, '-', 5, '-', 2])\n    assert result == [10, 5, '-', 2, '-']",
+   "oracle_reason": "Left-associative subtraction: (10 - 5) - 2. Infix '10 - 5 - 2' becomes RPN '10 5 - 2 -'. The first '-' is emitted when the second '-' arrives (same precedence, left-associative), then the second '-' is popped at end-of-input.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_docstring_example_1 ___________________________\ntest_solution.py:5: in test_docstring_example_1\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_docstring_example_1 - AssertionError: assert [1...\n1 failed in 0.01s\n",
+   "reason": "Test input and expected output match the specification examples exactly. The implementation violates the spec by failing to push operators onto the stack, resulting in missing operators in the output.",
+   "round": 1
+  },
+  {
+   "name": "test_docstring_example_2",
+   "plan_ids": [],
+   "code": "def test_docstring_example_2():\n    \"\"\"Test the second example from the docstring: 34 - 12 / 5.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([34, '-', 12, '/', 5])\n    assert result == [34, 12, 5, '/', '-']",
+   "oracle_reason": "Division has higher precedence than subtraction, so '12 / 5' is grouped first. RPN: '34 12 5 / -'. When '/' is processed, '-' stays on stack. At end, '-' is popped after '/'.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_docstring_example_2 ___________________________\ntest_solution.py:5: in test_docstring_example_2\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_docstring_example_2 - AssertionError: assert [3...\n1 failed in 0.01s\n",
+   "reason": "Test input and expected output match the specification examples exactly. The implementation violates the spec by failing to push operators onto the stack.",
+   "round": 1
+  },
+  {
+   "name": "test_single_operator",
+   "plan_ids": [],
+   "code": "def test_single_operator():\n    \"\"\"Test simplest non-trivial case: 1 + 2.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([1, '+', 2])\n    assert result == [1, 2, '+']",
+   "oracle_reason": "Simplest infix expression with one operator. Infix '1 + 2' maps directly to RPN '1 2 +'. The operator is pushed onto the stack and popped at end-of-input.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________________ test_single_operator _____________________________\ntest_solution.py:5: in test_single_operator\n    assert result == [1, 2, '+']\nE   AssertionError: assert [1, 2] == [1, 2, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_single_operator - AssertionError: assert [1, 2]...\n1 failed in 0.01s\n",
+   "reason": "Test correctly validates basic operator handling per the shunting-yard algorithm described in the spec. Implementation omits operators.",
+   "round": 1
+  },
+  {
+   "name": "test_multiplication_precedence",
+   "plan_ids": [],
+   "code": "def test_multiplication_precedence():\n    \"\"\"Test precedence: 2 * 3 + 4 — multiplication binds before addition.\"\"\"\n    from solution import shunting_yard\n    result = shunting_yard([2, '*', 3, '+', 4])\n    assert result == [2, 3, '*', 4, '+']",
+   "oracle_reason": "'*' has precedence 2, '+' has precedence 1. When '+' arrives, '*' (precedence 2) is >= '+' (precedence 1), so '*' is popped first. Result: '2 3 * 4 +'. This verifies the precedence comparison logic works correctly.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_multiplication_precedence ________________________\ntest_solution.py:5: in test_multiplication_precedence\n    assert result == [2, 3, '*', 4, '+']\nE   AssertionError: assert [2, 3, 4] == [2, 3, '*', 4, '+']\nE     \nE     At index 2 diff: 4 != '*'\nE     Right contains 2 more items, first extra item: 4\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_multiplication_precedence - AssertionError: ass...\n1 failed in 0.01s\n",
+   "reason": "Test correctly validates precedence handling per the algorithm spec. Implementation omits operators.",
+   "round": 1
+  }
+ ],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 33107
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 5585
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_planner/r1/input/solution.py"
+}

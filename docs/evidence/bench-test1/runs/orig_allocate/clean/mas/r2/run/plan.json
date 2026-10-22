@@ -1,0 +1,118 @@
+{
+ "summary": "Proportionally distributes a non-negative integer total across a list of non-negative weights using floor allocation and remainder distribution, raising ValueError on invalid inputs.",
+ "input_domain": "total: int >= 0; weights: list of ints, length >= 1, elements >= 0, at least one element > 0",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Equal weights distribute total almost evenly, with remainder going to first index",
+   "input": "allocate(100, [1, 1, 1])",
+   "expected": "[34, 33, 33]",
+   "rationale": "Directly from docstring example. sum(weights)=3, floors=[33,33,33], remainder=1 goes to index 0 due to tie-breaking rule.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Weights with zeros allocate proportionally without modifying zero-weight entries",
+   "input": "allocate(10, [3, 0, 7])",
+   "expected": "[3, 0, 7]",
+   "rationale": "Directly from docstring example. sum(weights)=10, floors=[3,0,7], remainder=0. Matches spec: 'Entries with weight 0 always receive 0.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Zero total distributes nothing regardless of weights",
+   "input": "allocate(0, [2, 3, 5])",
+   "expected": "[0, 0, 0]",
+   "rationale": "Spec allows total=0. floor(0*w/sum)=0 for all, remainder=0, so all shares are 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Single weight receives entire total",
+   "input": "allocate(10, [5])",
+   "expected": "[10]",
+   "rationale": "Boundary case for list length=1. floor(10*5/5)=10, remainder=0. Result must sum to total.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Result list always sums exactly to total",
+   "input": "allocate(7, [2, 3, 5])",
+   "expected": "[1, 2, 4]",
+   "rationale": "Spec guarantees 'summing to total'. Calculation: floors=[1,2,3], remainders=[4,1,5], one unit left goes to index 2 (largest remainder). Sum=7.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Negative total raises ValueError",
+   "input": "allocate(-5, [1, 2])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if total is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "empty",
+   "behavior": "Empty weights list raises ValueError",
+   "input": "allocate(10, [])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if ... weights is empty'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Negative weight raises ValueError",
+   "input": "allocate(10, [1, -2, 3])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if ... any weight is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "All-zero weights raises ValueError",
+   "input": "allocate(10, [0, 0, 0])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states: 'Raises ValueError if ... all weights are zero'. Division by zero would occur otherwise.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "normal",
+   "behavior": "Tie-breaking rule favors lower indices when remainders are equal",
+   "input": "allocate(5, [1, 1, 1])",
+   "expected": "[2, 2, 1]",
+   "rationale": "Spec states: 'ties go to the entry with the lower index'. Floors=[1,1,1], remainders=[2,2,2], two units left. Indices 0 and 1 receive +1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P11",
+   "category": "normal",
+   "behavior": "Zero-weight entries strictly receive zero even when total is large",
+   "input": "allocate(10, [0, 5, 0])",
+   "expected": "[0, 10, 0]",
+   "rationale": "Spec explicitly states: 'Entries with weight 0 always receive 0.' Floor and remainder calculations for w=0 yield 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P12",
+   "category": "boundary",
+   "behavior": "Total smaller than number of positive weights distributes one unit to lowest index",
+   "input": "allocate(1, [1, 1, 1, 1, 1])",
+   "expected": "[1, 0, 0, 0, 0]",
+   "rationale": "Boundary case where total < len(weights). Floors all 0, remainders all 1/5. One unit remains. Tie breaks to index 0.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Whether the function strictly requires a list type or accepts other iterables (tuples, generators) despite the docstring specifying 'list'.",
+  "Exact arithmetic strategy for very large integers: whether the implementation uses Python's arbitrary-precision integers or floats, which could affect precision for remainders when total * w exceeds 2^53."
+ ]
+}

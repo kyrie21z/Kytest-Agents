@@ -1,0 +1,85 @@
+{
+ "summary": "A bank account class managing monetary transactions including initialization, deposits, withdrawals, balance checks, and inter-account transfers.",
+ "input_domain": "Integer values for initial balance and transaction amounts; BankAccount instances as transfer targets; valid ranges require amount >= 0 for deposits/transfers and amount <= current balance for withdrawals.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit positive amount increases balance and returns new balance",
+   "input": "BankAccount().deposit(100)",
+   "expected": "returns 100, balance becomes 100",
+   "rationale": "Spec states: 'Deposits a certain amount into the account, increasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Withdraw partial amount decreases balance and returns new balance",
+   "input": "BankAccount(balance=500).withdraw(200)",
+   "expected": "returns 300, balance becomes 300",
+   "rationale": "Spec states: 'Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Depositing zero leaves balance unchanged but returns it",
+   "input": "BankAccount(balance=50).deposit(0)",
+   "expected": "returns 50, balance remains 50",
+   "rationale": "Spec permits integer amounts >= 0; 0 is a valid non-negative boundary case with no explicit restriction against it.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Withdrawing exactly the current balance succeeds and zeroes it",
+   "input": "BankAccount(balance=100).withdraw(100)",
+   "expected": "returns 0, balance becomes 0",
+   "rationale": "Spec raises error only if amount is 'greater than the account balance'; equal amounts are permitted.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Negative deposit raises ValueError with exact message",
+   "input": "BankAccount().deposit(-10)",
+   "expected": "raises ValueError('Invalid amount')",
+   "rationale": "Explicitly stated: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Negative withdraw raises ValueError with exact message",
+   "input": "BankAccount(balance=100).withdraw(-50)",
+   "expected": "raises ValueError('Invalid amount')",
+   "rationale": "Explicitly stated: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "Withdraw exceeding balance raises ValueError with exact message",
+   "input": "BankAccount(balance=50).withdraw(100)",
+   "expected": "raises ValueError('Insufficient balance.')",
+   "rationale": "Explicitly stated: 'If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\")'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "state",
+   "behavior": "Transfer deducts from source and adds to destination, updating both balances",
+   "input": "a1=BankAccount(balance=1000); a2=BankAccount(); a1.transfer(a2, 300)",
+   "expected": "a1.balance == 700, a2.balance == 300",
+   "rationale": "Docstring example demonstrates: 'account1.balance = 700 account2.balance = 300' after equivalent operations.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Return value of the transfer() method is not specified in the signature or docstring.",
+  "Error handling for transfer() is undocumented (e.g., insufficient funds, negative amounts, or passing None/non-BankAccount objects).",
+  "Behavior when transferring to the same account instance (self-transfer) is unspecified.",
+  "Handling of non-integer types (floats, strings) despite type hints indicating int.",
+  "Whether view_balance() should return a copy of the balance or a reference, and if it enforces any read-only constraints."
+ ]
+}

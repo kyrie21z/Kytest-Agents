@@ -1,0 +1,73 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def find_first_in_sorted(arr, x):\n    \"\"\"\n    Fancy Binary Search\n    fancy-binsearch\n\n\n    Input:\n        arr: A sorted list of ints\n        x: A value to find\n\n    Output:\n        The lowest index i such that arr[i] == x, or -1 if x not in arr\n\n    Example:\n        >>> find_first_in_sorted([3, 4, 5, 5, 5, 5, 6], 5)\n        2\n    \"\"\"\n    lo = 0\n    hi = len(arr)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        if x == arr[mid] and (mid == 0 or x != arr[mid - 1]):\n            return mid\n        elif x <= arr[mid]:\n            hi = mid\n        else:\n            lo = mid + 1\n    return -1\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_find_first_in_sorted/clean/single/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_found_first_of_duplicates",
+    "test_not_found",
+    "test_empty_array",
+    "test_single_element_found",
+    "test_target_at_index_zero",
+    "test_all_elements_same_as_target",
+    "test_target_at_last_index",
+    "test_negative_numbers",
+    "test_duplicate_values_target_not_present",
+    "test_two_elements_both_match",
+    "test_single_element_not_found",
+    "test_target_between_duplicates"
+   ],
+   "failed": [],
+   "attempts": 12,
+   "turns": 5,
+   "final_text": "e arrays could expose different mid-computation overflow behavior (though Python handles big ints natively, so this is unlikely to matter).\n3. **No performance/termination check**: We verify correctness but do not stress-test for infinite loops on pathological inputs (the algorithm is O(log n), so this is low risk).\n4. **No return-type assertion**: We assert integer equality but do not explicitly verify that the return value is an `int` (e.g., catching accidental float returns).\n5. **Boundary between `<` and `<=`**: The condition `x <= arr[mid]` drives `hi = mid`. We have not tested a case where `x < arr[mid]` exactly at a boundary to ensure the leftward narrowing is correct — though `test_not_found` with x=6 and `test_duplicate_values_target_not_present` with x=3 provide partial coverage."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 12,
+   "pytest": {
+    "passed": 12,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.625,
+    "killed": 5,
+    "total": 8,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 5,
+   "tokens": 27210
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_find_first_in_sorted/clean/single/r2/input/solution.py"
+}

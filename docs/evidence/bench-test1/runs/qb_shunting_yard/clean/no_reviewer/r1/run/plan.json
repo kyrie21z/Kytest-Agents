@@ -1,0 +1,85 @@
+{
+ "summary": "Converts a list of infix arithmetic tokens (integers and +, -, *, / operators) into equivalent Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm.",
+ "input_domain": "A list containing integers and the string operators '+', '-', '*', '/'. All elements must satisfy the precondition: all(isinstance(token, int) or token in '+-*/' for token in tokens).",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Left-associative subtraction chain conversion",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Directly matches the first docstring example. Verifies that consecutive subtractions are converted to postfix while preserving operand order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Mixed precedence conversion",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Matches the second docstring example. Confirms that '/' (higher precedence) is placed before '-' (lower precedence) in the output, overriding left-to-right infix order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Complex precedence and grouping",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Matches the third docstring example. Validates correct handling of multiple precedence levels and operator grouping across a longer expression.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Single operand passthrough",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "A valid expression with only one token satisfies the precondition. RPN conversion of a single number should return the number unchanged.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Minimal binary expression",
+   "input": "[7, '+', 3]",
+   "expected": "[7, 3, '+']",
+   "rationale": "Smallest valid non-trivial input. The spec implies reordering tokens into RPN, which for two operands and one operator yields operand operand operator.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Division precedence over addition",
+   "input": "[8, '+', 10, '/', 2]",
+   "expected": "[8, 10, 2, '/', '+']",
+   "rationale": "Tests precedence rules where '/' must bind tighter than '+'. Consistent with the shunting-yard algorithm's operator stack behavior described in the docstring title.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Token conservation (permutation)",
+   "input": "Any valid tokens list satisfying the precondition",
+   "expected": "Output list contains exactly the same integers and operators as input, merely reordered",
+   "rationale": "Docstring states: 'The input tokens reordered into Reverse Polish Notation'. This implies a strict permutation: no tokens are added, removed, or modified.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Multiplication precedence over subtraction",
+   "input": "[5, '-', 3, '*', 2]",
+   "expected": "[5, 3, 2, '*', '-']",
+   "rationale": "Verifies that '*' binds tighter than '-', ensuring the right-hand side of '-' is correctly grouped as '3 * 2' in RPN form.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior on empty list []: Precondition vacuously holds, but spec does not specify whether to return [], raise ValueError, or behave differently.",
+  "Handling of parentheses: Common in shunting-yard algorithms, but neither mentioned nor exemplified in the spec.",
+  "Handling of unary operators: Tokens like negative numbers (-5) or unary minus are not addressed by the precondition or examples.",
+  "Associativity for equal-precedence operators: Spec examples imply left-associativity (e.g., a - b - c), but do not explicitly define behavior for right-associative or ambiguous groupings.",
+  "Runtime behavior on precondition violation: Spec states inputs violating the precondition are undefined behavior; does not guarantee a specific exception type or message."
+ ]
+}

@@ -1,0 +1,178 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/mas/r2/run/workspace",
+ "spec": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Parses a comma-separated string of tags, strips surrounding whitespace, lowercases each tag, drops empty/whitespace-only tags, removes duplicates (keeping the first occurrence and original order), and returns the resulting list.",
+  "input_domain": "Strings containing comma-separated substrings representing tags, including empty strings and strings composed solely of commas and whitespace.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Standard comma-separated tags with mixed case and surrounding whitespace are normalized, empty tags are dropped, and duplicates are removed while preserving order.",
+    "input": "' Python, ML ,python,, Data '",
+    "expected": "['python', 'ml', 'data']",
+    "rationale": "Directly matches the provided doctest example in the specification: normalize_tags(' Python, ML ,python,, Data ') returns ['python', 'ml', 'data']."
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "A single tag with no commas is stripped and lowercased.",
+    "input": "'  HelloWorld  '",
+    "expected": "['helloworld']",
+    "rationale": "Specification states: 'Each tag is stripped of surrounding whitespace and lower-cased.' No commas or duplicates apply here."
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Tags with identical content but different casing and spacing are treated as duplicates after normalization; only the first is kept.",
+    "input": "'Apple, apple, APPLE , app le'",
+    "expected": "['apple', 'app le']",
+    "rationale": "Specification states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'. 'Apple', 'apple', and 'APPLE ' all normalize to 'apple'; the first is retained."
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "An empty input string yields an empty list.",
+    "input": "''",
+    "expected": "[]",
+    "rationale": "Specification states: 'A string without any non-empty tag gives an empty list.'"
+   },
+   {
+    "id": "P5",
+    "category": "empty",
+    "behavior": "A string containing only commas and whitespace yields an empty list because all parsed tags are empty/whitespace-only.",
+    "input": "' , , , '",
+    "expected": "[]",
+    "rationale": "Specification states: 'Empty tags (including ones that are only whitespace) are dropped.' Parsing yields only empty tags, resulting in no non-empty tags."
+   },
+   {
+    "id": "P6",
+    "category": "boundary",
+    "behavior": "Consecutive commas and trailing commas produce empty segments that are correctly ignored.",
+    "input": "'tag1,,,tag2,'",
+    "expected": "['tag1', 'tag2']",
+    "rationale": "Specification implies standard comma-splitting where adjacent/trailing commas create empty strings. These are caught by the rule: 'Empty tags... are dropped.'"
+   },
+   {
+    "id": "P7",
+    "category": "property",
+    "behavior": "Original order of distinct tags is preserved regardless of case variations in later duplicates.",
+    "input": "'Zebra, Apple, zebra, Banana'",
+    "expected": "['zebra', 'apple', 'banana']",
+    "rationale": "Specification states: 'the remaining tags keep their original order' and duplicates are removed after normalization. 'Zebra' appears first, so its normalized form 'zebra' is kept at index 0."
+   },
+   {
+    "id": "P8",
+    "category": "normal",
+    "behavior": "Internal whitespace within a tag is preserved; only leading/trailing whitespace is removed.",
+    "input": "'  hello   world  , foo '",
+    "expected": "['hello   world', 'foo']",
+    "rationale": "Specification specifies tags are 'stripped of surrounding whitespace', implying internal whitespace runs are intentionally preserved."
+   }
+  ],
+  "ambiguities": [
+   "Input type validation: The specification assumes a string input but does not define behavior or exceptions for non-string types (e.g., integers, lists, None).",
+   "Whitespace character scope: The spec mentions 'surrounding whitespace' but does not explicitly define whether tabs, newlines, or other Unicode whitespace characters should be stripped or treated as regular characters.",
+   "Split semantics: It is unspecified how the function handles edge cases like a single comma ',' (does it yield two empty tags or one?) or tags containing escaped commas, though standard Python split(',') behavior is implied."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p1_standard_mixed_case",
+    "test_p2_single_tag_no_commas",
+    "test_p4_empty_string",
+    "test_p5_only_commas_and_whitespace",
+    "test_p3_duplicate_different_casing",
+    "test_p7_order_preservation",
+    "test_p6_consecutive_trailing_commas",
+    "test_p8_internal_whitespace_preserved",
+    "test_extra_single_tag_no_spaces",
+    "test_extra_all_duplicates"
+   ],
+   "failed": [],
+   "attempts": 12,
+   "turns": 7,
+   "final_text": "mal single lowercase tag `\"hello\"` → `['hello']` |\n| `test_extra_all_duplicates` | — | All four variants normalize to same tag → only one retained |\n\n**Remaining limitations:**\n- **Non-string inputs**: The contract does not specify behavior for `None`, integers, or other types. Tests intentionally avoid these since the spec has no precondition for them.\n- **Unicode / non-ASCII characters**: Not tested (e.g., accented letters, emoji). The `.lower()` call handles them in Python but this isn't verified here.\n- **Very long inputs**: No stress test with hundreds of tags or extremely long strings.\n- **Tags containing only special characters**: e.g., `\"!!!\", \",,,,\"` — covered partially by P5/P6 but not explicit punctuation-only tags.\n- **Performance**: No timing or large-scale correctness checks."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": [
+    "The test suite adequately covers the specification and all plan items. All tests pass and correctly reflect the defined behavior. No revisions are needed."
+   ]
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6659
+  },
+  "testgen": {
+   "calls": 7,
+   "tokens": 49361
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 4177
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/mas/r2/input/solution.py"
+}

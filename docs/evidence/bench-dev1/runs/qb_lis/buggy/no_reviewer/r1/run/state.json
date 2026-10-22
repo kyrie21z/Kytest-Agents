@@ -1,0 +1,182 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def lis(arr):\n    \"\"\"\n    Longest Increasing Subsequence\n    longest-increasing-subsequence\n\n\n    Input:\n        arr: A sequence of ints\n\n    Precondition:\n        The ints in arr are unique\n\n    Output:\n        The length of the longest monotonically increasing subsequence of arr\n\n    Example:\n        >>> lis([4, 1, 5, 3, 7, 6, 2])\n        3\n    \"\"\"\n    ends = {}\n    longest = 0\n    for i, val in enumerate(arr):\n        prefix_lengths = [j for j in range(1, longest + 1) if arr[ends[j]] < val]\n        length = max(prefix_lengths) if prefix_lengths else 0\n        if length == longest or val < arr[ends[length + 1]]:\n            ends[length + 1] = i\n            longest = length + 1\n    return longest\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_lis/buggy/no_reviewer/r1/run/workspace",
+ "spec": "def lis(arr):\n    \"\"\"\n    Longest Increasing Subsequence\n    longest-increasing-subsequence\n\n\n    Input:\n        arr: A sequence of ints\n\n    Precondition:\n        The ints in arr are unique\n\n    Output:\n        The length of the longest monotonically increasing subsequence of arr\n\n    Example:\n        >>> lis([4, 1, 5, 3, 7, 6, 2])\n        3\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Calculates the length of the longest strictly increasing subsequence within a sequence of unique integers.",
+  "input_domain": "Any Python sequence (list, tuple, etc.) containing unique integers. Includes empty and single-element sequences.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Returns the LIS length for the documented example.",
+    "input": "lis([4, 1, 5, 3, 7, 6, 2])",
+    "expected": "3",
+    "rationale": "Matches the docstring example: '>>> lis([4, 1, 5, 3, 7, 6, 2])\\n        3'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "empty",
+    "behavior": "Returns 0 for an empty input sequence.",
+    "input": "lis([])",
+    "expected": "0",
+    "rationale": "By definition, the longest increasing subsequence of an empty set has length 0.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "boundary",
+    "behavior": "Returns 1 for a single-element sequence.",
+    "input": "lis([42])",
+    "expected": "1",
+    "rationale": "A sequence of length 1 contains exactly one increasing subsequence of length 1.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "normal",
+    "behavior": "Returns the full sequence length when already sorted increasingly.",
+    "input": "lis([1, 2, 3, 4, 5])",
+    "expected": "5",
+    "rationale": "The entire sequence satisfies 'monotonically increasing', so the LIS length equals the input length.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "boundary",
+    "behavior": "Returns 1 for a strictly decreasing sequence.",
+    "input": "lis([5, 4, 3, 2, 1])",
+    "expected": "1",
+    "rationale": "No two elements form an increasing pair, so the maximum possible LIS length is 1.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "normal",
+    "behavior": "Correctly processes negative integers and skips intermediate values.",
+    "input": "lis([-10, -5, -8, -2, 0])",
+    "expected": "4",
+    "rationale": "The subsequence [-10, -5, -2, 0] is strictly increasing and maximal in length, consistent with 'length of the longest monotonically increasing subsequence'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "normal",
+    "behavior": "Accepts tuple inputs as valid sequences.",
+    "input": "lis((7, 1, 8, 2, 9))",
+    "expected": "3",
+    "rationale": "Specification defines input as 'A sequence of ints'. Tuples are standard Python sequences and should be supported.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P8",
+    "category": "normal",
+    "behavior": "Selects the optimal path across overlapping candidate subsequences.",
+    "input": "lis([10, 20, 10, 30, 20, 50])",
+    "expected": "4",
+    "rationale": "The longest increasing subsequence is [10, 20, 30, 50] (indices 0,1,3,5 or 0,2,3,5), yielding length 4 per the output specification.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Precondition violation with duplicate integers (e.g., lis([1, 2, 2, 3])): The spec states 'Precondition: The ints in arr are unique'. Inputs violating this are undefined behavior; the spec does not specify whether to raise ValueError, ignore duplicates, or behave unpredictably.",
+   "Type validation: The spec says 'A sequence of ints'. It is unclear if the function should enforce type checking and raise TypeError for non-integer elements, or silently coerce/fail. Expected behavior for mixed-type sequences is undefined.",
+   "Strict vs non-decreasing semantics: 'Monotonically increasing' can sometimes imply non-decreasing (allowing equals). However, the uniqueness precondition forces strict inequality. If the precondition were relaxed, behavior would be ambiguous, but under current spec, strict increase is implied."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p2_empty_list",
+    "test_p3_single_element",
+    "test_p4_sorted_increasing",
+    "test_p5_strictly_decreasing",
+    "test_p6_negative_integers",
+    "test_p7_tuple_input",
+    "test_p8_overlapping_candidates",
+    "test_extra_return_type",
+    "test_extra_two_elements_equal",
+    "test_extra_large_increasing"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_docstring_example",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "from solution import lis\n\ndef test_p1_docstring_example():\n    \"\"\"Returns the LIS length for the documented example.\n\n    Contract quote: '>>> lis([4, 1, 5, 3, 7, 6, 2])\\n        3'\n    Input domain: A list of unique integers [4, 1, 5, 3, 7, 6, 2].\n    Oracle: The longest monotonically increasing subsequence has length 3\n            (e.g., [1, 5, 7] or [1, 3, 7]). No subsequence of length 4 exists\n            because after picking two elements, the remaining candidates\n            cannot extend to three more in order.\n    Fault hypothesis: Detects an off-by-one error or incorrect DP transition\n                      that would return 2 or 4 instead of 3.\n    \"\"\"\n    assert lis([4, 1, 5, 3, 7, 6, 2]) == 3",
+     "oracle_reason": "The longest monotonically increasing subsequence has length 3 (e.g., [1, 5, 7] or [1, 3, 7]). No subsequence of length 4 exists.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p1_docstring_example ___________________________\ntest_solution.py:15: in test_p1_docstring_example\n    assert lis([4, 1, 5, 3, 7, 6, 2]) == 3\nE   assert 2 == 3\nE    +  where 2 = lis([4, 1, 5, 3, 7, 6, ...])\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_docstring_example - assert 2 == 3\n1 failed in 0.02s\n"
+    }
+   ],
+   "attempts": 11,
+   "turns": 5,
+   "final_text": " and validates the subsequence would be complementary.\n2. **Limited precondition coverage**: The contract requires unique integers. We tested one duplicate case (`[5,5]`) but did not exhaustively probe edge cases around the uniqueness precondition (e.g., three identical elements, duplicates at boundaries).\n3. **No large-scale stress testing**: `test_extra_large_increasing` uses only 50 elements. Larger inputs could expose O(n²) performance issues or memory problems.\n4. **No non-list sequence types beyond tuples**: Sets, generators, iterators, and other iterables are not tested, though the contract says \"A sequence of ints.\"\n5. **No negative-length or mixed-type inputs**: The contract doesn't specify behavior for non-int sequences; these are outside scope but could reveal robustness issues."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 8,
+    "total": 8,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6866
+  },
+  "testgen": {
+   "calls": 5,
+   "tokens": 37033
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_lis/buggy/no_reviewer/r1/input/solution.py"
+}

@@ -1,0 +1,84 @@
+{
+ "summary": "Returns the k-th smallest integer from a list of integers, functioning as an efficient equivalent to sorted(arr)[k].",
+ "input_domain": "arr: list of integers with length >= 1, k: integer satisfying 0 <= k < len(arr)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns correct kth smallest for typical unsorted list",
+   "input": "arr=[3, 1, 4, 1, 5, 9], k=2",
+   "expected": "3",
+   "rationale": "Spec states 'equivalent to sorted(arr)[k]' and 'kth-lowest element... (0-based)'. sorted([3,1,4,1,5,9])[2] is 3.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Returns minimum element at lower k bound",
+   "input": "arr=[10, 20, 30], k=0",
+   "expected": "10",
+   "rationale": "Precondition allows k=0. Per spec, this corresponds to the lowest element (index 0 in sorted array).",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Returns maximum element at upper k bound",
+   "input": "arr=[7, 2, 9], k=2",
+   "expected": "9",
+   "rationale": "Precondition upper bound is k=len(arr)-1. Corresponds to highest element per sorted(arr)[k] equivalence.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Handles single-element list",
+   "input": "arr=[42], k=0",
+   "expected": "42",
+   "rationale": "Meets precondition (len=1, k=0). sorted([42])[0] is 42.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Correctly ranks duplicate values as distinct positions",
+   "input": "arr=[5, 5, 5, 1, 1], k=3",
+   "expected": "5",
+   "rationale": "Spec implies standard sorting semantics where duplicates occupy consecutive indices. sorted([...])[3] is 5.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Correctly orders and selects negative integers",
+   "input": "arr=[-5, 10, -2, 0, 3], k=1",
+   "expected": "-2",
+   "rationale": "Type specifies 'list of ints', which includes negatives. sorted([...])[1] yields -2.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Invariant holds regardless of initial order",
+   "input": "arr=[9, 7, 5, 3, 1], k=2",
+   "expected": "5",
+   "rationale": "Specification guarantees output equals sorted(arr)[k] independent of input permutation.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Degenerate case with uniform values",
+   "input": "arr=[4, 4, 4, 4], k=2",
+   "expected": "4",
+   "rationale": "All elements equal; sorted array remains [4,4,4,4], index 2 is 4. Tests value equality handling.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "What exception or error type is raised if the precondition 0 <= k < len(arr) is violated? The spec defines it as a precondition but does not specify error handling behavior.",
+  "Does the function modify the input list `arr` in-place? QuickSelect typically mutates arrays for efficiency, but the spec does not explicitly state side effects.",
+  "Are there any time or space complexity requirements beyond 'efficient'? The spec lacks quantitative bounds.",
+  "How should the function behave if `arr` contains non-integer types? The docstring specifies 'list of ints', but runtime type enforcement is not documented."
+ ]
+}

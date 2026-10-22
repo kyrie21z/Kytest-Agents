@@ -1,0 +1,149 @@
+{
+ "status": "forced",
+ "next": "END",
+ "round": 2,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "from functools import reduce\nfrom itertools import permutations\nimport math\n\ndef factorial_sums(numbers):\n    '''\n    Generate all permutations of a given list of numbers and calculate the sum \n    of the factorials of each number in each permutation.\n    If an empty list is given, the function returns empty lists.\n\n    Parameters:\n    numbers (list of int): A list of integers to permute and calculate \n                           factorial sums.\n\n    Returns:\n    list of int: A list containing the sums of the factorials of each number \n                 in each permutation.\n    list of list of int: A list containing all permutations of numbers.\n\n    Raises:\n    TypeError: If numbers is not a list of integers.\n    ValueError: If input numbers are negative.\n\n    Requirements:\n    - functools.reduce\n    - itertools.permutations\n    - math.factorial\n\n    Example:\n    >>> fac, perm = factorial_sums([1, 2, 3])\n    >>> print(fac)\n    [9, 9, 9, 9, 9, 9]\n    >>> print(perm)\n    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]\n\n    >>> fac, perm = factorial_sums([0, 4])\n    >>> print(fac)\n    [25, 25]\n    >>> print(perm)\n    [(0, 4), (4, 0)]\n    '''\n\n    if not isinstance(numbers, list):\n        raise TypeError(\"numbers should be a list of integers.\")\n    \n    if not all(isinstance(number, int) for number in numbers):\n        raise TypeError(\"numbers should be a list of integers.\")\n    \n    if not all(number >= 0 for number in numbers):\n        raise ValueError(\"each number in numbers should be non negative.\")\n\n    if len(numbers) == 0:\n        return [], []\n\n    all_permutations = list(permutations(numbers))\n    sums = [reduce(lambda a, b: a + b, [math.factorial(n) for n in permutation]) for permutation in all_permutations]\n    return sums, all_permutations\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/clean/no_planner/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_factorial_sums_empty_list",
+    "test_factorial_sums_type_error_not_list",
+    "test_factorial_sums_value_error_negative"
+   ],
+   "failed": [],
+   "attempts": 24,
+   "turns": 8,
+   "final_text": "Let me look at the accepted tests' patterns more carefully and rewrite with much clearer oracle derivations that explicitly reference the target result."
+  },
+  {
+   "round": 2,
+   "status": "max_turns",
+   "accepted": [],
+   "failed": [],
+   "attempts": 15,
+   "turns": 8,
+   "final_text": ""
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 3,
+   "pytest": {
+    "passed": 3,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.7333333333333333,
+   "missing_lines": [
+    47,
+    55,
+    56,
+    57
+   ],
+   "mutation": {
+    "score": 0.3333333333333333,
+    "killed": 1,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 49,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 56,
+      "description": "Add -> Sub"
+     }
+    ]
+   }
+  },
+  {
+   "round": 2,
+   "tests": 3,
+   "pytest": {
+    "passed": 3,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.7333333333333333,
+   "missing_lines": [
+    47,
+    55,
+    56,
+    57
+   ],
+   "mutation": {
+    "score": 0.3333333333333333,
+    "killed": 1,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 49,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 56,
+      "description": "Add -> Sub"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "revise",
+   "verdicts": [],
+   "instructions": [
+    "Add tests for the happy path with valid inputs, specifically using the examples from the specification ([1, 2, 3] and [0, 4]), to verify the correct computation of factorial sums and the exact content/order of permutations.",
+    "Ensure these new tests assert both the first element (list of sums) and the second element (list of permutations) of the returned tuple.",
+    "Include a test for a single-element valid list (e.g., [5]) to cover another valid edge case.",
+    "The existing tests for empty input, TypeError, and ValueError are sufficient and correctly aligned with the specification."
+   ]
+  },
+  {
+   "round": 2,
+   "decision": "revise",
+   "verdicts": [],
+   "instructions": [
+    "Add a test for the empty list input `[]` to verify it returns `([], [])`, covering the currently untested branch at line 47.",
+    "Strengthen assertions in existing tests to verify exact sum values (e.g., `[9, 9, 9, 9, 9, 9]` for `[1, 2, 3]`) rather than just lengths or types, which will catch logical mutations like replacing addition with subtraction.",
+    "Ensure error-handling tests strictly validate the specification's preconditions: raise `TypeError` for non-list inputs or non-integer elements, and `ValueError` for negative numbers."
+   ]
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 16,
+   "tokens": 114964
+  },
+  "reviewer": {
+   "calls": 2,
+   "tokens": 8124
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/clean/no_planner/r1/input/solution.py"
+}

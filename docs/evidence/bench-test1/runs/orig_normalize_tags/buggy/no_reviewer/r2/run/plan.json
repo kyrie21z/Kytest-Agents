@@ -1,0 +1,83 @@
+{
+ "summary": "Splits a comma-separated string into individual tags, strips surrounding whitespace, converts to lowercase, filters out empty or whitespace-only tags, removes duplicates based on normalized values while preserving the order of first occurrences, and returns the resulting list.",
+ "input_domain": "Strings containing comma-separated substrings. Valid inputs are strictly of type str.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Basic normalization, whitespace stripping, lowercasing, and duplicate removal",
+   "input": "'Python, ML ,python,, Data '",
+   "expected": "['python', 'ml', 'data']",
+   "rationale": "Directly matches the provided doctest example, confirming splitting by comma, stripping whitespace, lowercasing, dropping empty tags from double commas, and keeping first occurrence order.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Returns empty list for empty input",
+   "input": "''",
+   "expected": "[]",
+   "rationale": "Specification states: 'A string without any non-empty tag gives an empty list.' An empty string contains zero tags.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Filters out tags consisting solely of whitespace",
+   "input": "'   , , ,  '",
+   "expected": "[]",
+   "rationale": "Docstring specifies: 'Empty tags (including ones that are only whitespace) are dropped.' After stripping, all segments become empty.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Removes case-insensitive duplicates while preserving first occurrence",
+   "input": "'Apple, BANANA, apple, Cherry, banana'",
+   "expected": "['apple', 'banana', 'cherry']",
+   "rationale": "Duplicates, compared after normalization, are removed so that only the first occurrence is kept. 'Apple' and 'apple' normalize to 'apple'; 'BANANA' and 'banana' normalize to 'banana'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Maintains stable relative ordering of unique tags",
+   "input": "'z, y, x, z, y, x'",
+   "expected": "['z', 'y', 'x']",
+   "rationale": "The remaining tags keep their original order. First occurrences at indices 0, 1, 2 are retained; subsequent duplicates are ignored per specification.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Handles leading, trailing, and consecutive commas gracefully",
+   "input": "',tag1,,tag2,'",
+   "expected": "['tag1', 'tag2']",
+   "rationale": "Comma separation yields empty strings at boundaries and between consecutive commas. These are classified as empty/whitespace-only tags and are dropped per specification.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Processes a single tag without delimiters",
+   "input": "'SingleTag'",
+   "expected": "['singletag']",
+   "rationale": "A string without commas is treated as a single segment. It is stripped and lower-cased as specified.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Preserves internal whitespace and punctuation within tags",
+   "input": "' hello world ! , foo-bar '",
+   "expected": "['hello world !', 'foo-bar']",
+   "rationale": "Each tag is stripped of surrounding whitespace and lower-cased. The specification does not instruct removal of internal spaces or punctuation, so they are preserved.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when `text` is not a string (e.g., int, list, None). The specification does not declare a precondition or error type for invalid argument types.",
+  "Whether 'surrounding whitespace' includes tabs, newlines, or only ASCII spaces. The spec uses the generic term 'whitespace' without specifying the character set or stripping method.",
+  "How to handle tags containing only non-breaking spaces or unicode whitespace variants. Not explicitly defined in the docstring."
+ ]
+}

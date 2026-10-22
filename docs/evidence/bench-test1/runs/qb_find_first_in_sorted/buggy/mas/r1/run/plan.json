@@ -1,0 +1,102 @@
+{
+ "summary": "Implements a binary search to locate the first occurrence of a target integer in a sorted list of integers, returning its index or -1 if the target is absent.",
+ "input_domain": "arr: a sorted list of integers; x: an integer",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Find target with single occurrence",
+   "input": "arr=[10, 20, 30], x=20",
+   "expected": "1",
+   "rationale": "Spec states output is 'The lowest index i such that arr[i] == x'. Index 1 is the unique match.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Find first occurrence among duplicates",
+   "input": "arr=[3, 4, 5, 5, 5, 5, 6], x=5",
+   "expected": "2",
+   "rationale": "Directly matches the provided docstring example demonstrating duplicate handling.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Target located at the start of the list",
+   "input": "arr=[1, 2, 3], x=1",
+   "expected": "0",
+   "rationale": "Spec requires returning the 'lowest index i'; when the first element matches, index 0 is correct.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Target located at the end of the list",
+   "input": "arr=[1, 2, 3], x=3",
+   "expected": "2",
+   "rationale": "Spec requires returning the 'lowest index i'; when the last element matches, its index is returned.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "empty",
+   "behavior": "Search in an empty list",
+   "input": "arr=[], x=5",
+   "expected": "-1",
+   "rationale": "Spec states to return '-1 if x not in arr'; an empty list contains no elements to match.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Target absent between existing elements",
+   "input": "arr=[1, 3, 5, 7], x=4",
+   "expected": "-1",
+   "rationale": "Spec states to return '-1 if x not in arr'; 4 is not present in the sorted sequence.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Single-element list with match",
+   "input": "arr=[42], x=42",
+   "expected": "0",
+   "rationale": "Degenerate boundary case; the only valid index is 0, satisfying the 'lowest index' requirement.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Single-element list without match",
+   "input": "arr=[42], x=99",
+   "expected": "-1",
+   "rationale": "Degenerate boundary case; x is not in arr, so the spec dictates returning -1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "Handle negative integers",
+   "input": "arr=[-10, -5, 0, 5], x=-5",
+   "expected": "1",
+   "rationale": "Spec specifies 'list of ints'; negative values are valid integers and should resolve to their correct index.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "property",
+   "behavior": "All elements identical",
+   "input": "arr=[7, 7, 7, 7], x=7",
+   "expected": "0",
+   "rationale": "Spec requires the 'lowest index i'; when every element matches, index 0 is the mathematical minimum.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when arr is not sorted (spec assumes sorted input but defines no fallback or error for unsorted data)",
+  "Behavior when arr contains non-integer types or x is not an integer (spec says 'list of ints' but does not specify type validation or coercion rules)",
+  "Whether the function modifies arr in-place or creates copies (spec does not mention side effects or memory usage)",
+  "Performance guarantees or recursion depth limits for extremely large lists (spec does not mandate iterative vs recursive implementation)"
+ ]
+}

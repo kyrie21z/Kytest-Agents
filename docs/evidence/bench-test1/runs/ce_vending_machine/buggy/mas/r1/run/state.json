@@ -1,0 +1,343 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 2,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "class VendingMachine:\n    \"\"\"\n    This is a class to simulate a vending machine, including adding products, inserting coins, purchasing products, viewing balance, replenishing product inventory, and displaying product information.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initializes the vending machine's inventory and balance.\n        \"\"\"\n        self.inventory = {}\n        self.balance = 0\n\n    def add_item(self, item_name, price, quantity):\n        \"\"\"\n        Adds a product to the vending machine's inventory.\n        :param item_name: The name of the product to be added, str.\n        :param price: The price of the product to be added, float.\n        :param quantity: The quantity of the product to be added, int.\n        :return: None\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\n        >>> vendingMachine.inventory\n        {'Coke': {'price': 1.25, 'quantity': 10}}\n\n        \"\"\"\n        if not self.restock_item(item_name, quantity):\n            self.inventory[item_name] = {'price': price, 'quantity': quantity}\n\n    def insert_coin(self, amount):\n        \"\"\"\n        Inserts coins into the vending machine.\n        :param amount: The amount of coins to be inserted, float.\n        :return: The balance of the vending machine after the coins are inserted, float.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.insert_coin(1.25)\n        1.25\n\n        \"\"\"\n        self.balance += amount\n        return self.balance\n\n    def purchase_item(self, item_name):\n        \"\"\"\n        Purchases a product from the vending machine and returns the balance after the purchase and display purchase unsuccessful if the product is out of stock.\n        :param item_name: The name of the product to be purchased, str.\n        :return: If successful, returns the balance of the vending machine after the product is purchased, float,otherwise,returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.balance = 1.25\n        >>> vendingMachine.purchase_item('Coke')\n        0.0\n        >>> vendingMachine.purchase_item('Pizza')\n        False\n\n        \"\"\"\n        if item_name in self.inventory:\n            item = self.inventory[item_name]\n            if item['quantity'] > 0 and self.balance >= item['price']:\n                self.balance -= item['price']\n                item['quantity'] -= 1\n                return self.balance\n            else:\n                return False\n        else:\n            return False\n\n    def restock_item(self, item_name, quantity):\n        \"\"\"\n        Replenishes the inventory of a product already in the vending machine.\n        :param item_name: The name of the product to be replenished, str.\n        :param quantity: The quantity of the product to be replenished, int.\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.restock_item('Coke', 10)\n        True\n        >>> vendingMachine.restock_item('Pizza', 10)\n        False\n\n        \"\"\"\n        self.inventory.setdefault(item_name, {'price': 0, 'quantity': 0})['quantity'] += quantity\n        return True\n\n    def display_items(self):\n        \"\"\"\n        Displays the products in the vending machine.\n        :return: If the vending machine is empty, returns False, otherwise, returns a list of the products in the vending machine, str.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.display_items()\n        False\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10} }\n        >>> vendingMachine.display_items()\n        'Coke - $1.25 [10]'\n\n        \"\"\"\n        if not self.inventory:\n            return False\n        else:\n            items = []\n            for item_name, item_info in self.inventory.items():\n                items.append(f\"{item_name} - ${item_info['price']} [{item_info['quantity']}]\")\n            return '\\n'.join(items)\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/mas/r1/run/workspace",
+ "spec": "class VendingMachine:\n    \"\"\"\n    This is a class to simulate a vending machine, including adding products, inserting coins, purchasing products, viewing balance, replenishing product inventory, and displaying product information.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initializes the vending machine's inventory and balance.\n        \"\"\"\n        ...\n\n    def add_item(self, item_name, price, quantity):\n        \"\"\"\n        Adds a product to the vending machine's inventory.\n        :param item_name: The name of the product to be added, str.\n        :param price: The price of the product to be added, float.\n        :param quantity: The quantity of the product to be added, int.\n        :return: None\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\n        >>> vendingMachine.inventory\n        {'Coke': {'price': 1.25, 'quantity': 10}}\n\n        \"\"\"\n        ...\n\n    def insert_coin(self, amount):\n        \"\"\"\n        Inserts coins into the vending machine.\n        :param amount: The amount of coins to be inserted, float.\n        :return: The balance of the vending machine after the coins are inserted, float.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.insert_coin(1.25)\n        1.25\n\n        \"\"\"\n        ...\n\n    def purchase_item(self, item_name):\n        \"\"\"\n        Purchases a product from the vending machine and returns the balance after the purchase and display purchase unsuccessful if the product is out of stock.\n        :param item_name: The name of the product to be purchased, str.\n        :return: If successful, returns the balance of the vending machine after the product is purchased, float,otherwise,returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.balance = 1.25\n        >>> vendingMachine.purchase_item('Coke')\n        0.0\n        >>> vendingMachine.purchase_item('Pizza')\n        False\n\n        \"\"\"\n        ...\n\n    def restock_item(self, item_name, quantity):\n        \"\"\"\n        Replenishes the inventory of a product already in the vending machine.\n        :param item_name: The name of the product to be replenished, str.\n        :param quantity: The quantity of the product to be replenished, int.\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.restock_item('Coke', 10)\n        True\n        >>> vendingMachine.restock_item('Pizza', 10)\n        False\n\n        \"\"\"\n        ...\n\n    def display_items(self):\n        \"\"\"\n        Displays the products in the vending machine.\n        :return: If the vending machine is empty, returns False, otherwise, returns a list of the products in the vending machine, str.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.display_items()\n        False\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10} }\n        >>> vendingMachine.display_items()\n        'Coke - $1.25 [10]'\n\n        \"\"\"\n        ...\n",
+ "plan": {
+  "summary": "Simulates a vending machine that manages product inventory, tracks customer balance, processes purchases, handles restocking, and displays current items.",
+  "input_domain": "Strings for item names, floats for prices and coin amounts, integers for quantities. Internal state comprises a dictionary mapping item names to price/quantity objects and a float balance initialized to 0.0.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "add_item populates inventory with correct structure",
+    "input": "v.add_item('Coke', 1.25, 10)",
+    "expected": "v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}",
+    "rationale": "Docstring example explicitly defines the inventory dictionary structure with 'price' and 'quantity' keys upon adding an item.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "insert_coin accumulates balance correctly",
+    "input": "v.insert_coin(2.5)",
+    "expected": "2.5",
+    "rationale": "Specification states the method returns 'The balance of the vending machine after the coins are inserted'. Starting balance is implicitly 0.0.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "state",
+    "behavior": "purchase_item succeeds with exact funds and updates state",
+    "input": "v.inventory={'A':{'price':1.0,'quantity':1}}, v.balance=1.0, v.purchase_item('A')",
+    "expected": "0.0",
+    "rationale": "Docstring example demonstrates that a successful purchase returns the remaining balance (0.0) and implies inventory quantity is decremented.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "display_items returns False when inventory is empty",
+    "input": "v.display_items() (on fresh instance)",
+    "expected": "False",
+    "rationale": "Specification explicitly states: 'If the vending machine is empty, returns False'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "purchase_item returns False for non-existent items",
+    "input": "v.purchase_item('Missing')",
+    "expected": "False",
+    "rationale": "Specification states: 'returns False' if the product is out of stock or purchase is unsuccessful.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "boundary",
+    "behavior": "insert_coin accepts zero amount without altering balance",
+    "input": "v.insert_coin(0.0)",
+    "expected": "0.0",
+    "rationale": "Zero is a valid numeric boundary for float amounts; the method should handle it gracefully per the float contract without side effects.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P7",
+    "category": "state",
+    "behavior": "restock_item increments quantity for existing items",
+    "input": "v.inventory={'B':{'price':2.0,'quantity':3}}, v.restock_item('B', 4)",
+    "expected": "True (quantity becomes 7)",
+    "rationale": "Specification states it 'Replenishes the inventory' and returns True if the product already exists.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "property",
+    "behavior": "purchase_item prevents negative balance on insufficient funds",
+    "input": "v.inventory={'C':{'price':5.0,'quantity':1}}, v.balance=2.0, v.purchase_item('C')",
+    "expected": "False",
+    "rationale": "Specification mandates returning False for unsuccessful purchases; logical invariant dictates balance cannot go negative.",
+    "confidence": "medium"
+   }
+  ],
+  "ambiguities": [
+   "display_items return type contradiction: docstring claims 'returns a list of the products... str' but example shows a single formatted string. Formatting rules for multiple items are undefined.",
+   "Insufficient funds behavior: spec says returns False if unsuccessful, but does not specify whether partial payments are refunded, if quantity is decremented on failed attempts, or how it differs from out-of-stock logic.",
+   "Degenerate inputs: spec defines price as float and quantity as int but does not restrict negative prices, zero quantities, or negative coin amounts. These violate implicit business rules but lack explicit preconditions.",
+   "Initial state assumptions: __init__ docstring says it initializes inventory and balance but does not specify default values (assumed {} and 0.0). Tests relying on these defaults may break if implementation differs."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p3_purchase_exact_funds",
+    "test_p4_display_empty",
+    "test_p5_purchase_nonexistent",
+    "test_p7_restock_existing",
+    "test_p2_insert_coin_accumulates",
+    "test_p6_insert_coin_zero",
+    "test_p8_insufficient_funds"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_add_item_structure",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "from solution import VendingMachine\n\ndef test_p1_add_item_structure():\n    v = VendingMachine()\n    v.add_item('Coke', 1.25, 10)\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}",
+     "oracle_reason": "Docstring example explicitly defines that after add_item('Coke', 1.25, 10), inventory must equal {'Coke': {'price': 1.25, 'quantity': 10}}. The inventory dict must contain the item with both price and quantity fields set correctly.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p1_add_item_structure __________________________\ntest_solution.py:6: in test_p1_add_item_structure\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\nE   AssertionError: assert {'Coke': {'pr...uantity': 10}} == {'Coke': {'pr...uantity': 10}}\nE     \nE     Differing items:\nE     {'Coke': {'price': 0, 'quantity': 10}} != {'Coke': {'price': 1.25, 'quantity': 10}}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_add_item_structure - AssertionError: assert ...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 9,
+   "turns": 8,
+   "final_text": "Now let me verify the current state of test_solution.py:"
+  },
+  {
+   "round": 2,
+   "status": "max_turns",
+   "accepted": [],
+   "failed": [
+    {
+     "name": "test_p1_add_item_populates",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "from solution import VendingMachine as _case7_VendingMachine\n\ndef test_p1_add_item_populates():\n    \"\"\"\nP1: add_item populates inventory with correct structure.\n\nContract quote: \"Adds a product to the vending machine's inventory.\\n        :param item_name: The name of the product to be added, str.\\n        :param price: The price of the product to be added, float.\\n        :param quantity: The quantity of the product to be added, int.\\n        :return: None\\n        >>> vendingMachine = VendingMachine()\\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\\n        >>> vendingMachine.inventory\\n        {'Coke': {'price': 1.25, 'quantity': 10}}\"\n\nInput domain: Fresh VendingMachine instance; call add_item with a new item name,\nvalid float price, and positive int quantity.\n\nOracle: After add_item('Coke', 1.25, 10), the inventory dict must contain the key\n'Coke' mapping to {'price': 1.25, 'quantity': 10}. The spec example explicitly\nshows this expected state.\n\nFault hypothesis: The current implementation calls restock_item first; since\nrestock_item always returns True (due to setdefault creating a new entry),\nthe condition `if not self.restock_item(...)` is never satisfied, so the\nassignment on line 27 is never reached. New items are silently not added.\n\"\"\"\n    v = _case7_VendingMachine()\n    v.add_item('Coke', 1.25, 10)\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\n",
+     "oracle_reason": "The docstring example explicitly defines the inventory dictionary structure with 'price' and 'quantity' keys upon adding an item. A fresh instance starts with empty inventory, so after add_item the inventory must contain exactly that one entry.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p1_add_item_populates __________________________\ntest_solution.py:23: in test_p1_add_item_populates\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\nE   AssertionError: assert {'Coke': {'pr...uantity': 10}} == {'Coke': {'pr...uantity': 10}}\nE     \nE     Differing items:\nE     {'Coke': {'price': 0, 'quantity': 10}} != {'Coke': {'price': 1.25, 'quantity': 10}}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_add_item_populates - AssertionError: assert ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_extra_restock_nonexistent",
+     "plan_ids": [],
+     "code": "from solution import VendingMachine as _case8_VendingMachine\n\ndef test_extra_restock_nonexistent():\n    \"\"\"Extra: restock_item returns False when the item is not in inventory.\n\nContract quote: \"Replenishes the inventory of a product already in the vending machine.\\n        :param item_name: The name of the product to be replenished, str.\\n        :param quantity: The quantity of the product to be replenished, int.\\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\\n        >>> vendingMachine = VendingMachine()\\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\\n        >>> vendingMachine.restock_item('Coke', 10)\\n        True\\n        >>> vendingMachine.restock_item('Pizza', 10)\\n        False\"\n\nInput domain: Fresh VendingMachine instance; call restock_item with a name that\nis not present in inventory.\n\nOracle: The method must return False for a non-existent item per the explicit\ndocstring example showing restock_item('Pizza', 10) returning False.\n\nFault hypothesis: The implementation uses setdefault to create a new entry\nwith price=0 and quantity=0, then adds the quantity, and unconditionally\nreturns True. This violates the contract and also silently adds the item\nto inventory with price=0.\n\"\"\"\n    v = _case8_VendingMachine()\n    # Ensure inventory is empty / no 'Pizza' exists\n    v.inventory = {}\n    result = v.restock_item('Pizza', 10)\n    assert result is False\n",
+     "oracle_reason": "The docstring example explicitly shows that calling restock_item on a non-existent item ('Pizza') returns False. This is a documented contract requirement.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_extra_restock_nonexistent ________________________\ntest_solution.py:23: in test_extra_restock_nonexistent\n    assert result is False\nE   assert True is False\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_restock_nonexistent - assert True is False\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 8,
+   "turns": 8,
+   "final_text": "correctly expose the two documented bugs in the implementation:\n\n1. **`add_item`**: Uses `restock_item` internally; since `restock_item` always returns `True` (via `setdefault`), the direct assignment `self.inventory[item_name] = {'price': price, 'quantity': quantity}` is never reached for new items. Result: price defaults to 0 instead of the specified value.\n\n2. **`restock_item`**: Uses `setdefault` to create entries for non-existent items and unconditionally returns `True`, violating the contract that requires returning `False` for items not in inventory.\n\nThese tests are valid per the docstring examples and specification. They fail against the current buggy implementation, which is expected — the reviewer noted these exact bugs and instructed that the implementation should be corrected."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 7,
+   "pytest": {
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.7931034482758621,
+   "missing_lines": [
+    26,
+    27,
+    99,
+    100,
+    101,
+    102
+   ],
+   "mutation": {
+    "score": 0.6,
+    "killed": 3,
+    "total": 5,
+    "survivors": [
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  },
+  {
+   "round": 2,
+   "tests": 7,
+   "pytest": {
+    "passed": 7,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.7931034482758621,
+   "missing_lines": [
+    26,
+    27,
+    99,
+    100,
+    101,
+    102
+   ],
+   "mutation": {
+    "score": 0.6,
+    "killed": 3,
+    "total": 5,
+    "survivors": [
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "revise",
+   "verdicts": [
+    {
+     "test": "test_p1_add_item_structure",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly follows the specification and docstring example. The implementation violates the spec: `restock_item` unconditionally returns `True` and uses `setdefault` to initialize missing items with `price: 0`. As a result, `add_item`'s guard `if not self.restock_item(...)` is always false, preventing the correct price from being stored. The spec explicitly requires `add_item` to set the provided price and `restock_item` to return `False` for non-existent items."
+    }
+   ],
+   "instructions": [
+    "Report the implementation bug: `restock_item` must return `False` when the item is not in inventory, and `add_item` must directly assign the price and quantity without relying on `restock_item`'s return value.",
+    "Once the implementation is corrected to match the specification, re-run the suite to confirm all tests pass."
+   ]
+  },
+  {
+   "round": 2,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_p1_add_item_populates",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly expects the inventory to contain the specified price and quantity per the docstring example. The implementation incorrectly initializes new items with price=0 because restock_item unconditionally returns True via setdefault, bypassing the assignment of the correct price."
+    },
+    {
+     "test": "test_extra_restock_nonexistent",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly expects False for a non-existent item per the explicit docstring contract. The implementation violates this by using setdefault to create the item and unconditionally returning True."
+    }
+   ],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_p1_add_item_structure",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "from solution import VendingMachine\n\ndef test_p1_add_item_structure():\n    v = VendingMachine()\n    v.add_item('Coke', 1.25, 10)\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}",
+   "oracle_reason": "Docstring example explicitly defines that after add_item('Coke', 1.25, 10), inventory must equal {'Coke': {'price': 1.25, 'quantity': 10}}. The inventory dict must contain the item with both price and quantity fields set correctly.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p1_add_item_structure __________________________\ntest_solution.py:6: in test_p1_add_item_structure\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\nE   AssertionError: assert {'Coke': {'pr...uantity': 10}} == {'Coke': {'pr...uantity': 10}}\nE     \nE     Differing items:\nE     {'Coke': {'price': 0, 'quantity': 10}} != {'Coke': {'price': 1.25, 'quantity': 10}}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_add_item_structure - AssertionError: assert ...\n1 failed in 0.01s\n",
+   "reason": "The test correctly follows the specification and docstring example. The implementation violates the spec: `restock_item` unconditionally returns `True` and uses `setdefault` to initialize missing items with `price: 0`. As a result, `add_item`'s guard `if not self.restock_item(...)` is always false, preventing the correct price from being stored. The spec explicitly requires `add_item` to set the provided price and `restock_item` to return `False` for non-existent items.",
+   "round": 1
+  },
+  {
+   "name": "test_p1_add_item_populates",
+   "plan_ids": [
+    "P1"
+   ],
+   "code": "from solution import VendingMachine as _case7_VendingMachine\n\ndef test_p1_add_item_populates():\n    \"\"\"\nP1: add_item populates inventory with correct structure.\n\nContract quote: \"Adds a product to the vending machine's inventory.\\n        :param item_name: The name of the product to be added, str.\\n        :param price: The price of the product to be added, float.\\n        :param quantity: The quantity of the product to be added, int.\\n        :return: None\\n        >>> vendingMachine = VendingMachine()\\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\\n        >>> vendingMachine.inventory\\n        {'Coke': {'price': 1.25, 'quantity': 10}}\"\n\nInput domain: Fresh VendingMachine instance; call add_item with a new item name,\nvalid float price, and positive int quantity.\n\nOracle: After add_item('Coke', 1.25, 10), the inventory dict must contain the key\n'Coke' mapping to {'price': 1.25, 'quantity': 10}. The spec example explicitly\nshows this expected state.\n\nFault hypothesis: The current implementation calls restock_item first; since\nrestock_item always returns True (due to setdefault creating a new entry),\nthe condition `if not self.restock_item(...)` is never satisfied, so the\nassignment on line 27 is never reached. New items are silently not added.\n\"\"\"\n    v = _case7_VendingMachine()\n    v.add_item('Coke', 1.25, 10)\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\n",
+   "oracle_reason": "The docstring example explicitly defines the inventory dictionary structure with 'price' and 'quantity' keys upon adding an item. A fresh instance starts with empty inventory, so after add_item the inventory must contain exactly that one entry.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p1_add_item_populates __________________________\ntest_solution.py:23: in test_p1_add_item_populates\n    assert v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}\nE   AssertionError: assert {'Coke': {'pr...uantity': 10}} == {'Coke': {'pr...uantity': 10}}\nE     \nE     Differing items:\nE     {'Coke': {'price': 0, 'quantity': 10}} != {'Coke': {'price': 1.25, 'quantity': 10}}\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_add_item_populates - AssertionError: assert ...\n1 failed in 0.01s\n",
+   "reason": "The test correctly expects the inventory to contain the specified price and quantity per the docstring example. The implementation incorrectly initializes new items with price=0 because restock_item unconditionally returns True via setdefault, bypassing the assignment of the correct price.",
+   "round": 2
+  },
+  {
+   "name": "test_extra_restock_nonexistent",
+   "plan_ids": [],
+   "code": "from solution import VendingMachine as _case8_VendingMachine\n\ndef test_extra_restock_nonexistent():\n    \"\"\"Extra: restock_item returns False when the item is not in inventory.\n\nContract quote: \"Replenishes the inventory of a product already in the vending machine.\\n        :param item_name: The name of the product to be replenished, str.\\n        :param quantity: The quantity of the product to be replenished, int.\\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\\n        >>> vendingMachine = VendingMachine()\\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\\n        >>> vendingMachine.restock_item('Coke', 10)\\n        True\\n        >>> vendingMachine.restock_item('Pizza', 10)\\n        False\"\n\nInput domain: Fresh VendingMachine instance; call restock_item with a name that\nis not present in inventory.\n\nOracle: The method must return False for a non-existent item per the explicit\ndocstring example showing restock_item('Pizza', 10) returning False.\n\nFault hypothesis: The implementation uses setdefault to create a new entry\nwith price=0 and quantity=0, then adds the quantity, and unconditionally\nreturns True. This violates the contract and also silently adds the item\nto inventory with price=0.\n\"\"\"\n    v = _case8_VendingMachine()\n    # Ensure inventory is empty / no 'Pizza' exists\n    v.inventory = {}\n    result = v.restock_item('Pizza', 10)\n    assert result is False\n",
+   "oracle_reason": "The docstring example explicitly shows that calling restock_item on a non-existent item ('Pizza') returns False. This is a documented contract requirement.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_extra_restock_nonexistent ________________________\ntest_solution.py:23: in test_extra_restock_nonexistent\n    assert result is False\nE   assert True is False\n=========================== short test summary info ============================\nFAILED test_solution.py::test_extra_restock_nonexistent - assert True is False\n1 failed in 0.01s\n",
+   "reason": "The test correctly expects False for a non-existent item per the explicit docstring contract. The implementation violates this by using setdefault to create the item and unconditionally returning True.",
+   "round": 2
+  }
+ ],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 7059
+  },
+  "testgen": {
+   "calls": 16,
+   "tokens": 132070
+  },
+  "reviewer": {
+   "calls": 2,
+   "tokens": 14301
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/mas/r1/input/solution.py"
+}

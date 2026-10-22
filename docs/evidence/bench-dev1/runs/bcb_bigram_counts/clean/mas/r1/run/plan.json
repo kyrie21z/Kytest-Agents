@@ -1,0 +1,83 @@
+{
+ "summary": "Calculates the frequency of every adjacent two-character substring (bigram) in a given word. Returns a dictionary containing exactly 650 keys representing all ordered permutations of two lowercase English letters, with values indicating their occurrence count in the word (0 if absent).",
+ "input_domain": "Strings containing alphabetic characters, assumed to be lowercase English letters per spec context. Includes empty strings and single-character strings.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Counts adjacent bigrams in a short word",
+   "input": "word='abc'",
+   "expected": "result['ab'] == 1, result['bc'] == 1, all other 650 keys == 0",
+   "rationale": "Spec states values represent frequency of two-letter combinations in the word, and missing combinations default to 0. Adjacent sliding window is implied by the term 'bigram' and example output.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Handles overlapping identical bigrams",
+   "input": "word='aaa'",
+   "expected": "result['aa'] == 2, all other keys == 0",
+   "rationale": "Adjacent pairs slide by one position; 'aaa' contains 'aa' at indices 0 and 1, yielding a count of 2.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Single character input",
+   "input": "word='z'",
+   "expected": "All 650 keys map to 0",
+   "rationale": "Word length is less than 2, so no two-letter combinations can be formed per the frequency counting requirement.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Empty string input",
+   "input": "word=''",
+   "expected": "All 650 keys map to 0",
+   "rationale": "Degenerate input with no characters yields no bigrams, consistent with zero-default behavior for missing combinations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Dictionary contains exactly all lowercase letter permutations of length 2",
+   "input": "word='hello'",
+   "expected": "set(result.keys()) equals set(itertools.permutations(string.ascii_lowercase, 2))",
+   "rationale": "Spec requires: 'Create a dictionary containing all possible two-letter combinations of the lowercase English alphabets.' Using permutations ensures ordered pairs without replacement.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Repeated pattern word",
+   "input": "word='abab'",
+   "expected": "result['ab'] == 2, result['ba'] == 1, others == 0",
+   "rationale": "Counts occurrences of each adjacent pair; 'ab' appears twice, 'ba' once, aligning with frequency counting rules.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Full alphabet word",
+   "input": "word='abcdefghijklmnopqrstuvwxyz'",
+   "expected": "25 keys have value 1 (each adjacent transition), remaining 625 keys have value 0",
+   "rationale": "Covers all adjacent transitions exactly once; aligns with frequency counting requirement and zero-fallback for unused combinations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "state",
+   "behavior": "Return type verification",
+   "input": "word='test'",
+   "expected": "isinstance(result, dict) is True",
+   "rationale": "Signature specifies `-> dict` and docstring confirms: 'Returns: - dict: A dictionary with keys as two-letter alphabet combinations...'",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "How should uppercase letters or non-alphabetic characters in `word` be handled? The spec mentions 'containing alphabetic characters' and focuses on lowercase combinations, but does not specify normalization, filtering, or error raising.",
+  "Does 'combinations' refer strictly to adjacent pairs (sliding window) or all possible pairs within the word? The example `bigram_counts('abcdef')` showing `('ac', 0)` strongly implies adjacent pairs, but the wording is technically ambiguous.",
+  "What is the expected behavior if `word` is passed as a non-string type? The type hint `word: str` suggests a precondition, but the spec does not define the exception or fallback for type violations."
+ ]
+}

@@ -1,0 +1,84 @@
+{
+ "summary": "Computes the prime factorization of a positive integer, returning a sorted list of prime factors including their multiplicities.",
+ "input_domain": "Positive integers (n ∈ ℤ, n ≥ 1)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "boundary",
+   "behavior": "Factor the smallest valid input",
+   "input": "1",
+   "expected": "[]",
+   "rationale": "Examples: >>> get_factors(1) []",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Factor a composite number with repeated prime factors",
+   "input": "100",
+   "expected": "[2, 2, 5, 5]",
+   "rationale": "Examples: >>> get_factors(100) [2, 2, 5, 5]",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Factor a prime number",
+   "input": "101",
+   "expected": "[101]",
+   "rationale": "Examples: >>> get_factors(101) [101]",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Factor a composite with distinct prime factors",
+   "input": "6",
+   "expected": "[2, 3]",
+   "rationale": "A list of the prime factors of n in sorted order with repetition",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Factor a prime power",
+   "input": "8",
+   "expected": "[2, 2, 2]",
+   "rationale": "repetition included for prime powers per 'with repetition'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Factor the smallest prime",
+   "input": "2",
+   "expected": "[2]",
+   "rationale": "Smallest prime satisfying precondition n >= 1; output must be sorted list of prime factors",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Factor a mixed composite",
+   "input": "12",
+   "expected": "[2, 2, 3]",
+   "rationale": "Sorted order with repetition for composites having multiple prime bases",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Verify multiplicative inverse property of factorization",
+   "input": "30",
+   "expected": "[2, 3, 5]",
+   "rationale": "Prime factors of n in sorted order with repetition; the product of the returned list must equal the original input n",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior for n < 1 (e.g., -5, 0) violates the stated precondition 'n >= 1'; specification defines this as undefined behavior.",
+  "Behavior for non-integer types (e.g., floats, strings) is not specified; type coercion or TypeError expectation is unclear.",
+  "Performance expectations or time complexity limits for very large integers are not defined.",
+  "Whether the function raises a specific exception (e.g., ValueError) on precondition violation, or simply exhibits undefined behavior, is not documented."
+ ]
+}

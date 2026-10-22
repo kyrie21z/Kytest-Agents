@@ -1,0 +1,89 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def lis(arr):\n    \"\"\"\n    Longest Increasing Subsequence\n    longest-increasing-subsequence\n\n\n    Input:\n        arr: A sequence of ints\n\n    Precondition:\n        The ints in arr are unique\n\n    Output:\n        The length of the longest monotonically increasing subsequence of arr\n\n    Example:\n        >>> lis([4, 1, 5, 3, 7, 6, 2])\n        3\n    \"\"\"\n    ends = {}\n    longest = 0\n    for i, val in enumerate(arr):\n        prefix_lengths = [j for j in range(1, longest + 1) if arr[ends[j]] < val]\n        length = max(prefix_lengths) if prefix_lengths else 0\n        if length == longest or val < arr[ends[length + 1]]:\n            ends[length + 1] = i\n            longest = max(longest, length + 1)\n    return longest\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_lis/clean/no_planner/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_lis_single_element",
+    "test_lis_already_sorted",
+    "test_lis_reverse_sorted",
+    "test_lis_two_elements_increasing",
+    "test_lis_empty",
+    "test_lis_example_from_docstring",
+    "test_lis_negative_values",
+    "test_lis_large_strictly_increasing",
+    "test_lis_all_same",
+    "test_lis_alternating",
+    "test_lis_three_elements",
+    "test_lis_worst_case_alternating",
+    "test_lis_increasing_then_drop",
+    "test_lis_single_large_value"
+   ],
+   "failed": [],
+   "attempts": 18,
+   "turns": 8,
+   "final_text": "One test was rejected due to insufficient contract quote length. Let me fix that and add more complementary cases."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 14,
+   "pytest": {
+    "passed": 14,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 1.0,
+    "killed": 8,
+    "total": 8,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": [
+    "The test suite passes all tests with full coverage and perfect mutation score. No failing tests to correct. The suite adequately covers the specification."
+   ]
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 50719
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 3462
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_lis/clean/no_planner/r1/input/solution.py"
+}

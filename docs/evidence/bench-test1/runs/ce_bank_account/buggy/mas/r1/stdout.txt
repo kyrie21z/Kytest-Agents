@@ -1,0 +1,7 @@
+status: accepted   rounds: 1   path: planner -> testgen -> verifier -> reviewer
+plan: 8 items, 5 ambiguities
+tests: 10 accepted   coverage: 1.0   dev mutants killed: 2/3   plan cited: 1.0
+review r1: accept  test_p4_withdraw_exact_balance=suspected_bug
+suspected bugs: 1 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_bank_account/buggy/mas/r1/run/bug_report.md
+usage: {"planner": {"calls": 1, "tokens": 5856}, "testgen": {"calls": 6, "tokens": 42899}, "reviewer": {"calls": 1, "tokens": 5026}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_bank_account/buggy/mas/r1/run

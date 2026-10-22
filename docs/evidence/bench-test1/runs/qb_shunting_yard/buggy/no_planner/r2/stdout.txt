@@ -1,0 +1,7 @@
+status: forced   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 6 accepted   coverage: 0.8333333333333333   dev mutants killed: 0/3   plan cited: None
+review r1: revise  
+review r2: revise  test_spec_example_simple=suspected_bug
+suspected bugs: 1 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_planner/r2/run/bug_report.md
+usage: {"testgen": {"calls": 12, "tokens": 74974}, "reviewer": {"calls": 2, "tokens": 8218}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_planner/r2/run

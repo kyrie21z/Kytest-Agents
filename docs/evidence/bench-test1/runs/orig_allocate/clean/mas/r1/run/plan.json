@@ -1,0 +1,115 @@
+{
+ "summary": "Distributes a non-negative integer total into integer shares proportional to a list of non-negative weights. Uses floor division for base allocation, distributes remainders to entries with the largest fractional parts, breaks ties by lower index, and ensures zero-weight entries get zero.",
+ "input_domain": "total: int >= 0; weights: list[int] with len >= 1, elements >= 0, and at least one element > 0",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Verify docstring example with equal weights and odd total",
+   "input": "allocate(100, [1, 1, 1])",
+   "expected": "[34, 33, 33]",
+   "rationale": "Directly cited from docstring examples. Tests floor division and remainder distribution.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Verify docstring example with mixed weights including a zero",
+   "input": "allocate(10, [3, 0, 7])",
+   "expected": "[3, 0, 7]",
+   "rationale": "Directly cited from docstring. Confirms proportional scaling and zero-weight handling.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Test minimum valid total value",
+   "input": "allocate(0, [2, 3])",
+   "expected": "[0, 0]",
+   "rationale": "Spec requires 'non-negative integer total'. With total=0, floor(0*w/S)=0 and remainder=0, forcing all shares to 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Test minimal positive total with equal weights to exercise tie-breaking",
+   "input": "allocate(1, [1, 1])",
+   "expected": "[1, 0]",
+   "rationale": "Base allocation is 0 for both. Remainder is 1. Fractional parts are equal (0.5). Spec states 'ties go to the entry with the lower index', so index 0 receives the unit.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Verify sum invariant across different weight distributions",
+   "input": "allocate(10, [1, 2, 3])",
+   "expected": "[2, 3, 5]",
+   "rationale": "Spec guarantees 'The result is a new list of ints, one per weight, summing to total.' Sum([2,3,5]) == 10 confirms correctness.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Verify explicit zero-weight guarantee with multiple zero entries",
+   "input": "allocate(5, [0, 0, 0, 5])",
+   "expected": "[0, 0, 0, 5]",
+   "rationale": "Spec explicitly states 'Entries with weight 0 always receive 0.' Tests that zero entries are never allocated remainder units.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Test tie-breaking rule with multiple identical fractional remainders",
+   "input": "allocate(10, [1, 1, 1, 1])",
+   "expected": "[3, 3, 2, 2]",
+   "rationale": "Base allocation sums to 8, leaving 2 units. All fractional remainders are identical (0.5). Spec mandates 'ties go to the entry with the lower index', so indices 0 and 1 get +1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Validate rejection of negative total",
+   "input": "allocate(-5, [1, 2])",
+   "expected": "ValueError",
+   "rationale": "Spec states 'Raises ValueError if total is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "Validate rejection of empty weight list",
+   "input": "allocate(10, [])",
+   "expected": "ValueError",
+   "rationale": "Spec states 'Raises ValueError if ... weights is empty'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "error",
+   "behavior": "Validate rejection of negative weights",
+   "input": "allocate(10, [2, -1])",
+   "expected": "ValueError",
+   "rationale": "Spec states 'Raises ValueError if ... any weight is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P11",
+   "category": "error",
+   "behavior": "Validate rejection of all-zero weights",
+   "input": "allocate(10, [0, 0])",
+   "expected": "ValueError",
+   "rationale": "Spec states 'Raises ValueError if ... all weights are zero'. Division by zero would occur otherwise.",
+   "confidence": "high"
+  },
+  {
+   "id": "P12",
+   "category": "boundary",
+   "behavior": "Test single-element weight list",
+   "input": "allocate(7, [3])",
+   "expected": "[7]",
+   "rationale": "Valid input per spec ('at least one positive entry'). With one weight, proportional split assigns the entire total to that entry.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": []
+}

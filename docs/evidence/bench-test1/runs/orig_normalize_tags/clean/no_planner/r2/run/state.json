@@ -1,0 +1,79 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_planner/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_empty_string",
+    "test_only_commas_and_whitespace",
+    "test_duplicate_removal_preserves_order",
+    "test_single_tag_with_whitespace",
+    "test_consecutive_commas_and_edge_cases",
+    "test_basic_normalization"
+   ],
+   "failed": [],
+   "attempts": 18,
+   "turns": 5,
+   "final_text": " type-checking for non-string inputs**: The contract doesn't specify behavior for non-string types (e.g., `None`, integers, lists). The implementation would raise an `AttributeError` on `.split()`, but this isn't tested since the contract doesn't mandate validation.\n\n2. **No Unicode/collation edge cases**: Tags with accented characters or non-ASCII letters aren't tested, though `.lower()` handles them correctly in Python.\n\n3. **No very long inputs**: Stress testing with thousands of tags or extremely long tag names isn't included, though the algorithm is O(n²) due to `tag not in seen` checks on a list.\n\n4. **No negative test cases**: There are no tests that verify specific failure modes (e.g., what happens if someone passes a bytes object), since the contract doesn't define such behaviors."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 5,
+   "tokens": 26398
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 2265
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_planner/r2/input/solution.py"
+}

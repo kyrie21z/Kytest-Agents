@@ -1,0 +1,4 @@
+status: completed   rounds: 1   path: testgen -> verifier
+tests: 13 accepted   coverage: 0.9090909090909091   dev mutants killed: 1/2   plan cited: None
+usage: {"testgen": {"calls": 7, "tokens": 66073}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_kth/buggy/single/r1/run

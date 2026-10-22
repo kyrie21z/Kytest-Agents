@@ -1,0 +1,119 @@
+{
+ "summary": "Splits a non-negative integer total into integer shares proportional to a list of non-negative weights. It assigns floor(total * w / sum(weights)) to each entry, then distributes remaining units one-by-one to entries with the largest fractional remainder (total * w mod sum(weights)), breaking ties by lower index. Zero-weight entries always receive 0.",
+ "input_domain": "total: int >= 0; weights: list of ints, length >= 1, all elements >= 0, with at least one element > 0",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Exact division with no remainder; zero-weight entries receive 0",
+   "input": "allocate(10, [3, 0, 7])",
+   "expected": "[3, 0, 7]",
+   "rationale": "Docstring example: 'allocate(10, [3, 0, 7]) -> [3, 0, 7]'. Sum of weights equals total, so floors consume all units. Spec states 'Entries with weight 0 always receive 0.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Remainder distributed to entry with strictly largest fractional part",
+   "input": "allocate(10, [1, 2, 3])",
+   "expected": "[2, 3, 5]",
+   "rationale": "Sum(weights)=6. Floors: [1, 3, 5]. Sum=9, remainder=1. Fractional parts: 4/6, 2/6, 0/6. Index 0 has largest remainder, receives the extra unit. Matches spec algorithm.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Total is zero; all shares must be zero",
+   "input": "allocate(0, [5, 5])",
+   "expected": "[0, 0]",
+   "rationale": "Spec requires 'non-negative integer total'. At total=0, floor(0*w/sum)=0 for all, remainder=0. Result must sum to total (0).",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Single weight entry consumes entire total",
+   "input": "allocate(42, [1])",
+   "expected": "[42]",
+   "rationale": "Spec allows 'at least one positive entry'. With one weight, floor(42*1/1)=42, remainder=0. Result sums to total.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Negative total raises ValueError",
+   "input": "allocate(-5, [1, 2])",
+   "expected": "raises ValueError",
+   "rationale": "Docstring explicitly states: 'Raises ValueError if total is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "empty",
+   "behavior": "Empty weights list raises ValueError",
+   "input": "allocate(10, [])",
+   "expected": "raises ValueError",
+   "rationale": "Docstring explicitly states: 'Raises ValueError if ... weights is empty'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "All weights zero raises ValueError",
+   "input": "allocate(10, [0, 0, 0])",
+   "expected": "raises ValueError",
+   "rationale": "Docstring explicitly states: 'Raises ValueError if ... all weights are zero'. Division by sum(weights)=0 would be undefined otherwise.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Sum of returned shares always equals total",
+   "input": "allocate(100, [1, 2, 3, 4, 5])",
+   "expected": "sum(result) == 100",
+   "rationale": "Spec guarantees: 'The result is a new list of ints, one per weight, summing to total.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "state",
+   "behavior": "Zero-weight positions never receive allocated units",
+   "input": "allocate(50, [10, 0, 20, 0, 10])",
+   "expected": "result[1] == 0 and result[3] == 0",
+   "rationale": "Spec explicitly states: 'Entries with weight 0 always receive 0.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "normal",
+   "behavior": "Tie-breaking favors lower index when fractional remainders are equal",
+   "input": "allocate(100, [1, 1, 1])",
+   "expected": "[34, 33, 33]",
+   "rationale": "Docstring example. Floors are all 33, remainder=1. All fractions equal. Spec states: 'ties go to the entry with the lower index', so index 0 gets the extra unit.",
+   "confidence": "high"
+  },
+  {
+   "id": "P11",
+   "category": "normal",
+   "behavior": "Multiple leftover units distributed sequentially with tie-breaking",
+   "input": "allocate(10, [1, 1, 1, 1])",
+   "expected": "[3, 3, 2, 2]",
+   "rationale": "Sum(weights)=4. Floors=[2,2,2,2], sum=8, remainder=2. All fractions equal. Spec tie rule applies to both leftover units, giving them to indices 0 and 1. Result sums to 10.",
+   "confidence": "high"
+  },
+  {
+   "id": "P12",
+   "category": "normal",
+   "behavior": "Mixed zero and positive weights with partial remainder distribution",
+   "input": "allocate(7, [2, 0, 3])",
+   "expected": "[2, 0, 5]",
+   "rationale": "Sum(weights)=5. Floors: floor(14/5)=2, floor(0/5)=0, floor(21/5)=4. Sum=6, remainder=1. Fractions: 4/5, 0/5, 1/5. Index 0 has largest fraction, gets extra unit. Zero-weight entry stays 0. Matches spec rules.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when inputs are floats or other numeric types (spec says 'integer' and 'list of non-negative ints', but Python duck typing may allow others)",
+  "Strictness of type validation (whether non-list iterables or non-iterable weights are accepted or rejected)",
+  "Performance expectations for extremely large totals or weight lists (no time/space complexity bounds documented)"
+ ]
+}

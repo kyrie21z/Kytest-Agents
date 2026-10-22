@@ -1,0 +1,84 @@
+{
+ "summary": "Manages a shopping cart where items are stored as dictionaries containing price and quantity. Supports adding items, removing specific quantities, viewing the cart contents, and calculating the total price by summing quantity times price for all items.",
+ "input_domain": "item (str), price (float), quantity (int)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add a new item with explicit quantity",
+   "input": "cart = ShoppingCart(); cart.add_item(\"apple\", 1.5, 2)",
+   "expected": "cart.view_items() == {\"apple\": {\"price\": 1.5, \"quantity\": 2}}",
+   "rationale": "Spec states 'Add item information to the shopping list items, including price and quantity.' The doctest example confirms the internal storage structure as {'item': {'price': ..., 'quantity': ...}}.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Add item using default quantity",
+   "input": "cart = ShoppingCart(); cart.add_item(\"orange\", 2.0)",
+   "expected": "cart.view_items() == {\"orange\": {\"price\": 2.0, \"quantity\": 1}}",
+   "rationale": "Docstring explicitly notes ':param quantity:int, The number of items, defaults to 1'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Calculate total price with multiple distinct items",
+   "input": "cart = ShoppingCart(); cart.add_item(\"a\", 10.0, 2); cart.add_item(\"b\", 5.0, 3); cart.total_price()",
+   "expected": "25.0",
+   "rationale": "Spec defines total price as 'the quantity of each item multiplied by the price'. The doctest example calculates (1*5) + (2*3) = 11.0, confirming summation logic across items.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Calculate total price on empty cart",
+   "input": "cart = ShoppingCart(); cart.total_price()",
+   "expected": "0.0",
+   "rationale": "Spec requires returning a float representing the sum of prices. An empty collection mathematically sums to 0. Returning a float aligns with the '-> float' signature.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "state",
+   "behavior": "Remove a partial quantity from an existing item",
+   "input": "cart = ShoppingCart(); cart.add_item(\"apple\", 1.0, 5); cart.remove_item(\"apple\", 3); cart.view_items()",
+   "expected": "{\"apple\": {\"price\": 1.0, \"quantity\": 2}}",
+   "rationale": "Spec states 'Subtract the specified quantity of item from the shopping list items'. The doctest explicitly demonstrates remove_item('apple', 3) reducing quantity from 5 to 2.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Remove exact quantity resulting in zero stock",
+   "input": "cart = ShoppingCart(); cart.add_item(\"apple\", 1.0, 5); cart.remove_item(\"apple\", 5); cart.view_items()",
+   "expected": "{\"apple\": {\"price\": 1.0, \"quantity\": 0}}",
+   "rationale": "Based on the subtraction rule 'Subtract the specified quantity', removing the full amount leaves a quantity of 0. The spec does not mandate key deletion, so retaining the entry with 0 quantity is the direct logical outcome.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "View items returns a dictionary matching internal state",
+   "input": "cart = ShoppingCart(); cart.add_item(\"x\", 9.99, 1); cart.view_items()",
+   "expected": "isinstance(result, dict) and 'x' in result and result['x']['price'] == 9.99 and result['x']['quantity'] == 1",
+   "rationale": "Signature declares '-> dict' and docstring says 'Return the current shopping list items'. The test verifies the contract that the returned object is a dict reflecting added items.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "State invariant: price persists across add/remove cycles",
+   "input": "cart = ShoppingCart(); cart.add_item(\"milk\", 3.5, 2); cart.remove_item(\"milk\", 2); cart.add_item(\"milk\", 3.5, 1); cart.view_items()",
+   "expected": "{\"milk\": {\"price\": 3.5, \"quantity\": 1}}",
+   "rationale": "The spec treats items as entities storing both price and quantity. Removing quantity should not alter the stored price attribute, preserving data integrity across state transitions.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when adding an item that already exists (docstring uses assignment syntax `self.items = {...}`, suggesting possible overwrite, but typical cart semantics imply accumulation).",
+  "Behavior when `remove_item` is called with a quantity greater than current stock or on a non-existent item (spec lacks precondition or error handling documentation).",
+  "Whether `view_items()` returns a deep copy or a reference to internal state (mutability risk not addressed).",
+  "Handling of negative prices or zero/negative quantities passed to `add_item` (type hints suggest positive numbers but no validation/precondition is documented)."
+ ]
+}

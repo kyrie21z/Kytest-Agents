@@ -1,0 +1,67 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_basic_normalization",
+    "test_empty_string",
+    "test_single_tag",
+    "test_duplicate_preserves_first_order",
+    "test_return_type_is_list",
+    "test_only_whitespace_and_empty_tags"
+   ],
+   "failed": [],
+   "attempts": 7,
+   "turns": 4,
+   "final_text": "in original order |\n| 6 | `test_return_type_is_list` | Return type is always `list` across multiple input types |\n\n### Remaining Limitations\n\n- **No negative/invalid input tests**: The docstring doesn't specify behavior for non-string inputs (e.g., `None`, integers). The implementation would raise an `AttributeError` on `.split()` but this isn't contractually defined.\n- **No multi-word tag edge cases**: Tags containing internal spaces (like `\"hello world\"`) work but aren't explicitly tested beyond the single-tag case.\n- **No performance boundary**: No test for very long strings or many duplicates to catch potential O(n²) behavior from the `tag not in seen` list check.\n- **No Unicode testing**: Non-ASCII characters (e.g., `\"café, CAFÉ\"`) aren't tested to verify correct lowercasing behavior."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 4,
+   "tokens": 14573
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/single/r1/input/solution.py"
+}

@@ -1,0 +1,84 @@
+{
+ "summary": "Computes the prime factorization of a positive integer n, returning a sorted list of prime factors that includes duplicates for repeated factors.",
+ "input_domain": "Positive integers (n >= 1)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "empty",
+   "behavior": "Returns an empty list for unit input",
+   "input": "1",
+   "expected": "[]",
+   "rationale": "Docstring example explicitly states: '>>> get_factors(1)\\n[]'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Returns single-element list for smallest prime",
+   "input": "2",
+   "expected": "[2]",
+   "rationale": "Spec requires returning 'prime factors of n'; 2 is prime, so it factors to itself.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Returns sorted list with repeated factors for composite",
+   "input": "100",
+   "expected": "[2, 2, 5, 5]",
+   "rationale": "Directly matches docstring example: '>>> get_factors(100)\\n[2, 2, 5, 5]'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Returns single-element list for prime input",
+   "input": "101",
+   "expected": "[101]",
+   "rationale": "Directly matches docstring example: '>>> get_factors(101)\\n[101]'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Returns list with triple repetition for prime power",
+   "input": "8",
+   "expected": "[2, 2, 2]",
+   "rationale": "Spec requires output 'with repetition'; 8 = 2^3, so three 2s are expected.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Returns sorted distinct primes for semiprime",
+   "input": "6",
+   "expected": "[2, 3]",
+   "rationale": "Spec requires 'sorted order'; 6 = 2 * 3, so ascending order is enforced.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Validates factor product equals original input",
+   "input": "30",
+   "expected": "[2, 3, 5]",
+   "rationale": "Spec implies complete factorization into 'prime factors'; product of returned list must equal n, and all elements must be prime.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Handles perfect square of larger prime",
+   "input": "49",
+   "expected": "[7, 7]",
+   "rationale": "Tests boundary condition where smallest factor is > 2, verifying 'sorted order with repetition' holds for non-trivial primes.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior for n < 1 (e.g., 0, -5): Violates precondition 'n >= 1'; spec defines this as undefined behavior.",
+  "Behavior for non-integer types (e.g., float, string, None): Spec specifies 'n: An int to factor'; type mismatch falls outside defined domain.",
+  "Performance limits for very large n: Spec mentions 'naive trial division' but does not specify time complexity bounds or timeout expectations for large inputs.",
+  "Whether the function modifies the input or creates new lists: Not specified, though Python conventions imply immutability/new list creation."
+ ]
+}

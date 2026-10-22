@@ -1,0 +1,121 @@
+{
+ "summary": "Manages warehouse inventory and orders by tracking products with IDs, names, and quantities, and maintaining orders with statuses. Supports adding/updating products, querying stock, creating orders with stock checks, modifying order statuses, and tracking orders.",
+ "input_domain": "Integers for product_id, order_id, and quantity; strings for name and status; instantiated via Warehouse() constructor.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add a new product to inventory",
+   "input": "warehouse.add_product(1, \"Widget\", 10)",
+   "expected": "warehouse.inventory == {1: {\"name\": \"Widget\", \"quantity\": 10}}",
+   "rationale": "Docstring specifies that adding a new product creates an entry mapping the product_id to a dict containing name and quantity fields.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Add quantity to an existing product",
+   "input": "After P1, warehouse.add_product(1, \"Widget\", 5)",
+   "expected": "warehouse.inventory[1][\"quantity\"] == 15",
+   "rationale": "Docstring states to 'plus the quantity if it has existed in inventory'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Retrieve quantity of an existing product",
+   "input": "warehouse.get_product_quantity(1)",
+   "expected": "15",
+   "rationale": "Docstring example shows returning the stored quantity for a valid product_id.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Attempt to retrieve quantity for a non-existent product",
+   "input": "warehouse.get_product_quantity(99)",
+   "expected": "False",
+   "rationale": "Docstring specifies returning False 'if the product_id is in inventory then return the corresponding quantity, or False otherwise'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Update product quantity with a negative value",
+   "input": "warehouse.update_product_quantity(1, -3)",
+   "expected": "warehouse.inventory[1][\"quantity\"] == 12",
+   "rationale": "Docstring example demonstrates subtracting quantity via a negative integer argument, confirming additive updates.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Create a valid order",
+   "input": "warehouse.create_order(101, 1, 5)",
+   "expected": "warehouse.orders == {101: {\"product_id\": 1, \"quantity\": 5, \"status\": \"Shipped\"}}",
+   "rationale": "Docstring specifies creating an order with default status 'Shipped' and storing it in self.orders.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "Create an order for a product not in inventory",
+   "input": "warehouse.create_order(102, 99, 1)",
+   "expected": "False",
+   "rationale": "Docstring states it returns False 'only if product_id is not in inventory'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Create an order exceeding available stock",
+   "input": "warehouse.create_order(103, 1, 100)",
+   "expected": "False",
+   "rationale": "Docstring states it returns False if 'the quantity is not adequate'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "normal",
+   "behavior": "Change the status of an existing order",
+   "input": "warehouse.change_order_status(101, \"Delivered\")",
+   "expected": "warehouse.orders[101][\"status\"] == \"Delivered\"",
+   "rationale": "Docstring example shows updating the status field for a valid order ID.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "error",
+   "behavior": "Change status for a non-existent order",
+   "input": "warehouse.change_order_status(999, \"Cancelled\")",
+   "expected": "False",
+   "rationale": "Docstring specifies returning False 'only if the order_id is not in self.orders'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P11",
+   "category": "normal",
+   "behavior": "Track the status of an existing order",
+   "input": "warehouse.track_order(101)",
+   "expected": "\"Delivered\"",
+   "rationale": "Docstring example shows returning the current status string for a valid order ID.",
+   "confidence": "high"
+  },
+  {
+   "id": "P12",
+   "category": "state",
+   "behavior": "Verify initial state after instantiation",
+   "input": "warehouse = Warehouse()",
+   "expected": "warehouse.inventory == {} and warehouse.orders == {}",
+   "rationale": "__init__ docstring specifies initializing self.inventory and self.orders as empty dicts.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Does create_order deduct the ordered quantity from self.inventory upon success? The spec checks adequacy but does not specify inventory mutation.",
+  "What is the behavior of update_product_quantity when called on a product_id that does not exist in self.inventory?",
+  "Are negative quantities allowed during add_product? The spec does not define validation for initial quantity assignment.",
+  "What constitutes an 'adequate' quantity for create_order? Specifically, does requesting quantity=0 succeed or fail?",
+  "Does change_order_status enforce any specific set of valid status strings, or accept any arbitrary string?"
+ ]
+}

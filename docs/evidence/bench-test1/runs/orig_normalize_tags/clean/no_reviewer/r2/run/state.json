@@ -1,0 +1,202 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_reviewer/r2/run/workspace",
+ "spec": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Splits a comma-separated string into individual tags, strips surrounding whitespace, converts to lowercase, drops empty or whitespace-only tags, removes duplicates based on normalized values while preserving the order of first occurrences, and returns the resulting list.",
+  "input_domain": "str (comma-separated tag string)",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Standard mixed case and whitespace handling matching the docstring example",
+    "input": "\" Python, ML ,python,, Data \"",
+    "expected": "[\"python\", \"ml\", \"data\"]",
+    "rationale": "Directly matches the provided doctest: '>>> normalize_tags(\" Python, ML ,python,, Data \")\\n    [\"python\", \"ml\", \"data\"]'",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "All lowercase tags with no extra whitespace",
+    "input": "\"tag1,tag2,tag3\"",
+    "expected": "[\"tag1\", \"tag2\", \"tag3\"]",
+    "rationale": "Spec requires stripping whitespace and lower-casing; these tags already satisfy those conditions.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Duplicate tags with different casing",
+    "input": "\"Apple, apple, APPLE, banana\"",
+    "expected": "[\"apple\", \"banana\"]",
+    "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "String containing only commas and whitespace",
+    "input": "\", , , \"",
+    "expected": "[]",
+    "rationale": "Spec states: 'Empty tags (including ones that are only whitespace) are dropped.' and 'A string without any non-empty tag gives an empty list.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "boundary",
+    "behavior": "Single tag with surrounding whitespace",
+    "input": "\"  hello  \"",
+    "expected": "[\"hello\"]",
+    "rationale": "Stripping surrounding whitespace and lower-casing applies to single-element splits.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "boundary",
+    "behavior": "Leading and trailing commas",
+    "input": "\",  foo  , bar  ,\"",
+    "expected": "[\"foo\", \"bar\"]",
+    "rationale": "Splitting by comma produces empty strings at boundaries, which are dropped per spec.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "property",
+    "behavior": "Preservation of internal spaces within tags",
+    "input": "\"machine learning, deep learning\"",
+    "expected": "[\"machine learning\", \"deep learning\"]",
+    "rationale": "Spec specifies stripping of 'surrounding' whitespace, implying internal spacing is preserved.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "boundary",
+    "behavior": "Multiple consecutive commas without spaces",
+    "input": "\"a,,,b\"",
+    "expected": "[\"a\", \"b\"]",
+    "rationale": "Consecutive commas generate empty intermediate tokens, which are filtered out as per spec.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "normal",
+    "behavior": "Tags with uppercase letters only",
+    "input": "\"FOO, BAR\"",
+    "expected": "[\"foo\", \"bar\"]",
+    "rationale": "Lower-casing is explicitly required for all tags.",
+    "confidence": "high"
+   },
+   {
+    "id": "P10",
+    "category": "property",
+    "behavior": "Order preservation with interleaved duplicates",
+    "input": "\"cat, dog, cat, bird, dog\"",
+    "expected": "[\"cat\", \"dog\", \"bird\"]",
+    "rationale": "Spec requires keeping original order and removing duplicates after normalization, retaining only the first occurrence.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "What should happen if `text` is not a string (e.g., int, None, list)? The spec does not define type validation or error handling.",
+   "How are non-comma characters handled? The spec says 'comma-separated', implying other delimiters are treated as literal characters within tags rather than split points.",
+   "Does 'first occurrence' refer to the position in the original string before splitting, or after filtering empty tags? (Implied: original split order, but worth clarifying for edge cases like ',a,,a,'.)"
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p1_standard_mixed_case",
+    "test_p2_all_lowercase_no_whitespace",
+    "test_p3_duplicate_different_casing",
+    "test_p4_only_commas_and_whitespace",
+    "test_p5_single_tag_surrounding_whitespace",
+    "test_p7_internal_spaces_preserved",
+    "test_p6_leading_trailing_commas",
+    "test_p8_multiple_consecutive_commas",
+    "test_p9_uppercase_only_tags",
+    "test_p10_order_preservation_interleaved_duplicates",
+    "test_extra_empty_string",
+    "test_extra_single_tag_no_comma"
+   ],
+   "failed": [],
+   "attempts": 18,
+   "turns": 6,
+   "final_text": " → `[\"hello\"]` |\n\n## Remaining Limitations\n\n1. **No return-type assertion**: We don't explicitly assert `isinstance(result, list)` to guard against the function returning a tuple or other iterable.\n2. **No non-string input handling**: The spec doesn't define behavior for `None`, integers, or other types. The implementation would crash on non-strings, but the contract is silent.\n3. **No Unicode/special character tests**: Tags with accented characters, numbers, hyphens, or underscores aren't tested.\n4. **No internal-whitespace-difference test**: e.g., `\"machine learning\"` vs `\"machine  learning\"` (double space) — these normalize differently but both are valid distinct tags.\n5. **No large-input stress test**: The function handles arbitrarily many tags; we only test small representative cases."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 12,
+   "pytest": {
+    "passed": 12,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9",
+     "P10"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [
+  {
+   "node": "planner",
+   "attempt": 1,
+   "round": 0,
+   "error": "ValueError: planner: no valid JSON after retry (item 2 lacks ['expected'])",
+   "trace": "Traceback (most recent call last):\n  File \"/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/mas/engine.py\", line 84, in run\n    update = NODES[node](state, ctx)\n  File \"/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/mas/nodes.py\", line 116, in planner\n    data = json_call(ctx, \"planner\", PLANNER_PROMPT, f\"Specification:\\n```python\\n{spec}```\", _check_plan)\n  File \"/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/mas/nodes.py\", line 65, in json_call\n    raise ValueError(f\"{role}: no valid JSON after retry ({problem})\")\nValueError: planner: no valid JSON after retry (item 2 lacks ['expected'])\n"
+  }
+ ],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 3,
+   "tokens": 12954
+  },
+  "testgen": {
+   "calls": 6,
+   "tokens": 37369
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_reviewer/r2/input/solution.py"
+}

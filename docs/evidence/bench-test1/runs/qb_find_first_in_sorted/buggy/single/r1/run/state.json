@@ -1,0 +1,111 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def find_first_in_sorted(arr, x):\n    \"\"\"\n    Fancy Binary Search\n    fancy-binsearch\n\n\n    Input:\n        arr: A sorted list of ints\n        x: A value to find\n\n    Output:\n        The lowest index i such that arr[i] == x, or -1 if x not in arr\n\n    Example:\n        >>> find_first_in_sorted([3, 4, 5, 5, 5, 5, 6], 5)\n        2\n    \"\"\"\n    lo = 0\n    hi = len(arr)\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if x == arr[mid] and (mid == 0 or x != arr[mid - 1]):\n            return mid\n        elif x <= arr[mid]:\n            hi = mid\n        else:\n            lo = mid + 1\n    return -1\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_find_first_in_sorted/buggy/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_docstring_example",
+    "test_single_element_match",
+    "test_all_same_elements",
+    "test_two_duplicates_middle",
+    "test_first_and_last_elements",
+    "test_return_type_is_int",
+    "test_negative_values",
+    "test_three_duplicates_at_start",
+    "test_large_even_sized_array",
+    "test_value_at_index_3_of_7"
+   ],
+   "failed": [
+    {
+     "name": "test_empty_array",
+     "plan_ids": [],
+     "code": "\"\"\"Test with an empty array.\"\"\"\nfrom solution import find_first_in_sorted\n\ndef test_empty_array():\n    \"\"\"\n    Contract quote: 'arr: A sorted list of ints' — empty list is a valid sorted list.\n    Input domain: arr = [], x = 42\n    Oracle: An empty array has no elements, so x cannot be found; return -1.\n    Fault hypothesis: Detects crashes (IndexError) or incorrect non-negative returns.\n    \"\"\"\n    result = find_first_in_sorted([], 42)\n    assert result == -1\n",
+     "oracle_reason": "Empty array contains no elements, so x is not present.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_______________________________ test_empty_array _______________________________\ntest_solution.py:11: in test_empty_array\n    result = find_first_in_sorted([], 42)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_testgen_contracts.py:375: in guarded\n    return function(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nsolution.py:22: in find_first_in_sorted\n    if x == arr[mid] and (mid == 0 or x != arr[mid - 1]):\n            ^^^^^^^^\nE   IndexError: list index out of range\n=========================== short test summary info ============================\nFAILED test_solution.py::test_empty_array - IndexError: list index out of range\n1 failed in 0.04s\n"
+    },
+    {
+     "name": "test_not_found_smaller_than_min",
+     "plan_ids": [],
+     "code": "\"\"\"Test x smaller than all elements.\"\"\"\nfrom solution import find_first_in_sorted\n\ndef test_not_found_smaller_than_min():\n    \"\"\"\n    Contract quote: 'or -1 if x not in arr'\n    Input domain: arr = [2, 4, 6, 8], x = 1\n    Oracle: 1 is less than every element, not present; return -1.\n    Fault hypothesis: Detects IndexError since hi=len(arr) allows mid=len(arr).\n    \"\"\"\n    result = find_first_in_sorted([2, 4, 6, 8], 1)\n    assert result == -1\n",
+     "oracle_reason": "x is smaller than min(arr), so it cannot be in the array.",
+     "diagnostic": ""
+    },
+    {
+     "name": "test_not_found_larger_than_max",
+     "plan_ids": [],
+     "code": "\"\"\"Test x larger than all elements.\"\"\"\nfrom solution import find_first_in_sorted\n\ndef test_not_found_larger_than_max():\n    \"\"\"\n    Contract quote: 'or -1 if x not in arr'\n    Input domain: arr = [2, 4, 6, 8], x = 10\n    Oracle: 10 > max(arr), not present; return -1.\n    Fault hypothesis: Detects returning wrong non-negative index instead of -1.\n    \"\"\"\n    result = find_first_in_sorted([2, 4, 6, 8], 10)\n    assert result == -1\n",
+     "oracle_reason": "x exceeds every element in the sorted array, so it cannot be found.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_not_found_larger_than_max ________________________\ntest_solution.py:11: in test_not_found_larger_than_max\n    result = find_first_in_sorted([2, 4, 6, 8], 10)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_testgen_contracts.py:375: in guarded\n    return function(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\nsolution.py:22: in find_first_in_sorted\n    if x == arr[mid] and (mid == 0 or x != arr[mid - 1]):\n            ^^^^^^^^\nE   IndexError: list index out of range\n=========================== short test summary info ============================\nFAILED test_solution.py::test_not_found_larger_than_max - IndexError: list in...\n1 failed in 0.05s\n"
+    },
+    {
+     "name": "test_single_element_no_match",
+     "plan_ids": [],
+     "code": "\"\"\"Test single element that does not match.\"\"\"\nfrom solution import find_first_in_sorted\n\ndef test_single_element_no_match():\n    \"\"\"\n    Contract quote: 'or -1 if x not in arr'\n    Input domain: arr = [7], x = 3\n    Oracle: 3 is not in [7]; return -1.\n    Fault hypothesis: Detects returning 0 instead of -1.\n    \"\"\"\n    result = find_first_in_sorted([7], 3)\n    assert result == -1\n",
+     "oracle_reason": "Single element is 7, x is 3, so x is not present.",
+     "diagnostic": ""
+    }
+   ],
+   "attempts": 14,
+   "turns": 7,
+   "final_text": "te loop. The contract promises `-1` for missing values, but the implementation cannot fulfill this.\n\n---\n\n## Remaining Limitations\n\n1. **\"Not found\" paths are untested** — every candidate that exercises them fails due to SUT bugs. We cannot write passing tests for these cases until the SUT is fixed.\n2. **No edge-case density testing** — e.g., arrays with many duplicates interspersed with unique values, or very large arrays where binary-search path divergence matters.\n3. **No monotonicity / property-based checks** — e.g., verifying that `find_first_in_sorted(arr, x) ≤ find_first_in_sorted(arr, y)` when `x < y` and both are present.\n4. **No stress on mixed duplicate clusters** — only simple cases like `[5,5,5,5]` or `[1,2,2,3,4]`; more complex patterns like `[1,1,2,2,2,3,3]` are not covered."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.9090909090909091,
+   "missing_lines": [
+    28
+   ],
+   "mutation": {
+    "score": 0.125,
+    "killed": 1,
+    "total": 8,
+    "survivors": [
+     {
+      "line": 27,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 28,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 7,
+   "tokens": 43145
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_find_first_in_sorted/buggy/single/r1/input/solution.py"
+}

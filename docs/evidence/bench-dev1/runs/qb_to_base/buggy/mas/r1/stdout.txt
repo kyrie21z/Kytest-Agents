@@ -1,0 +1,7 @@
+status: accepted   rounds: 1   path: planner -> testgen -> verifier -> reviewer
+plan: 8 items, 3 ambiguities
+tests: 4 accepted   coverage: 1.0   dev mutants killed: 4/4   plan cited: 1.0
+review r1: accept  test_p1_standard_decimal=suspected_bug, test_p6_base_rollover=suspected_bug, test_p5_spec_example=suspected_bug, test_p7_power_of_two_binary=suspected_bug
+suspected bugs: 4 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_to_base/buggy/mas/r1/run/bug_report.md
+usage: {"planner": {"calls": 1, "tokens": 5354}, "testgen": {"calls": 4, "tokens": 22683}, "reviewer": {"calls": 1, "tokens": 5484}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/dev1/qb_to_base/buggy/mas/r1/run

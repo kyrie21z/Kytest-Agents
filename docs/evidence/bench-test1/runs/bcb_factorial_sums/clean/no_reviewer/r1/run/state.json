@@ -1,0 +1,185 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "from functools import reduce\nfrom itertools import permutations\nimport math\n\ndef factorial_sums(numbers):\n    '''\n    Generate all permutations of a given list of numbers and calculate the sum \n    of the factorials of each number in each permutation.\n    If an empty list is given, the function returns empty lists.\n\n    Parameters:\n    numbers (list of int): A list of integers to permute and calculate \n                           factorial sums.\n\n    Returns:\n    list of int: A list containing the sums of the factorials of each number \n                 in each permutation.\n    list of list of int: A list containing all permutations of numbers.\n\n    Raises:\n    TypeError: If numbers is not a list of integers.\n    ValueError: If input numbers are negative.\n\n    Requirements:\n    - functools.reduce\n    - itertools.permutations\n    - math.factorial\n\n    Example:\n    >>> fac, perm = factorial_sums([1, 2, 3])\n    >>> print(fac)\n    [9, 9, 9, 9, 9, 9]\n    >>> print(perm)\n    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]\n\n    >>> fac, perm = factorial_sums([0, 4])\n    >>> print(fac)\n    [25, 25]\n    >>> print(perm)\n    [(0, 4), (4, 0)]\n    '''\n\n    if not isinstance(numbers, list):\n        raise TypeError(\"numbers should be a list of integers.\")\n    \n    if not all(isinstance(number, int) for number in numbers):\n        raise TypeError(\"numbers should be a list of integers.\")\n    \n    if not all(number >= 0 for number in numbers):\n        raise ValueError(\"each number in numbers should be non negative.\")\n\n    if len(numbers) == 0:\n        return [], []\n\n    all_permutations = list(permutations(numbers))\n    sums = [reduce(lambda a, b: a + b, [math.factorial(n) for n in permutation]) for permutation in all_permutations]\n    return sums, all_permutations\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/clean/no_reviewer/r1/run/workspace",
+ "spec": "from functools import reduce\nfrom itertools import permutations\nimport math\n\ndef factorial_sums(numbers):\n    \"\"\"\n    Generate all permutations of a given list of numbers and calculate the sum \n    of the factorials of each number in each permutation.\n    If an empty list is given, the function returns empty lists.\n\n    Parameters:\n    numbers (list of int): A list of integers to permute and calculate \n                           factorial sums.\n\n    Returns:\n    list of int: A list containing the sums of the factorials of each number \n                 in each permutation.\n    list of list of int: A list containing all permutations of numbers.\n\n    Raises:\n    TypeError: If numbers is not a list of integers.\n    ValueError: If input numbers are negative.\n\n    Requirements:\n    - functools.reduce\n    - itertools.permutations\n    - math.factorial\n\n    Example:\n    >>> fac, perm = factorial_sums([1, 2, 3])\n    >>> print(fac)\n    [9, 9, 9, 9, 9, 9]\n    >>> print(perm)\n    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]\n\n    >>> fac, perm = factorial_sums([0, 4])\n    >>> print(fac)\n    [25, 25]\n    >>> print(perm)\n    [(0, 4), (4, 0)]\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "The function computes the sum of factorials for each permutation of a given list of integers and returns both the list of these sums and the list of permutations.",
+  "input_domain": "A list of non-negative integers. Empty list is allowed. Must not contain negative numbers or non-integer types.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Returns sums and permutations for distinct positive integers",
+    "input": "[1, 2, 3]",
+    "expected": "([9, 9, 9, 9, 9, 9], [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])",
+    "rationale": "Matches provided example. 1!+2!+3! = 9. itertools.permutations generates 3! = 6 permutations.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Returns sums and permutations including zero",
+    "input": "[0, 4]",
+    "expected": "([25, 25], [(0, 4), (4, 0)])",
+    "rationale": "Matches provided example. 0! = 1, 4! = 24, sum = 25. Two permutations generated.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "boundary",
+    "behavior": "Handles single-element list correctly",
+    "input": "[5]",
+    "expected": "([120], [(5,)])",
+    "rationale": "Single element yields exactly one permutation. 5! = 120. Tests degenerate list length.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "Returns empty collections for empty input",
+    "input": "[]",
+    "expected": "([], [])",
+    "rationale": "Spec explicitly states: 'If an empty list is given, the function returns empty lists.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "error",
+    "behavior": "Rejects non-list input",
+    "input": "(1, 2, 3)",
+    "expected": "Raises TypeError",
+    "rationale": "Spec requires: 'TypeError: If numbers is not a list of integers.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "error",
+    "behavior": "Rejects list containing non-integers",
+    "input": "[1, 2.5, 3]",
+    "expected": "Raises TypeError",
+    "rationale": "Spec requires: 'TypeError: If numbers is not a list of integers.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "error",
+    "behavior": "Rejects list containing negative numbers",
+    "input": "[-2, 0, 1]",
+    "expected": "Raises ValueError",
+    "rationale": "Spec requires: 'ValueError: If input numbers are negative.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "property",
+    "behavior": "Sums correspond index-wise to permutations in lexicographic order",
+    "input": "[3, 1]",
+    "expected": "([7, 7], [(3, 1), (1, 3)])",
+    "rationale": "Verifies that the i-th sum matches the factorial sum of the i-th permutation. itertools.permutations preserves input order for lexicographic generation.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Return type of permutations: Spec says 'list of list of int' but example shows 'list of tuples'. Implementation likely returns tuples per itertools.permutations contract.",
+   "Handling of duplicate values: Spec does not state whether permutations should be unique by value or positional. itertools.permutations treats duplicates as distinct positions, potentially yielding duplicate tuples.",
+   "Performance limits: Factorials grow rapidly. Spec does not define maximum input size or timeout expectations for large lists."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p5_non_list_input",
+    "test_p7_negative_numbers"
+   ],
+   "failed": [],
+   "attempts": 24,
+   "turns": 8,
+   "final_text": "I see the issues. The oracle_reason needs to explicitly state the target expected result values, and the contract_quote must be at least 12 characters verbatim from the docstring. Let me fix and resubmit."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 2,
+   "pytest": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.6,
+   "missing_lines": [
+    47,
+    52,
+    53,
+    55,
+    56,
+    57
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 49,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 52,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 56,
+      "description": "Add -> Sub"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P5",
+     "P7"
+    ],
+    "missing": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P6",
+     "P8"
+    ],
+    "ratio": 0.25
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6770
+  },
+  "testgen": {
+   "calls": 8,
+   "tokens": 72648
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/clean/no_reviewer/r1/input/solution.py"
+}

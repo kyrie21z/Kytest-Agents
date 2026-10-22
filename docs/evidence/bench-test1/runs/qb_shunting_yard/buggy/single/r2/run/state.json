@@ -1,0 +1,154 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/single/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_empty_input",
+    "test_single_operand",
+    "test_return_type_is_list",
+    "test_operands_preserved_in_order",
+    "test_zero_operand",
+    "test_large_integer_operand",
+    "test_negative_operand",
+    "test_return_type_consistency",
+    "test_operands_in_original_order",
+    "test_negative_operand_preserved",
+    "test_return_type_is_list_for_all_inputs",
+    "test_deterministic_output",
+    "test_many_operands_no_operators"
+   ],
+   "failed": [
+    {
+     "name": "test_simple_subtraction_chain",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_simple_subtraction_chain():\n    \"\"\"Test basic left-to-right subtraction chain from docstring.\"\"\"\n    result = shunting_yard([10, '-', 5, '-', 2])\n    # Expected RPN: evaluate left to right: ((10 - 5) - 2)\n    assert result == [10, 5, '-', 2, '-']",
+     "oracle_reason": "For left-associative '-' with equal precedence, first '-' stays on stack until second '-' arrives, then pops to output. Second '-' pushed. Final drain pops second '-'. Result: [10, 5, '-', 2, '-'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_simple_subtraction_chain _________________________\ntest_solution.py:7: in test_simple_subtraction_chain\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_simple_subtraction_chain - AssertionError: asse...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_mixed_precedence",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_mixed_precedence():\n    \"\"\"Test multiplication binds tighter than addition from docstring.\"\"\"\n    result = shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n    # Expected: 4 + (9 * 9) - 10 + 13 => [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']",
+     "oracle_reason": "'*' (precedence 2) blocks '+' (precedence 1) from being popped when '*' arrives. After '9' is output, '*' is pushed. When '-' arrives, '*' (higher) is popped first, then '-' pushed. Final drain gives correct order.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________________ test_mixed_precedence _____________________________\ntest_solution.py:7: in test_mixed_precedence\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']\nE   AssertionError: assert [4, 9, 9, 10, 13] == [4, 9, 9, '*', '+', 10, ...]\nE     \nE     At index 3 diff: 10 != '*'\nE     Right contains 4 more items, first extra item: 10\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_mixed_precedence - AssertionError: assert [4, 9...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_single_operation",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_single_operation():\n    \"\"\"Test a single binary operation.\"\"\"\n    result = shunting_yard([1, '+', 2])\n    assert result == [1, 2, '+']\n    assert isinstance(result, list)\n    assert len(result) == 3",
+     "oracle_reason": "One operand, one operator, one operand. In RPN: operands first, then operator. Output must be exactly [1, 2, '+'].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________________ test_single_operation _____________________________\ntest_solution.py:6: in test_single_operation\n    assert result == [1, 2, '+']\nE   AssertionError: assert [1, 2] == [1, 2, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_single_operation - AssertionError: assert [1, 2...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_division_and_multiplication_precedence",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_division_and_multiplication_precedence():\n    \"\"\"Test that '/' and '*' (same precedence) are left-associative.\"\"\"\n    result = shunting_yard([34, '-', 12, '/', 5])\n    # From docstring: [34, 12, 5, '/', '-']\n    assert result == [34, 12, 5, '/', '-']\n    # Verify operator count matches\n    ops_in = sum(1 for t in [34, '-', 12, '/', 5] if isinstance(t, str))\n    ops_out = sum(1 for t in result if isinstance(t, str))\n    assert ops_in == ops_out, f\"Operator count mismatch: {ops_in} in, {ops_out} out\"",
+     "oracle_reason": "'/' (prec 2) > '-' (prec 1), so '-' stays on stack when '/' arrives. '/' is pushed. End-of-input drains '/' then '-'. Result: [34, 12, 5, '/', '-']. Operator count must be preserved.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________ test_division_and_multiplication_precedence __________________\ntest_solution.py:7: in test_division_and_multiplication_precedence\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_division_and_multiplication_precedence - Assert...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_multiple_consecutive_operators",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_multiple_consecutive_operators():\n    \"\"\"Test expression with multiple operators between operands.\"\"\"\n    tokens = [1, '+', 2, '+', 3]\n    result = shunting_yard(tokens)\n    assert isinstance(result, list)\n    # All three operands must be present\n    ops_out = [t for t in result if isinstance(t, str)]\n    nums_out = [t for t in result if isinstance(t, int)]\n    assert len(nums_out) == 3\n    assert len(ops_out) == 2",
+     "oracle_reason": "Three operands and two operators in the input. RPN output must preserve all operands and all operators. The total length should equal the number of input tokens.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_multiple_consecutive_operators ______________________\ntest_solution.py:12: in test_multiple_consecutive_operators\n    assert len(ops_out) == 2\nE   assert 0 == 2\nE    +  where 0 = len([])\n=========================== short test summary info ============================\nFAILED test_solution.py::test_multiple_consecutive_operators - assert 0 == 2\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_token_count_preserved",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_token_count_preserved():\n    \"\"\"Total number of tokens must be preserved in output.\"\"\"\n    tokens = [1, '+', 2, '*', 3, '-', 4]\n    result = shunting_yard(tokens)\n    assert len(result) == len(tokens), f\"Token count changed: {len(tokens)} -> {len(result)}\"",
+     "oracle_reason": "The shunting-yard algorithm reorders tokens but does not add or remove any. Every input token must appear exactly once in the output.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_token_count_preserved __________________________\ntest_solution.py:7: in test_token_count_preserved\n    assert len(result) == len(tokens), f\"Token count changed: {len(tokens)} -> {len(result)}\"\nE   AssertionError: Token count changed: 7 -> 4\nE   assert 4 == 7\nE    +  where 4 = len([1, 2, 3, 4])\nE    +  and   7 = len([1, '+', 2, '*', 3, '-', ...])\n=========================== short test summary info ============================\nFAILED test_solution.py::test_token_count_preserved - AssertionError: Token c...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_all_operators_present_in_output",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_all_operators_present_in_output():\n    \"\"\"Every operator from the input must appear in the output.\"\"\"\n    tokens = [1, '+', 2, '-', 3, '*', 4, '/', 5]\n    result = shunting_yard(tokens)\n    ops_in = set(t for t in tokens if isinstance(t, str))\n    ops_out = set(t for t in result if isinstance(t, str))\n    assert ops_in == ops_out, f\"Operators mismatch: in={ops_in}, out={ops_out}\"",
+     "oracle_reason": "RPN must contain every operator from the input. The algorithm only reorders; it never discards operators.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_all_operators_present_in_output _____________________\ntest_solution.py:9: in test_all_operators_present_in_output\n    assert ops_in == ops_out, f\"Operators mismatch: in={ops_in}, out={ops_out}\"\nE   AssertionError: Operators mismatch: in={'+', '*', '-', '/'}, out=set()\nE   assert {'*', '+', '-', '/'} == set()\nE     \nE     Extra items in the left set:\nE     '+'\nE     '*'\nE     '-'\nE     '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_all_operators_present_in_output - AssertionErro...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_single_operator_types",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_single_operator_types():\n    \"\"\"Each operator type alone should produce consistent single-operator output.\"\"\"\n    for op in ['+', '-', '*', '/']:\n        result = shunting_yard([1, op, 2])\n        assert isinstance(result, list)\n        assert len(result) == 3\n        nums = [t for t in result if isinstance(t, int)]\n        assert nums == [1, 2], f\"Failed for op '{op}': got {nums}\"\n        ops = [t for t in result if isinstance(t, str)]\n        assert len(ops) == 1 and ops[0] == op, f\"Failed for op '{op}': got {ops}\"",
+     "oracle_reason": "For a single binary operation, RPN is always [a, b, op]. Each operator type should behave identically in structure for this simple case.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_single_operator_types __________________________\ntest_solution.py:8: in test_single_operator_types\n    assert len(result) == 3\nE   assert 2 == 3\nE    +  where 2 = len([1, 2])\n=========================== short test summary info ============================\nFAILED test_solution.py::test_single_operator_types - assert 2 == 3\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_all_four_operators_same_expression",
+     "plan_ids": [],
+     "code": "from solution import shunting_yard\n\ndef test_all_four_operators_same_expression():\n    \"\"\"Test expression containing all four operator types.\"\"\"\n    tokens = [1, '+', 2, '-', 3, '*', 4, '/', 5]\n    result = shunting_yard(tokens)\n    assert isinstance(result, list)\n    # All operands present\n    nums = sorted([t for t in result if isinstance(t, int)])\n    assert nums == [1, 2, 3, 4, 5], f\"Missing operands: {nums}\"\n    # All operators present\n    ops = set(t for t in result if isinstance(t, str))\n    assert ops == {'+', '-', '*', '/'}, f\"Missing operators: {ops}\"",
+     "oracle_reason": "All five operands and all four operators must be preserved. Operands sorted should match [1,2,3,4,5]; operator set must contain exactly +,-,*,/.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________ test_all_four_operators_same_expression ____________________\ntest_solution.py:13: in test_all_four_operators_same_expression\n    assert ops == {'+', '-', '*', '/'}, f\"Missing operators: {ops}\"\nE   AssertionError: Missing operators: set()\nE   assert set() == {'*', '+', '-', '/'}\nE     \nE     Extra items in the right set:\nE     '/'\nE     '-'\nE     '*'\nE     '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_all_four_operators_same_expression - AssertionE...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 24,
+   "turns": 8,
+   "final_text": "The `test_input_not_modified` was rejected for importing `copy` (not in allowed imports: solution, pytest, math). Budget was exhausted before submitting the remaining two candidates. Let me check the current state of the accepted tests."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 13,
+   "pytest": {
+    "passed": 13,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.8333333333333333,
+   "missing_lines": [
+    34,
+    36
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 56786
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/single/r2/input/solution.py"
+}

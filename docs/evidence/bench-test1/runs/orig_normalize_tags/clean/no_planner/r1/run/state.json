@@ -1,0 +1,79 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_planner/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_basic_doctest",
+    "test_empty_string",
+    "test_whitespace_only",
+    "test_duplicate_dedup_order",
+    "test_internal_spaces_preserved",
+    "test_leading_trailing_commas"
+   ],
+   "failed": [],
+   "attempts": 12,
+   "turns": 6,
+   "final_text": "**Unicode / non-ASCII characters** — e.g., `\"café, Café\"` should deduplicate to `['café']`. This tests that `.lower()` handles locale-independent Unicode correctly.\n4. **Non-space whitespace** — tabs (`\\t`) or newlines embedded in tags; `strip()` should handle these but it's untested.\n5. **Single-comma edge case** — `\",\"` splits into `[\"\", \"\"]`, both empty → `[]`. This is a minimal boundary between \"empty string\" and \"multiple segments.\"\n6. **Return-type enforcement** — while some tests assert `isinstance(result, list)`, none verify that the function never returns a non-list type under any circumstance.\n\nThese gaps are small but could matter if the implementation changes (e.g., switching to regex-based splitting that mishandles Unicode, or using `str.split(None)` instead of `str.strip()`)."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 6,
+   "tokens": 24444
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 2446
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/no_planner/r1/input/solution.py"
+}

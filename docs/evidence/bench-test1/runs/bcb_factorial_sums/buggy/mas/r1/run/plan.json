@@ -1,0 +1,102 @@
+{
+ "summary": "Computes the sum of factorials for each permutation of a given list of non-negative integers, returning a tuple containing the list of computed sums and the list of generated permutations.",
+ "input_domain": "A list of non-negative integers (length >= 0)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns list of factorial sums and list of permutations for distinct positive integers",
+   "input": "[1, 2, 3]",
+   "expected": "([9, 9, 9, 9, 9, 9], [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])",
+   "rationale": "Directly matches the first example in the docstring: '>>> fac, perm = factorial_sums([1, 2, 3])'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Returns list of factorial sums and list of permutations for zero and positive integer",
+   "input": "[0, 4]",
+   "expected": "([25, 25], [(0, 4), (4, 0)])",
+   "rationale": "Directly matches the second example in the docstring: '>>> fac, perm = factorial_sums([0, 4])'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Handles empty input list gracefully",
+   "input": "[]",
+   "expected": "([], [])",
+   "rationale": "Docstring explicitly states: 'If an empty list is given, the function returns empty lists.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Processes single-element list containing zero",
+   "input": "[0]",
+   "expected": "([1], [(0,)])",
+   "rationale": "Zero is the lower boundary for non-negative integers; math.factorial(0) equals 1. Single element yields exactly one permutation.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Rejects input containing negative integers",
+   "input": "[-1, 2]",
+   "expected": "Raises ValueError",
+   "rationale": "Docstring specifies: 'ValueError: If input numbers are negative.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Rejects non-list input types",
+   "input": "\"invalid_string\"",
+   "expected": "Raises TypeError",
+   "rationale": "Docstring specifies: 'TypeError: If numbers is not a list of integers.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Verifies mathematical invariant across permutations",
+   "input": "Any valid list L",
+   "expected": "len(sums) == len(permutations) and all(s == sums[0] for s in sums)",
+   "rationale": "Derived from spec description: permutations rearrange the same elements, and addition is commutative, so factorial sums must be identical across all permutations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Handles list with duplicate values",
+   "input": "[2, 2]",
+   "expected": "([4, 4], [(2, 2), (2, 2)])",
+   "rationale": "Tests degenerate input with duplicates; itertools.permutations operates on positions, not unique values, yielding repeated tuples.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P9",
+   "category": "boundary",
+   "behavior": "Processes larger integer to verify factorial growth handling",
+   "input": "[10]",
+   "expected": "([3628800], [(10,)])",
+   "rationale": "Tests upper boundary of practical integer sizes; Python handles arbitrary-precision integers natively, so no overflow is expected.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "error",
+   "behavior": "Rejects list containing non-integer elements",
+   "input": "[1, 2.5]",
+   "expected": "Raises TypeError",
+   "rationale": "Docstring parameter type is 'list of int'; floats violate the specified type constraint.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Return type for permutations: Docstring describes 'list of list of int' but examples show tuples. Implementation using itertools.permutations yields tuples.",
+  "Strictness of type validation: Does 'not a list of integers' check only the container type, or validate every element? Should it fail fast on the first invalid element or after full traversal?",
+  "Ordering guarantee: itertools.permutations yields lexicographic order based on input positions, but the spec does not explicitly mandate a specific ordering for the returned permutations.",
+  "Performance/memory limits: Spec does not define maximum list length or element size; behavior for extremely large inputs causing MemoryError or excessive runtime is undefined."
+ ]
+}

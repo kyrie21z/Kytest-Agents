@@ -1,0 +1,84 @@
+{
+ "summary": "A class representing a bank account that supports initialization, depositing, withdrawing, viewing balance, and transferring funds between accounts, with explicit validation for negative amounts and insufficient funds.",
+ "input_domain": "BankAccount objects optionally initialized with a numeric balance (default 0); deposit, withdraw, and transfer methods accept integer amounts; transfer requires a second BankAccount instance as the recipient.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit a positive integer into a new account",
+   "input": "account = BankAccount(); account.deposit(100)",
+   "expected": "account.balance == 100 and account.deposit(100) returns 100",
+   "rationale": "Docstring states: 'Deposits a certain amount into the account, increasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Deposit zero into an account",
+   "input": "account = BankAccount(); account.deposit(0)",
+   "expected": "account.balance == 0 and method returns 0",
+   "rationale": "Zero is the boundary between positive and negative amounts. The spec mandates raising ValueError only for negative amounts, implying zero is valid and leaves balance unchanged.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "error",
+   "behavior": "Attempt to deposit a negative amount",
+   "input": "account = BankAccount(); account.deposit(-50)",
+   "expected": "Raises ValueError('Invalid amount')",
+   "rationale": "Docstring explicitly states: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Withdraw a partial amount within available balance",
+   "input": "account = BankAccount(100); account.withdraw(50)",
+   "expected": "account.balance == 50 and method returns 50",
+   "rationale": "Docstring states: 'Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Withdraw an amount exactly equal to the current balance",
+   "input": "account = BankAccount(100); account.withdraw(100)",
+   "expected": "account.balance == 0 and method returns 0",
+   "rationale": "The spec raises an error only if 'withdrawal amount is greater than the account balance', making equality a valid boundary case resulting in zero balance.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Attempt to withdraw more than the current balance",
+   "input": "account = BankAccount(100); account.withdraw(150)",
+   "expected": "Raises ValueError('Insufficient balance.')",
+   "rationale": "Docstring explicitly states: 'If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "state",
+   "behavior": "Transfer funds from one account to another",
+   "input": "acc1 = BankAccount(1000); acc2 = BankAccount(0); acc1.transfer(acc2, 300)",
+   "expected": "acc1.balance == 700 and acc2.balance == 300",
+   "rationale": "Docstring describes transferring amount from current to other account, and the doctest example confirms: 'account1.balance = 700 account2.balance = 300'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Verify balance consistency after sequential operations",
+   "input": "account = BankAccount(); account.deposit(200); account.withdraw(50); account.view_balance()",
+   "expected": "view_balance() returns 150",
+   "rationale": "The view_balance method 'Return[s] the account balance.' Combined with deposit/withdraw semantics, the returned value must equal the cumulative sum of all valid deposits minus withdrawals.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Transfer method's return value is not documented.",
+  "Transfer method does not specify error handling for negative amounts or insufficient funds in the source account.",
+  "__init__ does not specify whether negative initial balances are permitted or how they interact with withdrawal logic.",
+  "Type hints indicate amount: int, but it is unclear if non-integer types (e.g., floats) should be rejected, coerced, or accepted."
+ ]
+}

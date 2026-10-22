@@ -1,0 +1,6 @@
+status: accepted   rounds: 1   path: testgen -> verifier -> reviewer
+tests: 2 accepted   coverage: 0.8333333333333333   dev mutants killed: 0/3   plan cited: None
+review r1: accept  test_docstring_example_1=suspected_bug, test_docstring_example_2=suspected_bug, test_single_operator=suspected_bug, test_multiplication_precedence=suspected_bug
+suspected bugs: 4 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_planner/r1/run/bug_report.md
+usage: {"testgen": {"calls": 8, "tokens": 33107}, "reviewer": {"calls": 1, "tokens": 5585}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_planner/r1/run

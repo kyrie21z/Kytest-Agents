@@ -1,0 +1,103 @@
+{
+ "summary": "Manages a bank account's balance through deposit, withdraw, view, and transfer operations, enforcing non-negative amounts and sufficient funds for withdrawals.",
+ "input_domain": "Non-negative integers for monetary amounts (deposit, withdraw, transfer), optional integer for initial balance (default 0), and BankAccount instances for transfers.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit positive amount",
+   "input": "BankAccount().deposit(50)",
+   "expected": "Returns 50, account.balance becomes 50",
+   "rationale": "\"Deposits a certain amount into the account, increasing the account balance, return the current account balance.\"",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Withdraw from sufficient balance",
+   "input": "acc = BankAccount(); acc.deposit(100); acc.withdraw(30)",
+   "expected": "Returns 70, account.balance becomes 70",
+   "rationale": "\"Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.\"",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Deposit zero amount",
+   "input": "BankAccount().deposit(0)",
+   "expected": "Returns 0, account.balance remains 0",
+   "rationale": "Specification only prohibits negative amounts; 0 represents the lower boundary of valid input.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Negative deposit",
+   "input": "BankAccount().deposit(-10)",
+   "expected": "Raises ValueError(\"Invalid amount\")",
+   "rationale": "\"If amount is negative, raise a ValueError(\"Invalid amount\").\"",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Insufficient balance withdraw",
+   "input": "acc = BankAccount(); acc.deposit(50); acc.withdraw(60)",
+   "expected": "Raises ValueError(\"Insufficient balance.\")",
+   "rationale": "\"If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").\"",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "Successful transfer between accounts",
+   "input": "a1 = BankAccount(); a2 = BankAccount(); a1.deposit(100); a1.transfer(a2, 40)",
+   "expected": "a1.balance == 60, a2.balance == 40",
+   "rationale": "Docstring example demonstrates fund movement: \"Transfers a certain amount from the current account to another account.\"",
+   "confidence": "medium"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "View initialized balance",
+   "input": "BankAccount(250).view_balance()",
+   "expected": "Returns 250",
+   "rationale": "\"Return the account balance.\"",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Exact balance withdraw",
+   "input": "acc = BankAccount(); acc.deposit(100); acc.withdraw(100)",
+   "expected": "Returns 0, account.balance becomes 0",
+   "rationale": "Condition checks for \"greater than\"; withdrawing exactly the balance is allowed at the boundary.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "Negative withdraw",
+   "input": "BankAccount().withdraw(-20)",
+   "expected": "Raises ValueError(\"Invalid amount\")",
+   "rationale": "\"If amount is negative, raise a ValueError(\"Invalid amount\").\"",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "empty",
+   "behavior": "Default initialization",
+   "input": "BankAccount()",
+   "expected": "account.balance == 0",
+   "rationale": "\"Initializes a bank account object with an attribute balance, default value is 0.\"",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when transfer() receives a negative amount (spec only defines this for deposit/withdraw).",
+  "Behavior when transfer() encounters insufficient balance (spec only defines this for withdraw).",
+  "Behavior when transfer() is called with the same account instance (self-transfer).",
+  "Handling of non-integer numeric types (e.g., floats) despite the :param amount: int type hint.",
+  "Whether transfer() should validate that other_account is actually a BankAccount instance."
+ ]
+}

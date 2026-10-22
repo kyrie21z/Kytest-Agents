@@ -1,0 +1,77 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "class BankAccount:\n    \"\"\"\n    This is a class as a bank account system, which supports deposit money, withdraw money, view balance, and transfer money.\n    \"\"\"\n\n    def __init__(self, balance=0):\n        \"\"\"\n        Initializes a bank account object with an attribute balance, default value is 0.\n        \"\"\"\n        self.balance = balance\n\n    def deposit(self, amount):\n        \"\"\"\n        Deposits a certain amount into the account, increasing the account balance, return the current account balance.\n        If amount is negative, raise a ValueError(\"Invalid amount\").\n        :param amount: int\n        \"\"\"\n        if amount < 0:\n            raise ValueError('Invalid amount')\n        self.balance += amount\n        return self.balance\n\n    def withdraw(self, amount):\n        \"\"\"\n        Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.\n        If amount is negative, raise a ValueError(\"Invalid amount\").\n        If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").\n        :param amount: int\n        \"\"\"\n        if amount < 0:\n            raise ValueError('Invalid amount')\n        if amount > self.balance:\n            raise ValueError('Insufficient balance.')\n        self.balance -= amount\n        return self.balance\n\n    def view_balance(self):\n        \"\"\"\n        Return the account balance.\n        \"\"\"\n        return self.balance\n\n    def transfer(self, other_account, amount):\n        \"\"\"\n        Transfers a certain amount from the current account to another account.\n        :param other_account: BankAccount\n        :param amount: int\n        >>> account1 = BankAccount()\n        >>> account2 = BankAccount()\n        >>> account1.deposit(1000)\n        >>> account1.transfer(account2, 300)\n        account1.balance = 700 account2.balance = 300\n        \"\"\"\n        self.withdraw(amount)\n        other_account.deposit(amount)\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_bank_account/clean/single/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_deposit_positive",
+    "test_withdraw_exact_balance",
+    "test_transfer_between_accounts"
+   ],
+   "failed": [],
+   "attempts": 23,
+   "turns": 8,
+   "final_text": "Let me fix the rejected candidates. The issues are: (1) oracle assertions need to depend on a computed target result, and (2) contract_quote must be a verbatim quote of at least 12 characters from the docstring."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 3,
+   "pytest": {
+    "passed": 3,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.85,
+   "missing_lines": [
+    19,
+    31,
+    33
+   ],
+   "mutation": {
+    "score": 0.3333333333333333,
+    "killed": 1,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 18,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 30,
+      "description": "constant 0 -> 1"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 54243
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_bank_account/clean/single/r2/input/solution.py"
+}

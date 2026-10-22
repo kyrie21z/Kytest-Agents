@@ -1,0 +1,6 @@
+status: accepted   rounds: 1   path: testgen -> verifier -> reviewer
+tests: 1 accepted   coverage: 0.42857142857142855   dev mutants killed: 0/6   plan cited: None
+review r1: accept  test_get_factors_100=suspected_bug, test_get_factors_prime_101=suspected_bug, test_get_factors_two=suspected_bug, test_get_factors_three=suspected_bug, test_get_factors_six=suspected_bug, test_get_factors_eight=suspected_bug, test_get_factors_twelve=suspected_bug, test_get_factors_four=suspected_bug, test_get_factors_prime_2=suspected_bug, test_get_factors_prime_3=suspected_bug, test_get_factors_prime_5=suspected_bug, test_get_factors_prime_7=suspected_bug
+suspected bugs: 12 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_get_factors/buggy/no_planner/r2/run/bug_report.md
+usage: {"testgen": {"calls": 5, "tokens": 35456}, "reviewer": {"calls": 1, "tokens": 7238}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_get_factors/buggy/no_planner/r2/run

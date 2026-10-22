@@ -1,0 +1,181 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "from functools import reduce\nfrom itertools import permutations\nimport math\n\ndef factorial_sums(numbers):\n    '''\n    Generate all permutations of a given list of numbers and calculate the sum \n    of the factorials of each number in each permutation.\n    If an empty list is given, the function returns empty lists.\n\n    Parameters:\n    numbers (list of int): A list of integers to permute and calculate \n                           factorial sums.\n\n    Returns:\n    list of int: A list containing the sums of the factorials of each number \n                 in each permutation.\n    list of list of int: A list containing all permutations of numbers.\n\n    Raises:\n    TypeError: If numbers is not a list of integers.\n    ValueError: If input numbers are negative.\n\n    Requirements:\n    - functools.reduce\n    - itertools.permutations\n    - math.factorial\n\n    Example:\n    >>> fac, perm = factorial_sums([1, 2, 3])\n    >>> print(fac)\n    [9, 9, 9, 9, 9, 9]\n    >>> print(perm)\n    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]\n\n    >>> fac, perm = factorial_sums([0, 4])\n    >>> print(fac)\n    [25, 25]\n    >>> print(perm)\n    [(0, 4), (4, 0)]\n    '''\n\n    if not isinstance(numbers, list):\n        raise TypeError(\"numbers should be a list of integers.\")\n    \n    if not all(isinstance(number, int) for number in numbers):\n        raise TypeError(\"numbers should be a list of integers.\")\n    \n    if not all(number > 0 for number in numbers):\n        raise ValueError(\"each number in numbers should be non negative.\")\n\n    if len(numbers) == 0:\n        return [], []\n\n    all_permutations = list(permutations(numbers))\n    sums = [reduce(lambda a, b: a + b, [math.factorial(n) for n in permutation]) for permutation in all_permutations]\n    return sums, all_permutations\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/buggy/no_reviewer/r1/run/workspace",
+ "spec": "from functools import reduce\nfrom itertools import permutations\nimport math\n\ndef factorial_sums(numbers):\n    \"\"\"\n    Generate all permutations of a given list of numbers and calculate the sum \n    of the factorials of each number in each permutation.\n    If an empty list is given, the function returns empty lists.\n\n    Parameters:\n    numbers (list of int): A list of integers to permute and calculate \n                           factorial sums.\n\n    Returns:\n    list of int: A list containing the sums of the factorials of each number \n                 in each permutation.\n    list of list of int: A list containing all permutations of numbers.\n\n    Raises:\n    TypeError: If numbers is not a list of integers.\n    ValueError: If input numbers are negative.\n\n    Requirements:\n    - functools.reduce\n    - itertools.permutations\n    - math.factorial\n\n    Example:\n    >>> fac, perm = factorial_sums([1, 2, 3])\n    >>> print(fac)\n    [9, 9, 9, 9, 9, 9]\n    >>> print(perm)\n    [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]\n\n    >>> fac, perm = factorial_sums([0, 4])\n    >>> print(fac)\n    [25, 25]\n    >>> print(perm)\n    [(0, 4), (4, 0)]\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Generates all permutations of a list of non-negative integers, computes the sum of factorials for each permutation, and returns both the collection of sums and the collection of permutations.",
+  "input_domain": "A Python list containing zero or more non-negative integers.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Returns correct factorial sums and permutations for standard positive integers.",
+    "input": "[1, 2, 3]",
+    "expected": "([9, 9, 9, 9, 9, 9], [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])",
+    "rationale": "Directly matches the first example provided in the docstring.",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Handles zero correctly alongside positive integers.",
+    "input": "[0, 4]",
+    "expected": "([25, 25], [(0, 4), (4, 0)])",
+    "rationale": "Directly matches the second example in the docstring. 0! = 1 and 4! = 24, yielding a sum of 25 per permutation.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "empty",
+    "behavior": "Returns empty collections for an empty input list.",
+    "input": "[]",
+    "expected": "([], [])",
+    "rationale": "Docstring explicitly states: 'If an empty list is given, the function returns empty lists.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Handles a single-element list correctly.",
+    "input": "[0]",
+    "expected": "([1], [(0,)])",
+    "rationale": "Covers the lower boundary of list length (1) and value (0). A single element has exactly one permutation, and 0! = 1.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "error",
+    "behavior": "Raises ValueError when negative integers are present.",
+    "input": "[-5, 10]",
+    "expected": "Raises ValueError",
+    "rationale": "Docstring specifies: 'ValueError: If input numbers are negative.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "error",
+    "behavior": "Raises TypeError when input is not a list.",
+    "input": "(1, 2, 3)",
+    "expected": "Raises TypeError",
+    "rationale": "Docstring specifies: 'TypeError: If numbers is not a list of integers.' Tuples are not lists.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P7",
+    "category": "property",
+    "behavior": "All computed sums in the first returned list are identical.",
+    "input": "[2, 3, 5]",
+    "expected": "First returned list contains only identical values (e.g., [156, 156, 156, 156, 156, 156])",
+    "rationale": "Factorial summation is commutative. Permuting the same set of numbers does not change their total sum.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "state",
+    "behavior": "Return value structure supports tuple unpacking into two variables.",
+    "input": "[1, 1]",
+    "expected": "Returns a tuple of length 2 containing two iterables.",
+    "rationale": "Examples demonstrate unpacking via `fac, perm = factorial_sums(...)`, implying a 2-tuple return structure.",
+    "confidence": "medium"
+   }
+  ],
+  "ambiguities": [
+   "The spec declares the second return type as 'list of list of int', but examples show tuples. It is unclear if the implementation converts itertools.permutations output to lists or returns tuples.",
+   "Behavior with float inputs (e.g., [1.0, 2]) is undefined. The spec mandates 'list of integers' and raises TypeError for non-integers, but does not clarify if strict type checking applies to individual elements versus the container.",
+   "The exact ordering of permutations in the output is not explicitly mandated, though it implicitly follows itertools.permutations lexicographic order.",
+   "The requirement to use functools.reduce is stated, but its specific application (e.g., summing factorials vs aggregating results) is unspecified, leaving internal validation logic ambiguous."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p3_empty_list",
+    "test_p6_not_a_list",
+    "test_p5_negative_values"
+   ],
+   "failed": [],
+   "attempts": 22,
+   "turns": 8,
+   "final_text": "The oracle checker seems to reject tests where assertions depend on hardcoded target results. Let me try restructuring with property-based assertions and cleaner contract quotes."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 3,
+   "pytest": {
+    "passed": 3,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.7333333333333333,
+   "missing_lines": [
+    47,
+    55,
+    56,
+    57
+   ],
+   "mutation": {
+    "score": 0.3333333333333333,
+    "killed": 1,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 49,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 56,
+      "description": "Add -> Sub"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P3",
+     "P5",
+     "P6"
+    ],
+    "missing": [
+     "P1",
+     "P2",
+     "P4",
+     "P7",
+     "P8"
+    ],
+    "ratio": 0.375
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 7663
+  },
+  "testgen": {
+   "calls": 8,
+   "tokens": 66535
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/buggy/no_reviewer/r1/input/solution.py"
+}

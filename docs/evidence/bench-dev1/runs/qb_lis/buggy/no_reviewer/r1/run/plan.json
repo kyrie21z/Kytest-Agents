@@ -1,0 +1,83 @@
+{
+ "summary": "Calculates the length of the longest strictly increasing subsequence within a sequence of unique integers.",
+ "input_domain": "Any Python sequence (list, tuple, etc.) containing unique integers. Includes empty and single-element sequences.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns the LIS length for the documented example.",
+   "input": "lis([4, 1, 5, 3, 7, 6, 2])",
+   "expected": "3",
+   "rationale": "Matches the docstring example: '>>> lis([4, 1, 5, 3, 7, 6, 2])\\n        3'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Returns 0 for an empty input sequence.",
+   "input": "lis([])",
+   "expected": "0",
+   "rationale": "By definition, the longest increasing subsequence of an empty set has length 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Returns 1 for a single-element sequence.",
+   "input": "lis([42])",
+   "expected": "1",
+   "rationale": "A sequence of length 1 contains exactly one increasing subsequence of length 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Returns the full sequence length when already sorted increasingly.",
+   "input": "lis([1, 2, 3, 4, 5])",
+   "expected": "5",
+   "rationale": "The entire sequence satisfies 'monotonically increasing', so the LIS length equals the input length.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Returns 1 for a strictly decreasing sequence.",
+   "input": "lis([5, 4, 3, 2, 1])",
+   "expected": "1",
+   "rationale": "No two elements form an increasing pair, so the maximum possible LIS length is 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Correctly processes negative integers and skips intermediate values.",
+   "input": "lis([-10, -5, -8, -2, 0])",
+   "expected": "4",
+   "rationale": "The subsequence [-10, -5, -2, 0] is strictly increasing and maximal in length, consistent with 'length of the longest monotonically increasing subsequence'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Accepts tuple inputs as valid sequences.",
+   "input": "lis((7, 1, 8, 2, 9))",
+   "expected": "3",
+   "rationale": "Specification defines input as 'A sequence of ints'. Tuples are standard Python sequences and should be supported.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Selects the optimal path across overlapping candidate subsequences.",
+   "input": "lis([10, 20, 10, 30, 20, 50])",
+   "expected": "4",
+   "rationale": "The longest increasing subsequence is [10, 20, 30, 50] (indices 0,1,3,5 or 0,2,3,5), yielding length 4 per the output specification.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Precondition violation with duplicate integers (e.g., lis([1, 2, 2, 3])): The spec states 'Precondition: The ints in arr are unique'. Inputs violating this are undefined behavior; the spec does not specify whether to raise ValueError, ignore duplicates, or behave unpredictably.",
+  "Type validation: The spec says 'A sequence of ints'. It is unclear if the function should enforce type checking and raise TypeError for non-integer elements, or silently coerce/fail. Expected behavior for mixed-type sequences is undefined.",
+  "Strict vs non-decreasing semantics: 'Monotonically increasing' can sometimes imply non-decreasing (allowing equals). However, the uniqueness precondition forces strict inequality. If the precondition were relaxed, behavior would be ambiguous, but under current spec, strict increase is implied."
+ ]
+}

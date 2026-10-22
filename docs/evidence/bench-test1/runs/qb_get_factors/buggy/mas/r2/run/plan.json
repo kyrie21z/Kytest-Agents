@@ -1,0 +1,92 @@
+{
+ "summary": "Computes the prime factorization of a positive integer n using naive trial division, returning a sorted list of prime factors with repetition.",
+ "input_domain": "integers n where n >= 1",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Factor a composite number with repeated prime factors",
+   "input": "get_factors(100)",
+   "expected": "[2, 2, 5, 5]",
+   "rationale": "Directly cited from docstring examples; verifies multiplicity handling.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Factor a prime number",
+   "input": "get_factors(101)",
+   "expected": "[101]",
+   "rationale": "Directly cited from docstring examples; verifies single prime factor output.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Handle the lowest valid input which yields no factors",
+   "input": "get_factors(1)",
+   "expected": "[]",
+   "rationale": "Directly cited from docstring examples; 1 has no prime factors by mathematical definition.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Factor the smallest prime number at the precondition boundary",
+   "input": "get_factors(2)",
+   "expected": "[2]",
+   "rationale": "Tests the lower bound of the precondition (n >= 1) and ensures the smallest prime is handled correctly.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Factor a perfect power of a prime",
+   "input": "get_factors(8)",
+   "expected": "[2, 2, 2]",
+   "rationale": "Verifies that repeated prime factors are included according to their multiplicity as required by 'with repetition'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Factor a number with distinct prime factors",
+   "input": "get_factors(6)",
+   "expected": "[2, 3]",
+   "rationale": "Tests sorting requirement and distinct prime factor extraction.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Verify sorted order and repetition for mixed factors",
+   "input": "get_factors(12)",
+   "expected": "[2, 2, 3]",
+   "rationale": "Derived from 'sorted order with repetition' requirement; checks interleaved prime multiplicities.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Factor a larger prime number",
+   "input": "get_factors(997)",
+   "expected": "[997]",
+   "rationale": "Ensures correctness for primes beyond the small examples provided in the spec.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Verify output length and values for multiple distinct primes",
+   "input": "get_factors(30)",
+   "expected": "[2, 3, 5]",
+   "rationale": "Tests the 'sorted order' constraint across three distinct primes.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when n <= 0 or n is not an int: The spec states precondition 'n >= 1'. Inputs violating this are undefined behavior.",
+  "Performance limits: Spec mentions 'naive trial division' but does not specify time/space constraints or maximum supported integer size.",
+  "Return type strictness: Spec says 'A list', but does not specify behavior if caller expects a tuple or other iterable."
+ ]
+}

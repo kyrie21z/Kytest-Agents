@@ -1,0 +1,84 @@
+{
+ "summary": "Converts a sequence of integer operands and +-*/ operator tokens from infix notation to equivalent Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm, applying standard operator precedence and left associativity.",
+ "input_domain": "Lists containing only integers and the string operators '+', '-', '*', '/'.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Basic binary operation with subtraction",
+   "input": "[10, '-', 5]",
+   "expected": "[10, 5, '-']",
+   "rationale": "Extends Example 1 pattern; verifies basic operand-operator reordering per 'transform infix notation into equivalent Reverse Polish Notation.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Operator precedence: multiplication over addition",
+   "input": "[4, '+', 9, '*', 2]",
+   "expected": "[4, 9, 2, '*', '+']",
+   "rationale": "Per 'Uses Dijkstra's shunting-yard algorithm...', higher-precedence operators ('*', '/') bind tighter than lower ('+', '-'), matching Example 2 logic.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Left associativity for equal precedence operators",
+   "input": "[1, '+', 2, '+', 3]",
+   "expected": "[1, 2, '+', 3, '+']",
+   "rationale": "Standard shunting-yard behavior requires left-to-right evaluation for '+'; pops equal-precedence operators before pushing new ones.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Single operand expression",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Minimal valid input satisfying the precondition; should return the operand unchanged as it is already in postfix form.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P5",
+   "category": "empty",
+   "behavior": "Empty input list",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "Precondition holds vacuously; typical shunting-yard implementation returns an empty output list for empty input.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Mixed precedence and associativity chain",
+   "input": "[2, '*', 3, '+', 4, '-', 5]",
+   "expected": "[2, 3, '*', 4, '+', 5, '-']",
+   "rationale": "Tests interleaved high and low precedence operators with left associativity, verifying stack management across multiple steps per algorithm spec.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Division followed by multiplication (equal precedence)",
+   "input": "[10, '/', 2, '*', 3]",
+   "expected": "[10, 2, '/', 3, '*']",
+   "rationale": "Verifies left associativity for '/' and '*' which share the same precedence level, consistent with standard arithmetic rules implied by the examples.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Complex nesting without parentheses",
+   "input": "[1, '+', 2, '*', 3, '/', 4]",
+   "expected": "[1, 2, '+', 3, 4, '/', '*']",
+   "rationale": "Confirms correct ordering when lower precedence operator precedes higher precedence sub-expressions, relying on stack push/pop mechanics described in the algorithm name.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when tokens violate the precondition (e.g., floats, parentheses, or non-operator strings). The spec defines this as undefined behavior.",
+  "Expected output for an empty list []. While the precondition holds vacuously, the spec does not explicitly state whether to return [], raise ValueError, or behave differently.",
+  "Representation of negative numbers. It is unclear if unary minus is supported as a separate token ['-', 5] or if negative values must be passed as single integer tokens [-5].",
+  "Handling of right-associative operators. The spec lists only +-*/, which are traditionally left-associative, but does not explicitly guarantee this behavior for future extensions or edge cases."
+ ]
+}

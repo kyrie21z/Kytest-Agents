@@ -1,0 +1,74 @@
+{
+ "summary": "Computes the prime factorization of a positive integer n using naive trial division, returning a sorted list of prime factors with repetition.",
+ "input_domain": "Integers n such that n >= 1",
+ "items": [
+  {
+   "id": "P1",
+   "category": "boundary",
+   "behavior": "Returns an empty list for the minimum valid input",
+   "input": "n=1",
+   "expected": "[]",
+   "rationale": "Explicitly provided in the docstring examples; represents the lower bound of the precondition n >= 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Correctly factors a standard composite number into its prime components",
+   "input": "n=12",
+   "expected": "[2, 2, 3]",
+   "rationale": "Tests basic trial division logic and accumulation of repeated factors as required by 'list of the prime factors of n in sorted order with repetition'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Returns a single-element list containing the number itself for a prime input",
+   "input": "n=17",
+   "expected": "[17]",
+   "rationale": "Mirrors the documented example get_factors(101) -> [101]; verifies that prime detection correctly terminates without finding divisors.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Handles high multiplicity of a single prime factor",
+   "input": "n=8",
+   "expected": "[2, 2, 2]",
+   "rationale": "Validates that the algorithm correctly repeats factors in the output list, satisfying the 'with repetition' requirement.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Product of all returned factors equals the original input",
+   "input": "n=210",
+   "expected": "[2, 3, 5, 7]",
+   "rationale": "Fundamental mathematical invariant of prime factorization implied by the spec; ensures no factors are missing or spurious. Verification: math.prod(result) == 210.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Returns the smallest prime as a single factor",
+   "input": "n=2",
+   "expected": "[2]",
+   "rationale": "Adjacent boundary to n=1; tests early termination and correct handling of the smallest prime number.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Output list maintains non-decreasing order regardless of internal discovery sequence",
+   "input": "n=49",
+   "expected": "[7, 7]",
+   "rationale": "Spec explicitly mandates 'sorted order'; verifies that even when factors are found out of order internally, the final list is correctly sorted.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior for n <= 0 violates the explicit precondition 'n >= 1'. The spec defines this as undefined behavior and does not document any exception to raise.",
+  "Behavior for non-integer types (e.g., floats, strings, None) is unspecified. The signature/docstring indicates 'n: An int', but does not specify type-checking or validation rules.",
+  "Performance limits and maximum supported integer size are not defined. Naive trial division may exceed reasonable time bounds for very large primes or semiprimes, but the spec imposes no runtime constraints."
+ ]
+}

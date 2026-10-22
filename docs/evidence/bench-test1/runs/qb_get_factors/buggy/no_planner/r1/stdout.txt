@@ -1,0 +1,7 @@
+status: accepted   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 8 accepted   coverage: 1.0   dev mutants killed: 1/6   plan cited: None
+review r1: revise  test_prime_two=suspected_bug, test_square_of_two=suspected_bug, test_cube_of_two=suspected_bug, test_prime_three=suspected_bug, test_docstring_100=suspected_bug, test_docstring_101=suspected_bug
+review r2: accept  test_prime_seven=suspected_bug, test_composite_14=suspected_bug, test_composite_49=suspected_bug, test_composite_21=suspected_bug, test_prime_two=suspected_bug, test_prime_101=suspected_bug, test_prime_three=suspected_bug, test_prime_eleven=suspected_bug, test_composite_6=suspected_bug, test_composite_15=suspected_bug, test_composite_100=suspected_bug, test_composite_8=suspected_bug, test_factor_100_matches_docstring=suspected_bug, test_factor_101_matches_docstring=suspected_bug, test_factor_2_is_prime=suspected_bug, test_factor_6_has_two_factors=suspected_bug, test_factor_8_has_three_factors=suspected_bug, test_factor_two_type_and_length=suspected_bug, test_factor_4_missing_factor=suspected_bug
+suspected bugs: 25 -> /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_get_factors/buggy/no_planner/r1/run/bug_report.md
+usage: {"testgen": {"calls": 16, "tokens": 128338}, "reviewer": {"calls": 2, "tokens": 18416}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_get_factors/buggy/no_planner/r1/run

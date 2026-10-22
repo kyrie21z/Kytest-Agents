@@ -1,0 +1,220 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return sorted(set(seen))\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/no_reviewer/r1/run/workspace",
+ "spec": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a comma-separated string of tags into a list of unique, normalized tags by stripping surrounding whitespace, lowercasing, dropping empty entries, and preserving the order of first occurrences.",
+  "input_domain": "text: a string containing zero or more comma-separated tokens.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Normalizes mixed-case tags with surrounding whitespace, drops empty entries from consecutive commas, removes duplicates, and preserves order.",
+    "input": "\" Python, ML ,python,, Data \"",
+    "expected": "[\"python\", \"ml\", \"data\"]",
+    "rationale": "Directly matches the docstring example. Spec states: 'Each tag is stripped of surrounding whitespace and lower-cased. Empty tags... are dropped. Duplicates, compared after normalization, are removed so that only the first occurrence is kept, and the remaining tags keep their original order.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "empty",
+    "behavior": "Returns an empty list when given an empty string.",
+    "input": "\"\"",
+    "expected": "[]",
+    "rationale": "Spec explicitly states: 'A string without any non-empty tag gives an empty list.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "empty",
+    "behavior": "Returns an empty list when all tokens are whitespace-only.",
+    "input": "\", ,  , \"",
+    "expected": "[]",
+    "rationale": "Splitting yields only whitespace tokens, which become empty after stripping. Spec says: 'Empty tags (including ones that are only whitespace) are dropped.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Handles a single tag with no delimiters, stripping only surrounding whitespace.",
+    "input": "\"  Hello World  \"",
+    "expected": "[\"hello world\"]",
+    "rationale": "No commas means one token. Spec requires: 'Each tag is stripped of surrounding whitespace and lower-cased.' Internal spaces are preserved as they are not 'surrounding'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "normal",
+    "behavior": "Removes case-insensitive duplicates, keeping only the first occurrence.",
+    "input": "\"Data,data,DATA\"",
+    "expected": "[\"data\"]",
+    "rationale": "Spec states: 'Duplicates, compared after normalization, are removed so that only the first occurrence is kept'. After normalization, all three equal 'data', so only the first remains.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "boundary",
+    "behavior": "Correctly handles leading, trailing, and consecutive commas.",
+    "input": "\",tag1,,tag2,\"",
+    "expected": "[\"tag1\", \"tag2\"]",
+    "rationale": "Leading/trailing/consecutive commas produce empty strings upon splitting. Spec mandates: 'Empty tags... are dropped.' Remaining tags retain original order.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "property",
+    "behavior": "Preserves original order while filtering out subsequent duplicates.",
+    "input": "\"a,b,a,c,b,d\"",
+    "expected": "[\"a\", \"b\", \"c\", \"d\"]",
+    "rationale": "Verifies the deduplication invariant: 'only the first occurrence is kept, and the remaining tags keep their original order' across interleaved duplicates.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "normal",
+    "behavior": "Preserves internal whitespace while stripping only surrounding whitespace.",
+    "input": "\"Machine Learning , Deep Learning\"",
+    "expected": "[\"machine learning\", \"deep learning\"]",
+    "rationale": "Spec says: 'Each tag is stripped of surrounding whitespace and lower-cased.' This confirms internal spaces are intentional and should not be removed.",
+    "confidence": "high"
+   },
+   {
+    "id": "P9",
+    "category": "normal",
+    "behavior": "Applies normalization uniformly to tags containing hyphens, underscores, and symbols.",
+    "input": "\"Tag-1, Tag_2, TAG#3\"",
+    "expected": "[\"tag-1\", \"tag_2\", \"tag#3\"]",
+    "rationale": "The specification does not restrict tag content to alphanumeric characters. It applies the strip/lowercase/filter/dedup pipeline to all tokens generically.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P10",
+    "category": "boundary",
+    "behavior": "Returns a single-element list for a tag with no surrounding whitespace.",
+    "input": "\"exact\"",
+    "expected": "[\"exact\"]",
+    "rationale": "Tests the minimal valid input where normalization changes nothing except ensuring it wraps correctly in a list, consistent with 'Turn a comma-separated tag string into a list of normalized tags.'",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Behavior when `text` is not a string (e.g., `None`, integer, list), as no type precondition or error handling is documented.",
+   "How Unicode case-folding interacts with locale-specific characters, since the spec only says 'lower-cased' without specifying Python's default `.lower()` vs `.casefold()` semantics.",
+   "Whether tabs or newline characters embedded in a tag are treated as 'surrounding whitespace' or internal content, as the spec's definition of whitespace is implicit."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p2_empty_string",
+    "test_p3_whitespace_only",
+    "test_p4_single_tag_no_delimiter",
+    "test_p5_case_insensitive_duplicates",
+    "test_p6_leading_trailing_commas",
+    "test_p7_order_preservation",
+    "test_p10_single_exact_tag",
+    "test_extra_return_type",
+    "test_extra_boundary_single_comma",
+    "test_extra_all_same_duplicate"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_mixed_case_whitespace",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "from solution import normalize_tags\n\ndef test_p1_mixed_case_whitespace():\n    \"\"\"P1: Normalizes mixed-case tags with surrounding whitespace, drops empty entries from consecutive commas, removes duplicates, and preserves order.\"\"\"\n    result = normalize_tags(\" Python, ML ,python,, Data \")\n    assert result == [\"python\", \"ml\", \"data\"]",
+     "oracle_reason": "Splitting by comma yields [' Python', ' ML ', 'python', '', ' Data ']. After strip+lower: ['python', 'ml', 'python', '', 'data']. Empty '' is dropped. Deduplicating keeping first gives ['python', 'ml', 'data'] in original order.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p1_mixed_case_whitespace _________________________\ntest_solution.py:6: in test_p1_mixed_case_whitespace\n    assert result == [\"python\", \"ml\", \"data\"]\nE   AssertionError: assert ['data', 'ml', 'python'] == ['python', 'ml', 'data']\nE     \nE     At index 0 diff: 'data' != 'python'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_mixed_case_whitespace - AssertionError: asse...\n1 failed in 0.03s\n"
+    },
+    {
+     "name": "test_p8_internal_whitespace",
+     "plan_ids": [
+      "P8"
+     ],
+     "code": "from solution import normalize_tags\n\ndef test_p8_internal_whitespace():\n    \"\"\"P8: Preserves internal whitespace while stripping only surrounding whitespace.\"\"\"\n    result = normalize_tags(\"Machine Learning , Deep Learning\")\n    assert result == [\"machine learning\", \"deep learning\"]",
+     "oracle_reason": "Splitting yields ['Machine Learning ', ' Deep Learning']. After strip+lower: ['machine learning', 'deep learning']. Both non-empty and unique. Internal spaces preserved.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p8_internal_whitespace __________________________\ntest_solution.py:6: in test_p8_internal_whitespace\n    assert result == [\"machine learning\", \"deep learning\"]\nE   AssertionError: assert ['deep learni...ine learning'] == ['machine lea...eep learning']\nE     \nE     At index 0 diff: 'deep learning' != 'machine learning'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p8_internal_whitespace - AssertionError: assert...\n1 failed in 0.03s\n"
+    },
+    {
+     "name": "test_p9_special_characters",
+     "plan_ids": [
+      "P9"
+     ],
+     "code": "from solution import normalize_tags\n\ndef test_p9_special_characters():\n    \"\"\"P9: Applies normalization uniformly to tags containing hyphens, underscores, and symbols.\"\"\"\n    result = normalize_tags(\"Tag-1, Tag_2, TAG#3\")\n    assert result == [\"tag-1\", \"tag_2\", \"tag#3\"]",
+     "oracle_reason": "Splitting yields ['Tag-1', ' Tag_2', ' TAG#3']. After strip+lower: ['tag-1', 'tag_2', 'tag#3']. All non-empty and unique. Special characters preserved.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p9_special_characters __________________________\ntest_solution.py:6: in test_p9_special_characters\n    assert result == [\"tag-1\", \"tag_2\", \"tag#3\"]\nE   AssertionError: assert ['tag#3', 'tag-1', 'tag_2'] == ['tag-1', 'tag_2', 'tag#3']\nE     \nE     At index 0 diff: 'tag#3' != 'tag-1'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p9_special_characters - AssertionError: assert ...\n1 failed in 0.02s\n"
+    }
+   ],
+   "attempts": 16,
+   "turns": 7,
+   "final_text": "lphabetical order differs from insertion order with more than 4 elements.\n\n2. **No test for non-string input**: The spec doesn't define behavior for `None`, integers, or other types. Per instructions, we don't assume preconditions must be validated.\n\n3. **No test for very long inputs**: No stress testing with hundreds of tags, though this is intentionally excluded per the guidance (\"never exhaustive Cartesian products or huge stress tests\").\n\n4. **Unicode/special locale handling**: Tags with Unicode characters, accented letters, or non-ASCII lowercase mappings are not tested.\n\n5. **`test_p6` passes coincidentally**: The expected result `[\"tag1\", \"tag2\"]` happens to be in alphabetical order, so the sorting bug isn't exposed here. A reviewer should consider adding an order-sensitive variant."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8",
+     "P9",
+     "P10"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 5290
+  },
+  "testgen": {
+   "calls": 7,
+   "tokens": 51939
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/buggy/no_reviewer/r1/input/solution.py"
+}

@@ -1,0 +1,6 @@
+status: forced   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 3 accepted   coverage: 0.7333333333333333   dev mutants killed: 1/3   plan cited: None
+review r1: revise  
+review r2: revise  
+usage: {"testgen": {"calls": 16, "tokens": 114964}, "reviewer": {"calls": 2, "tokens": 8124}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/bcb_factorial_sums/clean/no_planner/r1/run

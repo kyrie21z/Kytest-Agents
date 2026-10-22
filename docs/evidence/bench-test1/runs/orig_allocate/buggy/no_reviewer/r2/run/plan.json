@@ -1,0 +1,119 @@
+{
+ "summary": "Distributes a non-negative integer total into integer shares proportional to a list of non-negative weights, using floor division for initial allocation and distributing remainders by largest fractional part with lower-index tie-breaking.",
+ "input_domain": "total: int >= 0; weights: list[int] with len >= 1, all elements >= 0, and at least one element > 0",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Equal weights with total not divisible by count",
+   "input": "allocate(100, [1, 1, 1])",
+   "expected": "[34, 33, 33]",
+   "rationale": "Matches the first doctest example. Algorithm yields floor(100/3)=33 base, remainder 1 distributed to index 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Unequal weights including a zero weight",
+   "input": "allocate(10, [3, 0, 7])",
+   "expected": "[3, 0, 7]",
+   "rationale": "Matches the second doctest example. Base allocation exactly matches total, leaving no remainder.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Zero total distributes nothing",
+   "input": "allocate(0, [2, 3, 5])",
+   "expected": "[0, 0, 0]",
+   "rationale": "Spec requires 'non-negative integer total'. floor(0*w/S)=0 and remainder=0, so all shares are 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Single weight receives entire total",
+   "input": "allocate(50, [10])",
+   "expected": "[50]",
+   "rationale": "Spec allows 'at least one positive entry'. With one entry, floor(50*10/10)=50, remainder=0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Multiple zero-weight entries receive exactly zero",
+   "input": "allocate(100, [0, 5, 0, 5])",
+   "expected": "[0, 50, 0, 50]",
+   "rationale": "Spec states 'Entries with weight 0 always receive 0.' Positive weights split total proportionally.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Tie-breaking in remainder distribution favors lower indices",
+   "input": "allocate(5, [1, 1, 1])",
+   "expected": "[2, 2, 1]",
+   "rationale": "Base=1 for all. Fractional remainders are identical (2). Spec mandates 'ties go to the entry with the lower index', so indices 0 and 1 get the 2 leftover units.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "error",
+   "behavior": "Negative total raises ValueError",
+   "input": "allocate(-1, [1, 2])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states 'Raises ValueError if total is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "error",
+   "behavior": "Empty weights list raises ValueError",
+   "input": "allocate(10, [])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states 'Raises ValueError if ... weights is empty'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "error",
+   "behavior": "Negative weight raises ValueError",
+   "input": "allocate(10, [1, -1])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states 'Raises ValueError if ... any weight is negative'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "error",
+   "behavior": "All-zero weights raises ValueError",
+   "input": "allocate(10, [0, 0])",
+   "expected": "ValueError",
+   "rationale": "Spec explicitly states 'Raises ValueError if ... all weights are zero'. Division by sum(weights)=0 would otherwise occur.",
+   "confidence": "high"
+  },
+  {
+   "id": "P11",
+   "category": "property",
+   "behavior": "Result list length matches weights length",
+   "input": "allocate(99, [2, 3, 5])",
+   "expected": "[20, 30, 49]",
+   "rationale": "Spec guarantees 'a new list of ints, one per weight'. Length must equal len(weights).",
+   "confidence": "high"
+  },
+  {
+   "id": "P12",
+   "category": "boundary",
+   "behavior": "Large total preserves sum invariant and proportionality",
+   "input": "allocate(1000000000000000000, [1, 2])",
+   "expected": "[333333333333333333, 666666666666666667]",
+   "rationale": "Spec requires result to be 'summing to total'. Python handles arbitrary precision, but test verifies correct floor/mod arithmetic without overflow or rounding drift.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Type strictness: Spec says 'list of non-negative ints' and 'non-negative integer total', but does not specify whether floats, tuples, or generators are coerced, rejected, or cause TypeError.",
+  "Return object mutability: Spec says 'a new list', but does not clarify if shallow/deep copy semantics apply or if the caller may safely mutate the returned list without affecting internal state (though no state is mentioned).",
+  "Performance bounds: No limits on list length or total magnitude are specified; behavior under extreme memory/CPU constraints is undefined."
+ ]
+}

@@ -1,0 +1,6 @@
+status: accepted   rounds: 2   path: testgen -> verifier -> reviewer -> testgen -> verifier -> reviewer
+tests: 11 accepted   coverage: 1.0   dev mutants killed: 3/3   plan cited: None
+review r1: revise  
+review r2: accept  
+usage: {"testgen": {"calls": 23, "tokens": 148071}, "reviewer": {"calls": 2, "tokens": 11808}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/clean/no_planner/r1/run

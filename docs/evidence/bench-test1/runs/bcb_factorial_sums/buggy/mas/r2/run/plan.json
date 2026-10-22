@@ -1,0 +1,84 @@
+{
+ "summary": "Computes the sum of factorials for every permutation of a given list of non-negative integers, returning both the collection of sums and the permutations.",
+ "input_domain": "A flat list containing zero or more non-negative integers.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Return correct factorial sums and all permutations for a standard multi-element list.",
+   "input": "[1, 2, 3]",
+   "expected": "([9, 9, 9, 9, 9, 9], [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)])",
+   "rationale": "Directly matches the provided example in the docstring.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Correctly handle zero as a factorial operand and compute sums.",
+   "input": "[0, 4]",
+   "expected": "([25, 25], [(0, 4), (4, 0)])",
+   "rationale": "Directly matches the provided example; verifies that 0! evaluates to 1 as per standard math.factorial behavior.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Return empty collections when no numbers are provided.",
+   "input": "[]",
+   "expected": "([], [])",
+   "rationale": "Docstring explicitly states: 'If an empty list is given, the function returns empty lists.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Handle a single-element list correctly.",
+   "input": "[5]",
+   "expected": "([120], [(5,)])",
+   "rationale": "Tests degenerate normal case; 5! = 120 and a single-element list yields exactly one permutation.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Reject inputs where the container is not a list.",
+   "input": "None",
+   "expected": "Raises TypeError",
+   "rationale": "Docstring specifies: 'TypeError: If numbers is not a list of integers.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "error",
+   "behavior": "Reject inputs containing negative integers.",
+   "input": "[-2, 3]",
+   "expected": "Raises ValueError",
+   "rationale": "Docstring specifies: 'ValueError: If input numbers are negative.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Ensure structural consistency between returned sums and permutations.",
+   "input": "[1, 2]",
+   "expected": "len(sums) == len(perms) == 2 and sums[0] == math.factorial(1) + math.factorial(2)",
+   "rationale": "Implied by 'calculate the sum of the factorials of each number in each permutation'; validates that each sum corresponds to its paired permutation.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Preserve positional duplicates during permutation generation.",
+   "input": "[2, 2]",
+   "expected": "([4, 4], [(2, 2), (2, 2)])",
+   "rationale": "Tests handling of identical values; aligns with itertools.permutations behavior which treats elements as unique based on position, not value.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Return type annotation claims 'list of list of int' for permutations, but the example shows tuples. Expected container type for permutations is unclear.",
+  "No upper bound is specified for integer size. Behavior for very large inputs causing memory exhaustion or extreme computation time is undefined.",
+  "Exact error message content/format for TypeError and ValueError is not specified.",
+  "Whether the function should validate that ALL elements are strictly int (excluding bools, which are subclasses of int in Python) is unspecified."
+ ]
+}

@@ -1,0 +1,83 @@
+{
+ "summary": "Computes the prime factorization of a positive integer n using naive trial division, returning a sorted list of prime factors with repetitions.",
+ "input_domain": "integers n such that n >= 1",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Verify exact output for a highly composite number.",
+   "input": "n=100",
+   "expected": "[2, 2, 5, 5]",
+   "rationale": "Examples section explicitly states: '>>> get_factors(100) [2, 2, 5, 5]'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Verify exact output for a prime number.",
+   "input": "n=101",
+   "expected": "[101]",
+   "rationale": "Examples section explicitly states: '>>> get_factors(101) [101]'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Verify empty list for unit input.",
+   "input": "n=1",
+   "expected": "[]",
+   "rationale": "Examples section explicitly states: '>>> get_factors(1) []'. Matches the mathematical fact that 1 has no prime factors.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Verify repeated factors for a prime power.",
+   "input": "n=8",
+   "expected": "[2, 2, 2]",
+   "rationale": "Output spec requires 'A list of the prime factors of n in sorted order with repetition'. 8 = 2^3.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Verify distinct sorted factors for a semiprime.",
+   "input": "n=6",
+   "expected": "[2, 3]",
+   "rationale": "Output spec requires 'A list of the prime factors of n in sorted order with repetition'. 6 = 2 * 3.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Verify output for the smallest valid prime.",
+   "input": "n=2",
+   "expected": "[2]",
+   "rationale": "Precondition states 'n >= 1'. n=2 is the smallest prime, testing the lower boundary of the valid domain.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Check multiplicative reconstruction and sorting for a composite with repeated factors.",
+   "input": "n=12",
+   "expected": "[2, 2, 3]",
+   "rationale": "Output spec requires factors to be prime, sorted, and repeated. The product of the expected output (2*2*3) must equal the input (12).",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Check multiplicative reconstruction and sorting for a product of distinct primes.",
+   "input": "n=210",
+   "expected": "[2, 3, 5, 7]",
+   "rationale": "Output spec requires factors to be prime, sorted, and repeated. The product of the expected output (2*3*5*7) must equal the input (210).",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Inputs violating the precondition n >= 1 (e.g., n=0, n=-5). The spec defines this as a precondition but does not specify whether to raise an exception, return an empty list, or behave unpredictably.",
+  "Non-integer inputs (e.g., n=3.5, n='10'). The docstring specifies 'n: An int', but does not mandate type checking or error handling.",
+  "Large integers (e.g., n=10**9+7). The spec mentions 'naive trial division' which implies O(sqrt(n)) complexity, but does not specify performance expectations or timeouts for large inputs."
+ ]
+}

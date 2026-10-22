@@ -1,0 +1,85 @@
+{
+ "summary": "Manages a shopping cart containing items with associated prices and quantities, supporting addition, partial removal, state inspection, and total price calculation.",
+ "input_domain": "item: str, price: float, quantity: int (defaults to 1)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Add single item using default quantity",
+   "input": "shoppingcart.add_item(\"apple\", 1.5)",
+   "expected": "shoppingcart.view_items() == {\"apple\": {\"price\": 1.5, \"quantity\": 1}}",
+   "rationale": "Spec states 'The default quantity is 1'. Docstring example shows the internal structure as {'item':{'price':..., 'quantity':...}}.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Add item with explicit quantity and float price",
+   "input": "shoppingcart.add_item(\"banana\", 2.5, 4)",
+   "expected": "shoppingcart.view_items() == {\"banana\": {\"price\": 2.5, \"quantity\": 4}}",
+   "rationale": "Spec defines parameters as 'price: float' and 'quantity:int'. Docstring example demonstrates storing these values in the specified dictionary format.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Calculate total price across multiple items",
+   "input": "After add_item('a', 1.0, 5) and add_item('b', 2.0, 3), call total_price()",
+   "expected": "11.0",
+   "rationale": "Spec states total is 'the quantity of each item multiplied by the price'. Docstring example explicitly validates this calculation: (1*5) + (2*3) = 11.0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "state",
+   "behavior": "Partially remove item quantity",
+   "input": "After add_item('apple', 1.0, 5), call remove_item('apple', 3)",
+   "expected": "shoppingcart.view_items() == {\"apple\": {\"price\": 1.0, \"quantity\": 2}}",
+   "rationale": "Docstring example explicitly shows this exact sequence and resulting state. Spec says 'Subtract the specified quantity of item from the shopping list items'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "empty",
+   "behavior": "Calculate total price on empty cart",
+   "input": "New ShoppingCart(), call total_price()",
+   "expected": "0.0",
+   "rationale": "Spec says 'Calculate the total price of all items in the shopping list'. The sum over an empty collection is mathematically 0.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "View items reflects sequential modifications",
+   "input": "Sequence: add_item('x', 10.0, 2), remove_item('x', 1), view_items()",
+   "expected": "{\"x\": {\"price\": 10.0, \"quantity\": 1}}",
+   "rationale": "Spec states method should 'Return the current shopping list items'. The provided example shows the return value accurately reflects prior add/remove operations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Add item with zero quantity",
+   "input": "shoppingcart.add_item(\"water\", 1.0, 0)",
+   "expected": "shoppingcart.view_items() == {\"water\": {\"price\": 1.0, \"quantity\": 0}}",
+   "rationale": "Spec allows 'quantity:int' without an explicit lower-bound precondition. Zero is a valid integer that should be stored as provided.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Total price arithmetic consistency with zero-quantity items",
+   "input": "After add_item('a', 5.0, 0) and add_item('b', 2.0, 3), call total_price()",
+   "expected": "6.0",
+   "rationale": "Derived directly from the spec formula 'quantity of each item multiplied by the price'. Mathematically: (0*5) + (3*2) = 6.0.",
+   "confidence": "medium"
+  }
+ ],
+ "ambiguities": [
+  "Adding an item that already exists (spec does not specify whether to update price/quantity, raise an error, or ignore)",
+  "Removing an item that is not currently in the cart (spec does not specify behavior)",
+  "Removing a quantity greater than the current stock level (spec does not specify if it caps at 0, allows negative quantities, or raises an error)",
+  "Whether view_items() returns a direct reference to the internal dictionary or a defensive copy",
+  "Handling of negative prices or quantities (spec only lists types, not value constraints or validation rules)"
+ ]
+}

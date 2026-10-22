@@ -1,0 +1,217 @@
+{
+ "status": "accepted",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": true,
+  "max_rounds": 2
+ },
+ "source": "class Warehouse:\n    \"\"\"\n    The class manages inventory and orders, including adding products, updating product quantities, retrieving product quantities, creating orders, changing order statuses, and tracking orders.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initialize two fields.\n        self.inventory is a dict that stores the products.\n        self.inventory = {Product ID: Product}\n        self.orders is a dict that stores the products in a order.\n        self.orders = {Order ID: Order}\n        \"\"\"\n        self.inventory = {}\n        self.orders = {}\n\n    def add_product(self, product_id, name, quantity):\n        \"\"\"\n        Add product to inventory and plus the quantity if it has existed in inventory.\n        Or just add new product to dict otherwise.\n        :param product_id: int\n        :param name: str, product name\n        :param quantity: int, product quantity\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.inventory\n        {1: {'name': 'product1', 'quantity': 3}}\n        \"\"\"\n        if product_id not in self.inventory:\n            self.inventory[product_id] = {'name': name, 'quantity': quantity}\n        else:\n            self.inventory[product_id]['quantity'] = quantity\n\n    def update_product_quantity(self, product_id, quantity):\n        \"\"\"\n        According to product_id, add the quantity to the corresponding product in inventory.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.update_product_quantity(1, -1)\n        >>> warehouse.inventory\n        {1: {'name': 'product1', 'quantity': 2}}\n        \"\"\"\n        if product_id in self.inventory:\n            self.inventory[product_id]['quantity'] += quantity\n\n    def get_product_quantity(self, product_id):\n        \"\"\"\n        Get the quantity of specific product by product_id.\n        :param product_id, int\n        :return: if the product_id is in inventory then return the corresponding quantity,\n                or False otherwise.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.get_product_quantity(1)\n        3\n        >>> warehouse.get_product_quantity(2)\n        False\n        \"\"\"\n        if product_id in self.inventory:\n            return self.inventory[product_id]['quantity']\n        else:\n            return False\n\n    def create_order(self, order_id, product_id, quantity):\n        \"\"\"\n        Create a order which includes the infomation of product, like id and quantity.\n        And put the new order into self.orders.\n        The default value of status is 'Shipped'.\n        :param order_id: int\n        :param product_id: int\n        :param quantity: the quantity of product that be selected.\n        :return False: only if product_id is not in inventory or the quantity is not adequate\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.orders\n        {1: {'product_id': 1, 'quantity': 2, 'status': 'Shipped'}}\n        >>> warehouse.create_order(1, 2, 2)\n        False\n        \"\"\"\n        if self.get_product_quantity(product_id) >= quantity:\n            self.update_product_quantity(product_id, -quantity)\n            self.orders[order_id] = {'product_id': product_id, 'quantity': quantity, 'status': 'Shipped'}\n        else:\n            return False\n\n    def change_order_status(self, order_id, status):\n        \"\"\"\n        Change the status of order if the input order_id is in self.orders.\n        :param order_id: int\n        :param status: str, the state that is going to change to\n        :return False: only if the order_id is not in self.orders\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.change_order_status(1, \"done\")\n        >>> warehouse.orders\n        {1: {'product_id': 1, 'quantity': 2, 'status': 'done'}}\n        \"\"\"\n        if order_id in self.orders:\n            self.orders[order_id]['status'] = status\n        else:\n            return False\n\n    def track_order(self, order_id):\n        \"\"\"\n        Get the status of specific order.\n        :param order_id: int\n        :return False: only if the order_id is not in self.orders.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.track_order(1)\n        'Shipped'\n        \"\"\"\n        if order_id in self.orders:\n            return self.orders[order_id]['status']\n        else:\n            return False\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/buggy/mas/r2/run/workspace",
+ "spec": "class Warehouse:\n    \"\"\"\n    The class manages inventory and orders, including adding products, updating product quantities, retrieving product quantities, creating orders, changing order statuses, and tracking orders.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initialize two fields.\n        self.inventory is a dict that stores the products.\n        self.inventory = {Product ID: Product}\n        self.orders is a dict that stores the products in a order.\n        self.orders = {Order ID: Order}\n        \"\"\"\n        ...\n\n    def add_product(self, product_id, name, quantity):\n        \"\"\"\n        Add product to inventory and plus the quantity if it has existed in inventory.\n        Or just add new product to dict otherwise.\n        :param product_id: int\n        :param name: str, product name\n        :param quantity: int, product quantity\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.inventory\n        {1: {'name': 'product1', 'quantity': 3}}\n        \"\"\"\n        ...\n\n    def update_product_quantity(self, product_id, quantity):\n        \"\"\"\n        According to product_id, add the quantity to the corresponding product in inventory.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.update_product_quantity(1, -1)\n        >>> warehouse.inventory\n        {1: {'name': 'product1', 'quantity': 2}}\n        \"\"\"\n        ...\n\n    def get_product_quantity(self, product_id):\n        \"\"\"\n        Get the quantity of specific product by product_id.\n        :param product_id, int\n        :return: if the product_id is in inventory then return the corresponding quantity,\n                or False otherwise.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.get_product_quantity(1)\n        3\n        >>> warehouse.get_product_quantity(2)\n        False\n        \"\"\"\n        ...\n\n    def create_order(self, order_id, product_id, quantity):\n        \"\"\"\n        Create a order which includes the infomation of product, like id and quantity.\n        And put the new order into self.orders.\n        The default value of status is 'Shipped'.\n        :param order_id: int\n        :param product_id: int\n        :param quantity: the quantity of product that be selected.\n        :return False: only if product_id is not in inventory or the quantity is not adequate\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.orders\n        {1: {'product_id': 1, 'quantity': 2, 'status': 'Shipped'}}\n        >>> warehouse.create_order(1, 2, 2)\n        False\n        \"\"\"\n        ...\n\n    def change_order_status(self, order_id, status):\n        \"\"\"\n        Change the status of order if the input order_id is in self.orders.\n        :param order_id: int\n        :param status: str, the state that is going to change to\n        :return False: only if the order_id is not in self.orders\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.change_order_status(1, \"done\")\n        >>> warehouse.orders\n        {1: {'product_id': 1, 'quantity': 2, 'status': 'done'}}\n        \"\"\"\n        ...\n\n    def track_order(self, order_id):\n        \"\"\"\n        Get the status of specific order.\n        :param order_id: int\n        :return False: only if the order_id is not in self.orders.\n        >>> warehouse.add_product(1, \"product1\", 3)\n        >>> warehouse.create_order(1, 1, 2)\n        >>> warehouse.track_order(1)\n        'Shipped'\n        \"\"\"\n        ...\n",
+ "plan": {
+  "summary": "Manages warehouse inventory and orders by tracking products with names and quantities, supporting additions, quantity adjustments, stock checks, order creation with stock validation, order status updates, and order tracking.",
+  "input_domain": "Integers for product_id, order_id, and quantity; strings for product name and order status; operating on a freshly instantiated Warehouse object.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Add a new product to inventory",
+    "input": "warehouse.add_product(1, \"Widget\", 10)",
+    "expected": "warehouse.inventory == {1: {'name': 'Widget', 'quantity': 10}}",
+    "rationale": "Docstring example demonstrates initial addition creates a dict with 'name' and 'quantity' keys: '{1: {'name': 'product1', 'quantity': 3}}'",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Accumulate quantity on an existing product",
+    "input": "warehouse.add_product(1, \"Widget\", 5)",
+    "expected": "warehouse.inventory[1]['quantity'] == 15",
+    "rationale": "Spec states: 'plus the quantity if it has existed in inventory. Or just add new product to dict otherwise.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "boundary",
+    "behavior": "Update quantity with a negative decrement",
+    "input": "warehouse.update_product_quantity(1, -3)",
+    "expected": "warehouse.inventory[1]['quantity'] == 12",
+    "rationale": "Spec states: 'According to product_id, add the quantity to the corresponding product in inventory.' Negative integers are valid additive inputs per signature.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P4",
+    "category": "error",
+    "behavior": "Retrieve quantity for a non-existent product",
+    "input": "warehouse.get_product_quantity(99)",
+    "expected": "False",
+    "rationale": "Spec states: 'if the product_id is in inventory then return the corresponding quantity, or False otherwise.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P5",
+    "category": "state",
+    "behavior": "Create an order with adequate stock",
+    "input": "warehouse.create_order(101, 1, 5)",
+    "expected": "warehouse.orders == {101: {'product_id': 1, 'quantity': 5, 'status': 'Shipped'}}",
+    "rationale": "Docstring example shows successful order creation populates self.orders with default status 'Shipped'.",
+    "confidence": "high"
+   },
+   {
+    "id": "P6",
+    "category": "error",
+    "behavior": "Create an order with inadequate stock",
+    "input": "warehouse.create_order(102, 1, 100)",
+    "expected": "False",
+    "rationale": "Spec states: 'return False: only if product_id is not in inventory or the quantity is not adequate'",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "state",
+    "behavior": "Change status of an existing order",
+    "input": "warehouse.change_order_status(101, \"Delivered\")",
+    "expected": "warehouse.orders[101]['status'] == \"Delivered\"",
+    "rationale": "Spec states: 'Change the status of order if the input order_id is in self.orders.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "error",
+    "behavior": "Track a non-existent order",
+    "input": "warehouse.track_order(999)",
+    "expected": "False",
+    "rationale": "Spec states: 'return False: only if the order_id is not in self.orders.'",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Does create_order deduct the ordered quantity from self.inventory? The spec validates adequacy but never documents stock reduction.",
+   "What happens if create_order is called with an order_id that already exists? The spec does not specify whether to overwrite, raise, or ignore.",
+   "Are there constraints on initial quantity passed to add_product (e.g., must be >= 0)? The spec allows any int but leaves negative starting quantities undefined.",
+   "Is update_product_quantity allowed to reduce stock below zero? The spec permits adding any integer but lacks bounds-checking documentation.",
+   "What constitutes a valid status string for change_order_status? The spec accepts any str but does not validate against a predefined enum or set."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p1_new_product",
+    "test_p3_negative_decrement",
+    "test_p4_nonexistent_product",
+    "test_p5_create_order_adequate_stock",
+    "test_p6_create_order_inadequate_stock",
+    "test_p7_change_order_status",
+    "test_p8_track_nonexistent_order",
+    "test_extra_track_existing_order",
+    "test_extra_update_nonexistent_product",
+    "test_extra_get_existing_product"
+   ],
+   "failed": [
+    {
+     "name": "test_p2_accumulate_quantity",
+     "plan_ids": [
+      "P2"
+     ],
+     "code": "\"\"\"Test P2: Accumulate quantity on an existing product.\"\"\"\nfrom solution import Warehouse\n\ndef test_p2_accumulate_quantity():\n    warehouse = Warehouse()\n    warehouse.add_product(1, \"Widget\", 10)\n    warehouse.add_product(1, \"Widget\", 5)\n    assert warehouse.inventory[1][\"quantity\"] == 15\n",
+     "oracle_reason": "Spec states: 'plus the quantity if it has existed in inventory.' Second call should accumulate: 10 + 5 = 15.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p2_accumulate_quantity __________________________\ntest_solution.py:8: in test_p2_accumulate_quantity\n    assert warehouse.inventory[1][\"quantity\"] == 15\nE   assert 5 == 15\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p2_accumulate_quantity - assert 5 == 15\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 11,
+   "turns": 6,
+   "final_text": "antity` (replace) instead of `+= quantity` (accumulate). The spec clearly states \"plus the quantity if it has existed in inventory.\" This test correctly captures a contract violation — the test expectation should not be changed to match the buggy implementation.\n\n### Remaining Coverage Gaps\n\n- **Zero quantity**: Not tested whether `add_product(..., 0)` or `update_product_quantity(1, -15)` (reducing to zero/negative) behaves as expected.\n- **Multiple orders on same product**: Stock deduction during `create_order` is not verified (the docstring example doesn't show stock being decremented).\n- **Order ID collision**: Creating two orders with the same order_id overwrites the first — not tested.\n- **Edge cases on `change_order_status`**: Changing status to an empty string or `None` is untested."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.9285714285714286,
+   "missing_lines": [
+    31,
+    98
+   ],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [
+  {
+   "round": 1,
+   "decision": "accept",
+   "verdicts": [
+    {
+     "test": "test_p2_accumulate_quantity",
+     "judgement": "suspected_bug",
+     "reason": "The test correctly follows the specification which mandates accumulating quantity for existing products ('plus the quantity if it has existed in inventory'). The implementation incorrectly overwrites the quantity instead of adding to it."
+    }
+   ],
+   "instructions": []
+  }
+ ],
+ "suspected_bugs": [
+  {
+   "name": "test_p2_accumulate_quantity",
+   "plan_ids": [
+    "P2"
+   ],
+   "code": "\"\"\"Test P2: Accumulate quantity on an existing product.\"\"\"\nfrom solution import Warehouse\n\ndef test_p2_accumulate_quantity():\n    warehouse = Warehouse()\n    warehouse.add_product(1, \"Widget\", 10)\n    warehouse.add_product(1, \"Widget\", 5)\n    assert warehouse.inventory[1][\"quantity\"] == 15\n",
+   "oracle_reason": "Spec states: 'plus the quantity if it has existed in inventory.' Second call should accumulate: 10 + 5 = 15.",
+   "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_p2_accumulate_quantity __________________________\ntest_solution.py:8: in test_p2_accumulate_quantity\n    assert warehouse.inventory[1][\"quantity\"] == 15\nE   assert 5 == 15\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p2_accumulate_quantity - assert 5 == 15\n1 failed in 0.01s\n",
+   "reason": "The test correctly follows the specification which mandates accumulating quantity for existing products ('plus the quantity if it has existed in inventory'). The implementation incorrectly overwrites the quantity instead of adding to it.",
+   "round": 1
+  }
+ ],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier",
+  "reviewer"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 6342
+  },
+  "testgen": {
+   "calls": 6,
+   "tokens": 49370
+  },
+  "reviewer": {
+   "calls": 1,
+   "tokens": 5514
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/buggy/mas/r2/input/solution.py"
+}

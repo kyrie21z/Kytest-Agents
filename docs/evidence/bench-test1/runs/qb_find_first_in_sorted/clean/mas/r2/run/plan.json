@@ -1,0 +1,84 @@
+{
+ "summary": "Returns the lowest index of a target integer x in a sorted list of integers arr, or -1 if x is not present.",
+ "input_domain": "arr: a sorted list of Python integers; x: a Python integer",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns index of unique target",
+   "input": "arr=[1, 3, 5, 7], x=3",
+   "expected": "1",
+   "rationale": "Specification states output is 'The lowest index i such that arr[i] == x'. Here, arr[1] == 3 and it is the only occurrence.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Returns first index among duplicates",
+   "input": "arr=[3, 4, 5, 5, 5, 5, 6], x=5",
+   "expected": "2",
+   "rationale": "Matches the provided example. Specification requires 'The lowest index i such that arr[i] == x', confirming index 2 over 3, 4, or 5.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Target located at the start of the list",
+   "input": "arr=[10, 20, 30], x=10",
+   "expected": "0",
+   "rationale": "Specification requires returning the lowest index. When the target is the first element, the correct index is 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Target located at the end of the list",
+   "input": "arr=[10, 20, 30], x=30",
+   "expected": "2",
+   "rationale": "Specification requires returning the lowest index. When the target is the last element, the correct index is len(arr)-1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "empty",
+   "behavior": "Handles empty input list",
+   "input": "arr=[], x=5",
+   "expected": "-1",
+   "rationale": "Specification states '-1 if x not in arr'. An empty list contains no elements, so x cannot be present.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Target not present in list",
+   "input": "arr=[1, 3, 5], x=4",
+   "expected": "-1",
+   "rationale": "Specification states '-1 if x not in arr'. Since 4 is not in the list, the function must return -1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Single-element list with matching target",
+   "input": "arr=[42], x=42",
+   "expected": "0",
+   "rationale": "Degenerate sorted list. Specification requires 'The lowest index i such that arr[i] == x', which is 0 here.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Single-element list with non-matching target",
+   "input": "arr=[42], x=99",
+   "expected": "-1",
+   "rationale": "Degenerate sorted list. Specification requires '-1 if x not in arr'.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Precondition violation: What happens if arr is not sorted? The spec describes arr as 'A sorted list of ints', implying a precondition. Violations are undefined behavior.",
+  "Type mismatch: What happens if arr contains non-integers or x is not an integer? The spec restricts inputs to ints, but does not specify error handling for type violations.",
+  "In-place modification: Does the function modify the original list arr? The spec only defines input/output, leaving side effects unspecified.",
+  "Runtime errors: If unexpected inputs cause internal failures (e.g., memory issues, unsupported operations), which exceptions are raised? None are documented."
+ ]
+}

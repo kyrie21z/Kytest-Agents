@@ -1,0 +1,237 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_reviewer/r2/run/workspace",
+ "spec": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a list of integer and operator tokens from infix notation to Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm.",
+  "input_domain": "Lists containing only integers and the characters '+', '-', '*', or '/'. Must satisfy the precondition that every token is either an int or one of the four operators.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Converts sequential subtraction to RPN",
+    "input": "[10, '-', 5, '-', 2]",
+    "expected": "[10, 5, '-', 2, '-']",
+    "rationale": "Directly matches the first example in the docstring: '>>> shunting_yard([10, '-', 5, '-', 2]) => [10, 5, '-', 2, '-']'",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Respects operator precedence (division before subtraction)",
+    "input": "[34, '-', 12, '/', 5]",
+    "expected": "[34, 12, 5, '/', '-']",
+    "rationale": "Matches the second example in the docstring; verifies that higher precedence operators appear earlier in the RPN output.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Handles complex expression with mixed precedence and operators",
+    "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+    "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+    "rationale": "Matches the third example in the docstring; tests interleaved operators and correct precedence ordering across multiple operations.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "empty",
+    "behavior": "Returns empty list for empty input",
+    "input": "[]",
+    "expected": "[]",
+    "rationale": "Precondition holds vacuously for empty lists; standard behavior for conversion functions where no tokens exist to reorder.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P5",
+    "category": "boundary",
+    "behavior": "Returns unchanged list for single operand",
+    "input": "[42]",
+    "expected": "[42]",
+    "rationale": "Satisfies precondition; no operators present to trigger reordering, so output must match input per 'The input tokens reordered...' specification.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P6",
+    "category": "property",
+    "behavior": "Output preserves the exact multiset of input tokens",
+    "input": "Any valid tokens list",
+    "expected": "Multiset of output equals multiset of input",
+    "rationale": "Docstring states 'The input tokens reordered into Reverse Polish Notation', implying a strict permutation without loss, duplication, or type conversion.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "boundary",
+    "behavior": "Handles minimal valid infix expression",
+    "input": "[1, '+', 2]",
+    "expected": "[1, 2, '+']",
+    "rationale": "Smallest non-trivial case satisfying precondition; aligns with standard RPN definition where operands precede their operator.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P8",
+    "category": "property",
+    "behavior": "Maintains left-to-right associativity for equal-precedence operators",
+    "input": "[1, '-', 2, '-', 3]",
+    "expected": "[1, 2, '-', 3, '-']",
+    "rationale": "Consistent with Dijkstra's shunting-yard algorithm behavior for left-associative operators and matches the structural pattern observed in P1.",
+    "confidence": "medium"
+   }
+  ],
+  "ambiguities": [
+   "Unary operator handling: The spec only demonstrates binary operators. Behavior for expressions like ['-', 5] is undefined.",
+   "Invalid infix sequences: The spec does not specify behavior for malformed inputs like [1, 2] (missing operator) or ['+', 5] (leading operator).",
+   "Precondition violations: The spec lists a precondition but explicitly states it is not a promise to raise. Behavior for floats, strings, or other types is undefined.",
+   "Parentheses support: The token set and examples do not include parentheses, leaving their handling and interaction with precedence ambiguous."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_p4_empty_list",
+    "test_p5_single_operand"
+   ],
+   "failed": [
+    {
+     "name": "test_p1_sequential_subtraction",
+     "plan_ids": [
+      "P1"
+     ],
+     "code": "from solution import shunting_yard\ndef test_p1_sequential_subtraction():\n    result = shunting_yard([10, '-', 5, '-', 2])\n    assert result == [10, 5, '-', 2, '-']",
+     "oracle_reason": "Directly matches the first example in the docstring: '>>> shunting_yard([10, '-', 5, '-', 2]) => [10, 5, '-', 2, '-']'",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p1_sequential_subtraction ________________________\ntest_solution.py:4: in test_p1_sequential_subtraction\n    assert result == [10, 5, '-', 2, '-']\nE   AssertionError: assert [10, 5, 2] == [10, 5, '-', 2, '-']\nE     \nE     At index 2 diff: 2 != '-'\nE     Right contains 2 more items, first extra item: 2\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p1_sequential_subtraction - AssertionError: ass...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p2_precedence_division_before_subtraction",
+     "plan_ids": [
+      "P2"
+     ],
+     "code": "from solution import shunting_yard\ndef test_p2_precedence_division_before_subtraction():\n    result = shunting_yard([34, '-', 12, '/', 5])\n    assert result == [34, 12, 5, '/', '-']",
+     "oracle_reason": "Matches the second example in the docstring; verifies higher precedence '/' appears before '-' in RPN output",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________ test_p2_precedence_division_before_subtraction ________________\ntest_solution.py:4: in test_p2_precedence_division_before_subtraction\n    assert result == [34, 12, 5, '/', '-']\nE   AssertionError: assert [34, 12, 5] == [34, 12, 5, '/', '-']\nE     \nE     Right contains 2 more items, first extra item: '/'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p2_precedence_division_before_subtraction - Ass...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p3_mixed_precedence",
+     "plan_ids": [
+      "P3"
+     ],
+     "code": "from solution import shunting_yard\ndef test_p3_mixed_precedence():\n    result = shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']",
+     "oracle_reason": "Matches the third example in the docstring; tests interleaved operators with correct precedence ordering across multiple operations",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_p3_mixed_precedence ___________________________\ntest_solution.py:4: in test_p3_mixed_precedence\n    assert result == [4, 9, 9, '*', '+', 10, '-', 13, '+']\nE   AssertionError: assert [4, 9, 9, 10, 13] == [4, 9, 9, '*', '+', 10, ...]\nE     \nE     At index 3 diff: 10 != '*'\nE     Right contains 4 more items, first extra item: 10\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p3_mixed_precedence - AssertionError: assert [4...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p6_multiset_preservation",
+     "plan_ids": [
+      "P6"
+     ],
+     "code": "from solution import shunting_yard\ndef test_p6_multiset_preservation():\n    result = shunting_yard([1, '+', 2, '*', 3, '-', 4])\n    input_tokens = [1, '+', 2, '*', 3, '-', 4]\n    assert len(result) == len(input_tokens)\n    for t in input_tokens:\n        assert result.count(t) == input_tokens.count(t), f\"Token {t} count mismatch\"",
+     "oracle_reason": "RPN conversion is a permutation operation; the multiset of tokens must be preserved exactly without loss, duplication, or type conversion",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_p6_multiset_preservation _________________________\ntest_solution.py:5: in test_p6_multiset_preservation\n    assert len(result) == len(input_tokens)\nE   AssertionError: assert 4 == 7\nE    +  where 4 = len([1, 2, 3, 4])\nE    +  and   7 = len([1, '+', 2, '*', 3, '-', ...])\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p6_multiset_preservation - AssertionError: asse...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p7_minimal_infix",
+     "plan_ids": [
+      "P7"
+     ],
+     "code": "from solution import shunting_yard\ndef test_p7_minimal_infix():\n    result = shunting_yard([1, '+', 2])\n    assert result == [1, 2, '+']",
+     "oracle_reason": "Smallest non-trivial case satisfying precondition; aligns with standard RPN definition where operands precede their operator",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n____________________________ test_p7_minimal_infix _____________________________\ntest_solution.py:4: in test_p7_minimal_infix\n    assert result == [1, 2, '+']\nE   AssertionError: assert [1, 2] == [1, 2, '+']\nE     \nE     Right contains one more item: '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p7_minimal_infix - AssertionError: assert [1, 2...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_p8_left_associativity",
+     "plan_ids": [
+      "P8"
+     ],
+     "code": "from solution import shunting_yard\ndef test_p8_left_associativity():\n    result = shunting_yard([1, '-', 2, '-', 3])\n    assert result == [1, 2, '-', 3, '-']",
+     "oracle_reason": "Consistent with Dijkstra's shunting-yard algorithm behavior for left-associative operators: earlier operators are emitted before later ones when precedence is equal",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n__________________________ test_p8_left_associativity __________________________\ntest_solution.py:4: in test_p8_left_associativity\n    assert result == [1, 2, '-', 3, '-']\nE   AssertionError: assert [1, 2, 3] == [1, 2, '-', 3, '-']\nE     \nE     At index 2 diff: 3 != '-'\nE     Right contains 2 more items, first extra item: 3\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p8_left_associativity - AssertionError: assert ...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 9,
+   "turns": 4,
+   "final_text": " docstring and plan don't mention parentheses, but real shunting-yard algorithms handle them. These tests don't cover parenthesized expressions.\n2. **Negative numbers / unary minus**: Not tested; the precondition only allows `int` or `'+'/'-'/'*'/'/'`.\n3. **Type validation**: The precondition says all tokens must be `int` or one of the four operators, but the code doesn't validate this. No tests check behavior with invalid inputs.\n4. **Operator associativity beyond left-assoc**: Only left-associativity for `-` is tested (p8). Right-associative operators (like exponentiation) aren't covered.\n5. **Edge cases with repeated operands/operators**: e.g., `[1, '+', 1, '+', 1, '+', 1]` isn't tested.\n6. **Return type assertion**: None of the tests explicitly assert that the return value is a `list`."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 2,
+   "pytest": {
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.75,
+   "missing_lines": [
+    33,
+    34,
+    36
+   ],
+   "mutation": {
+    "score": 0.0,
+    "killed": 0,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 5721
+  },
+  "testgen": {
+   "calls": 4,
+   "tokens": 26698
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/buggy/no_reviewer/r2/input/solution.py"
+}

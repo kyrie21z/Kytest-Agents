@@ -1,0 +1,67 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def normalize_tags(text):\n    \"\"\"Turn a comma-separated tag string into a list of normalized tags.\n\n    Each tag is stripped of surrounding whitespace and lower-cased. Empty tags\n    (including ones that are only whitespace) are dropped. Duplicates, compared\n    after normalization, are removed so that only the first occurrence is kept,\n    and the remaining tags keep their original order. A string without any\n    non-empty tag gives an empty list.\n\n    >>> normalize_tags(\" Python, ML ,python,, Data \")\n    ['python', 'ml', 'data']\n    \"\"\"\n    seen = []\n    for raw in text.split(\",\"):\n        tag = raw.strip().lower()\n        if tag and tag not in seen:\n            seen.append(tag)\n    return seen\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/single/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_docstring_example",
+    "test_empty_string",
+    "test_only_commas",
+    "test_all_duplicates_preserves_first",
+    "test_multiple_distinct_tags_order_preserved",
+    "test_return_type_is_list"
+   ],
+   "failed": [],
+   "attempts": 12,
+   "turns": 5,
+   "final_text": "gs** — No stress or medium-scale test for many unique tags to verify performance or correctness at scale.\n\n4. **Tags with internal punctuation or special characters** — e.g. `\"C++\", \"JavaScript!\"`, `\"my-tag\"`. The contract doesn't restrict tag content, so these should pass through normalization unchanged (aside from strip/lowercase). Not yet tested.\n\n5. **Non-string inputs** — The docstring says it takes a string. Passing `None`, an integer, or a list is *unspecified*; the function may crash. Since the contract doesn't promise validation, we don't assert exceptions here, but this remains untested behavior.\n\nThese gaps are minor for a simple utility like `normalize_tags`, but could matter in production if callers pass unexpected types or if tag content includes edge-case Unicode characters."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": null,
+    "killed": 0,
+    "total": 0,
+    "survivors": []
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 5,
+   "tokens": 25579
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_normalize_tags/clean/single/r2/input/solution.py"
+}

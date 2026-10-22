@@ -1,0 +1,103 @@
+{
+ "summary": "A bank account system supporting initialization, deposit, withdrawal, balance viewing, and inter-account transfers, with explicit validation for negative amounts and insufficient funds.",
+ "input_domain": "Non-negative integers for deposit/withdraw/transfer amounts; integer for initial balance; BankAccount instances for transfer targets.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Deposit positive amount",
+   "input": "account.deposit(100)",
+   "expected": "account.balance == 100, method returns 100",
+   "rationale": "Spec states: 'Deposits a certain amount into the account, increasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Withdraw partial amount",
+   "input": "account.deposit(500); account.withdraw(200)",
+   "expected": "account.balance == 300, method returns 300",
+   "rationale": "Spec states: 'Withdraws a certain amount from the account, decreasing the account balance, return the current account balance.'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Withdraw exact balance",
+   "input": "account.deposit(100); account.withdraw(100)",
+   "expected": "account.balance == 0, method returns 0",
+   "rationale": "Spec prohibits withdrawal 'greater than' balance; equal amount is the upper boundary of valid withdrawals.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "error",
+   "behavior": "Deposit negative amount",
+   "input": "account.deposit(-50)",
+   "expected": "raises ValueError('Invalid amount')",
+   "rationale": "Spec explicitly states: 'If amount is negative, raise a ValueError(\"Invalid amount\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "error",
+   "behavior": "Withdraw exceeding balance",
+   "input": "account.deposit(100); account.withdraw(150)",
+   "expected": "raises ValueError('Insufficient balance.')",
+   "rationale": "Spec explicitly states: 'If the withdrawal amount is greater than the account balance, raise a ValueError(\"Insufficient balance.\").'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "state",
+   "behavior": "Transfer between accounts",
+   "input": "a1.deposit(1000); a2 = BankAccount(); a1.transfer(a2, 300)",
+   "expected": "a1.balance == 700, a2.balance == 300",
+   "rationale": "Docstring example demonstrates state update: 'account1.balance = 700 account2.balance = 300'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Zero amount deposit",
+   "input": "account.deposit(0)",
+   "expected": "account.balance == 0, method returns 0",
+   "rationale": "Zero is not negative, thus permitted by spec; represents degenerate/no-op deposit at lower boundary.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Initialize with custom balance",
+   "input": "BankAccount(250)",
+   "expected": "account.balance == 250",
+   "rationale": "Spec mentions 'default value is 0', implying the parameter overrides the initial state.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Balance consistency after mixed operations",
+   "input": "a1.deposit(100); a1.withdraw(30); a1.view_balance()",
+   "expected": "view_balance() returns 70",
+   "rationale": "Invariant that view_balance() accurately reflects the internal state after sequential mutations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P10",
+   "category": "error",
+   "behavior": "Withdraw negative amount",
+   "input": "account.withdraw(-10)",
+   "expected": "raises ValueError('Invalid amount')",
+   "rationale": "Spec applies the negative amount check to withdraw identically to deposit.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "transfer() return value is not specified.",
+  "transfer() error handling for negative amounts or insufficient funds is not specified.",
+  "__init__() acceptance of negative initial balances is undefined.",
+  "Type hints specify int for amounts, but runtime enforcement for floats is unspecified.",
+  "view_balance() return type (int vs float) is not explicitly stated."
+ ]
+}

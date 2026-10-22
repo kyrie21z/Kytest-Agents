@@ -1,0 +1,83 @@
+{
+ "summary": "Computes the frequency of all adjacent two-letter sequences (bigrams) present in a given word, and returns a dictionary containing every possible ordered two-letter permutation of the 26 lowercase English letters as keys. Missing combinations default to a count of 0.",
+ "input_domain": "Strings composed exclusively of lowercase English alphabetic characters (a-z).",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Standard word with distinct adjacent bigrams",
+   "input": "'abcdef'",
+   "expected": "Dictionary contains all 676 lowercase bigram permutations. 'ab': 1, 'bc': 1, 'cd': 1, 'de': 1, 'ef': 1, and all other keys map to 0.",
+   "rationale": "Spec states values represent 'frequency of these two-letter combinations in the given word'. Adjacent pairs are standard bigrams. Example confirms 'ab' maps to 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Single character word",
+   "input": "'z'",
+   "expected": "Dictionary contains all 676 keys, all with value 0.",
+   "rationale": "Word length is 1, so zero adjacent pairs can be formed. Spec requires all alphabet combinations to be present regardless of word content.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "empty",
+   "behavior": "Empty string input",
+   "input": "''",
+   "expected": "Dictionary contains all 676 keys, all with value 0.",
+   "rationale": "No characters exist to extract bigrams from. Matches boundary logic for length < 2.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Overlapping and repeated bigrams",
+   "input": "'banana'",
+   "expected": "'ba': 1, 'an': 2, 'na': 1, all other keys 0.",
+   "rationale": "Standard bigram extraction captures overlapping adjacent pairs. 'banana' yields indices 0-1:'ba', 1-2:'an', 2-3:'na', 3-4:'an', 4-5:'na'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "property",
+   "behavior": "Total count invariant",
+   "input": "Any valid word w",
+   "expected": "sum(result.values()) == max(0, len(w) - 1)",
+   "rationale": "Each character except the last serves as the start of exactly one bigram. Total extracted bigrams must equal len(w)-1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Key space completeness",
+   "input": "Any valid word w",
+   "expected": "len(result) == 676 and all keys are unique 2-character strings from lowercase ASCII.",
+   "rationale": "Spec requires 'dictionary containing all possible two-letter combinations of the lowercase English alphabets'. 26*26 = 676 permutations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Return type and value types",
+   "input": "'test'",
+   "expected": "isinstance(result, dict) is True, and all values are instances of int.",
+   "rationale": "Signature specifies return type dict. Docstring states values represent 'frequency', which are integer counts.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Identical character repetition",
+   "input": "'mmmm'",
+   "expected": "'mm': 3, all other keys 0.",
+   "rationale": "Tests overlapping identical pairs. Length 4 yields 3 bigrams, all matching 'mm'.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Handling of non-lowercase or non-alphabetic characters in input (e.g., uppercase, digits, punctuation). Spec says 'input string containing alphabetic characters' but does not specify normalization, filtering, or error handling.",
+  "Exact iteration order of dictionary keys. While `itertools.permutations` yields a deterministic order, dict ordering is not contractually guaranteed across Python versions, and the spec does not mandate sorting.",
+  "Whether 'combinations' refers strictly to adjacent substrings or allows non-adjacent subsequences. Standard bigram definition implies adjacency, but the phrasing 'combinations ... in the given word' is slightly open to interpretation."
+ ]
+}

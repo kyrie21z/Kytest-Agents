@@ -1,0 +1,85 @@
+{
+ "summary": "Simulates a vending machine that manages product inventory (name, price, quantity), tracks customer coin balance, processes purchases, supports restocking, and formats item listings.",
+ "input_domain": "item_name: str; price: float; quantity: int; amount (coins): float. Internal state comprises a dictionary mapping item names to {'price': float, 'quantity': int} objects, and a numeric balance initialized upon construction.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Verify add_item populates inventory with correct structure",
+   "input": "v.add_item('Coke', 1.25, 10)",
+   "expected": "v.inventory == {'Coke': {'price': 1.25, 'quantity': 10}}",
+   "rationale": "Docstring example explicitly shows this exact key-value structure and return type (None).",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Verify insert_coin updates and returns cumulative balance",
+   "input": "v.insert_coin(3.75)",
+   "expected": "Returns 3.75",
+   "rationale": "Docstring shows inserting 1.25 returns 1.25, implying balance starts at 0.0 and accumulates with each call.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "state",
+   "behavior": "Verify purchase_item deducts price from balance and decrements inventory quantity",
+   "input": "Init -> v.add_item('Chips', 2.00, 5) -> v.insert_coin(5.00) -> v.purchase_item('Chips')",
+   "expected": "Returns 3.00; v.balance == 3.00; v.inventory['Chips']['quantity'] == 4",
+   "rationale": "Spec states purchase returns balance after purchase. Logical state transition requires balance -= price and quantity -= 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Verify display_items returns False when inventory is empty",
+   "input": "v.display_items() on fresh instance",
+   "expected": "False",
+   "rationale": "Docstring explicitly states: 'If the vending machine is empty, returns False'.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "state",
+   "behavior": "Verify purchase_item returns False for unavailable products",
+   "input": "v.purchase_item('GhostItem')",
+   "expected": "False",
+   "rationale": "Docstring example shows purchasing an unlisted item returns False. Spec says 'returns False' if unsuccessful/out of stock.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Verify restock_item returns True and updates quantity for existing items",
+   "input": "v.restock_item('Coke', 10) where 'Coke' exists with qty 10",
+   "expected": "Returns True; v.inventory['Coke']['quantity'] == 20",
+   "rationale": "Docstring example shows restocking existing item returns True. 'Replenishes' implies additive quantity update.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Verify insert_coin handles zero amount gracefully",
+   "input": "v.insert_coin(0.0)",
+   "expected": "Returns 0.0",
+   "rationale": "Spec accepts float for amount. Zero is a valid financial boundary condition that should not alter or crash balance.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Verify balance invariant across mixed operation sequences",
+   "input": "Any sequence of insert_coin(x) and successful purchase_item(y)",
+   "expected": "v.balance == sum(inserted_amounts) - sum(purchased_prices)",
+   "rationale": "Invariant derived from spec definitions: insert_coin adds to balance, purchase_item subtracts price. Must hold regardless of order.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Format of display_items() when multiple products exist (docstring claims 'returns a list' but example shows a single formatted string).",
+  "Behavior when purchase_item is called with insufficient funds (spec only documents out-of-stock returning False; silent failure vs balance check is unspecified).",
+  "Whether restock_item overwrites or adds to existing quantity (spec says 'replenishes', implying addition, but not explicitly defined).",
+  "Handling of negative prices or quantities in add_item/insert_coin (no preconditions stated, behavior is undefined).",
+  "Initial value of balance in __init__ (assumed 0.0, but not explicitly documented)."
+ ]
+}

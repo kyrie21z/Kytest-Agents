@@ -1,0 +1,87 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def allocate(total, weights):\n    \"\"\"Split a non-negative integer total into integer shares proportional to weights.\n\n    weights is a list of non-negative ints with at least one positive entry.\n    Every entry first receives floor(total * w / sum(weights)). The units left\n    over are then handed out one each to the entries with the largest fractional\n    remainder (total * w mod sum(weights)); ties go to the entry with the lower\n    index. The result is a new list of ints, one per weight, summing to total.\n    Entries with weight 0 always receive 0.\n\n    Raises ValueError if total is negative, weights is empty, any weight is\n    negative, or all weights are zero.\n\n    >>> allocate(100, [1, 1, 1])\n    [34, 33, 33]\n    >>> allocate(10, [3, 0, 7])\n    [3, 0, 7]\n    \"\"\"\n    if total < 0 or not weights or any(w < 0 for w in weights) or not any(weights):\n        raise ValueError(\"invalid allocation request\")\n    whole = sum(weights)\n    shares = [total * w // whole for w in weights]\n    remainders = [total * w % whole for w in weights]\n    leftover = total - sum(shares)\n    order = sorted(range(len(weights)), key=lambda i: (-remainders[i], -i))\n    for i in order[:leftover]:\n        shares[i] += 1\n    return shares\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/single/r1/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "completed",
+   "accepted": [
+    "test_zero_weight_entry",
+    "test_shares_sum_to_total",
+    "test_negative_total_raises",
+    "test_empty_weights_raises",
+    "test_single_weight_receives_all",
+    "test_total_zero_all_zeros"
+   ],
+   "failed": [
+    {
+     "name": "test_docstring_example_equal_weights",
+     "plan_ids": [],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_docstring_example_equal_weights():\n    '''>>> allocate(100, [1, 1, 1])\\n     [34, 33, 33]'''\n    result = allocate(100, [1, 1, 1])\n    assert result == [34, 33, 33], \"Equal weights should distribute evenly with tie-break to lower index\"",
+     "oracle_reason": "With three equal weights, each share starts at floor(100/3)=33. One leftover unit goes to index 0 because all remainders are equal and ties go to the lower index.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_____________________ test_docstring_example_equal_weights _____________________\ntest_solution.py:7: in test_docstring_example_equal_weights\n    assert result == [34, 33, 33], \"Equal weights should distribute evenly with tie-break to lower index\"\nE   AssertionError: Equal weights should distribute evenly with tie-break to lower index\nE   assert [33, 33, 34] == [34, 33, 33]\nE     \nE     At index 0 diff: 33 != 34\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_docstring_example_equal_weights - AssertionErro...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_tie_breaking_lower_index_wins",
+     "plan_ids": [],
+     "code": "import pytest\nfrom solution import allocate\n\ndef test_tie_breaking_lower_index_wins():\n    '''When two entries have equal fractional remainders, the lower index gets the extra unit.'''\n    result = allocate(5, [1, 1])\n    assert result == [3, 2], \"Tie in remainder must go to lower index\"",
+     "oracle_reason": "whole=2, both shares start at floor(5/2)=2, both remainders are 1. With one leftover, tie goes to index 0, giving [3, 2].",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________________ test_tie_breaking_lower_index_wins ______________________\ntest_solution.py:7: in test_tie_breaking_lower_index_wins\n    assert result == [3, 2], \"Tie in remainder must go to lower index\"\nE   AssertionError: Tie in remainder must go to lower index\nE   assert [2, 3] == [3, 2]\nE     \nE     At index 0 diff: 2 != 3\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_tie_breaking_lower_index_wins - AssertionError:...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 12,
+   "turns": 6,
+   "final_text": "ainders[i], -i)`, which actually favors the *higher* index on ties. Two candidate tests (`test_docstring_example_equal_weights` and `test_tie_breaking_lower_index_wins`) exposed this contract-vs-implementation mismatch and were correctly rejected. A definitive tie-breaking test would need to choose between validating the docstring or the actual code.\n- **Missing precondition tests**: Separate tests for `any(w < 0)` and `not any(weights)` (all zeros) were not submitted; these could be added as complementary cases.\n- **Return-type breadth**: Only one test checks `isinstance(result, list)` and element types; broader type-checking across varied inputs is not covered.\n- **Large-scale / boundary inputs**: No tests with very large totals, many weights, or extreme weight ratios (beyond `[1, 99]`)."
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 6,
+   "pytest": {
+    "passed": 6,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.8571428571428571,
+    "killed": 6,
+    "total": 7,
+    "survivors": [
+     {
+      "line": 23,
+      "description": "Mod -> Mult"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 6,
+   "tokens": 39579
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/orig_allocate/buggy/single/r1/input/solution.py"
+}

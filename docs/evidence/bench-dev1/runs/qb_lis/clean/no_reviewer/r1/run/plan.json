@@ -1,0 +1,84 @@
+{
+ "summary": "Computes the integer length of the longest monotonically increasing subsequence within a given sequence of unique integers.",
+ "input_domain": "Any Python sequence (e.g., list, tuple) composed exclusively of unique integers, including empty and single-element sequences.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns the correct LIS length for the documented example",
+   "input": "lis([4, 1, 5, 3, 7, 6, 2])",
+   "expected": "3",
+   "rationale": "Directly matches the docstring example: `>>> lis([4, 1, 5, 3, 7, 6, 2])` returns `3`.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "empty",
+   "behavior": "Handles empty sequence input",
+   "input": "lis([])",
+   "expected": "0",
+   "rationale": "The spec defines output as 'the length of the longest... subsequence'. An empty sequence has no elements, so the length is 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Handles single-element sequence",
+   "input": "lis([42])",
+   "expected": "1",
+   "rationale": "A single element trivially forms an increasing subsequence. Meets 'sequence of ints' and 'unique' precondition.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Returns full length for already sorted ascending input",
+   "input": "lis([1, 2, 3, 4, 5])",
+   "expected": "5",
+   "rationale": "The entire sequence is 'monotonically increasing', so the longest subsequence spans the whole input per spec.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Returns minimum length for reverse-sorted input",
+   "input": "lis([5, 4, 3, 2, 1])",
+   "expected": "1",
+   "rationale": "No two elements form an increasing pair. The longest increasing subsequence consists of any single element, yielding length 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "property",
+   "behavior": "Correctly selects optimal path through interleaved values",
+   "input": "lis([1, 3, 2, 4, 6, 5])",
+   "expected": "4",
+   "rationale": "Contains overlapping increasing paths. Valid subsequences like [1, 2, 4, 6] or [1, 3, 4, 6] both achieve the maximum length of 4, consistent with the spec's output definition.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Accepts alternative sequence container types",
+   "input": "lis((-10, 0, 10))",
+   "expected": "3",
+   "rationale": "Spec specifies input as 'A sequence of ints'. Tuples are standard Python sequences satisfying the uniqueness precondition.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Handles negative integers correctly",
+   "input": "lis([-5, -2, -8, -1, 0])",
+   "expected": "4",
+   "rationale": "Tests numeric range handling. [-5, -2, -1, 0] is strictly increasing and respects the 'unique ints' precondition, yielding length 4.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when `arr` contains duplicate integers violates the 'unique' precondition; undefined.",
+  "Behavior when `arr` contains non-integer elements violates the 'sequence of ints' requirement; undefined.",
+  "Whether 'monotonically increasing' implies strict or non-strict inequality is resolved by the uniqueness precondition, but would be ambiguous if applied to non-unique inputs.",
+  "Performance expectations, time complexity, or memory usage limits are not specified in the docstring."
+ ]
+}

@@ -1,0 +1,192 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": true,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    precedence = {'+': 1, '-': 1, '*': 2, '/': 2}\n    rpntokens = []\n    opstack = []\n    for token in tokens:\n        if isinstance(token, int):\n            rpntokens.append(token)\n        else:\n            while opstack and precedence[token] <= precedence[opstack[-1]]:\n                rpntokens.append(opstack.pop())\n            opstack.append(token)\n    while opstack:\n        rpntokens.append(opstack.pop())\n    return rpntokens\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/no_reviewer/r2/run/workspace",
+ "spec": "def shunting_yard(tokens):\n    \"\"\"\n    Infix to RPN Conversion\n    shunting-yard\n\n\n    Uses Dijkstra's shunting-yard algorithm to transform infix notation into equivalent Reverse Polish Notation.\n\n    Input:\n        tokens: A list of tokens in infix notation\n\n    Precondition:\n        all(isinstance(token, int) or token in '+-*/' for token in tokens)\n\n    Output:\n        The input tokens reordered into Reverse Polish Notation\n\n    Examples:\n        >>> shunting_yard([10, '-', 5, '-', 2])\n        [10, 5, '-', 2, '-']\n        >>> shunting_yard([34, '-', 12, '/', 5])\n        [34, 12, 5, '/' ,'-']\n        >>> shunting_yard([4, '+', 9, '*', 9, '-', 10, '+', 13])\n        [4, 9, 9, '*', '+', 10, '-', 13, '+']\n    \"\"\"\n    ...\n",
+ "plan": {
+  "summary": "Converts a sequence of integer operands and +-*/ operator tokens from infix notation to equivalent Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm, applying standard operator precedence and left associativity.",
+  "input_domain": "Lists containing only integers and the string operators '+', '-', '*', '/'.",
+  "items": [
+   {
+    "id": "P1",
+    "category": "normal",
+    "behavior": "Basic binary operation with subtraction",
+    "input": "[10, '-', 5]",
+    "expected": "[10, 5, '-']",
+    "rationale": "Extends Example 1 pattern; verifies basic operand-operator reordering per 'transform infix notation into equivalent Reverse Polish Notation.'",
+    "confidence": "high"
+   },
+   {
+    "id": "P2",
+    "category": "normal",
+    "behavior": "Operator precedence: multiplication over addition",
+    "input": "[4, '+', 9, '*', 2]",
+    "expected": "[4, 9, 2, '*', '+']",
+    "rationale": "Per 'Uses Dijkstra's shunting-yard algorithm...', higher-precedence operators ('*', '/') bind tighter than lower ('+', '-'), matching Example 2 logic.",
+    "confidence": "high"
+   },
+   {
+    "id": "P3",
+    "category": "normal",
+    "behavior": "Left associativity for equal precedence operators",
+    "input": "[1, '+', 2, '+', 3]",
+    "expected": "[1, 2, '+', 3, '+']",
+    "rationale": "Standard shunting-yard behavior requires left-to-right evaluation for '+'; pops equal-precedence operators before pushing new ones.",
+    "confidence": "high"
+   },
+   {
+    "id": "P4",
+    "category": "boundary",
+    "behavior": "Single operand expression",
+    "input": "[42]",
+    "expected": "[42]",
+    "rationale": "Minimal valid input satisfying the precondition; should return the operand unchanged as it is already in postfix form.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P5",
+    "category": "empty",
+    "behavior": "Empty input list",
+    "input": "[]",
+    "expected": "[]",
+    "rationale": "Precondition holds vacuously; typical shunting-yard implementation returns an empty output list for empty input.",
+    "confidence": "medium"
+   },
+   {
+    "id": "P6",
+    "category": "normal",
+    "behavior": "Mixed precedence and associativity chain",
+    "input": "[2, '*', 3, '+', 4, '-', 5]",
+    "expected": "[2, 3, '*', 4, '+', 5, '-']",
+    "rationale": "Tests interleaved high and low precedence operators with left associativity, verifying stack management across multiple steps per algorithm spec.",
+    "confidence": "high"
+   },
+   {
+    "id": "P7",
+    "category": "normal",
+    "behavior": "Division followed by multiplication (equal precedence)",
+    "input": "[10, '/', 2, '*', 3]",
+    "expected": "[10, 2, '/', 3, '*']",
+    "rationale": "Verifies left associativity for '/' and '*' which share the same precedence level, consistent with standard arithmetic rules implied by the examples.",
+    "confidence": "high"
+   },
+   {
+    "id": "P8",
+    "category": "property",
+    "behavior": "Complex nesting without parentheses",
+    "input": "[1, '+', 2, '*', 3, '/', 4]",
+    "expected": "[1, 2, '+', 3, 4, '/', '*']",
+    "rationale": "Confirms correct ordering when lower precedence operator precedes higher precedence sub-expressions, relying on stack push/pop mechanics described in the algorithm name.",
+    "confidence": "high"
+   }
+  ],
+  "ambiguities": [
+   "Behavior when tokens violate the precondition (e.g., floats, parentheses, or non-operator strings). The spec defines this as undefined behavior.",
+   "Expected output for an empty list []. While the precondition holds vacuously, the spec does not explicitly state whether to return [], raise ValueError, or behave differently.",
+   "Representation of negative numbers. It is unclear if unary minus is supported as a separate token ['-', 5] or if negative values must be passed as single integer tokens [-5].",
+   "Handling of right-associative operators. The spec lists only +-*/, which are traditionally left-associative, but does not explicitly guarantee this behavior for future extensions or edge cases."
+  ]
+ },
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_p1_basic_subtraction",
+    "test_p2_precedence_mul_over_add",
+    "test_p3_left_associativity",
+    "test_p4_single_operand",
+    "test_p5_empty_input",
+    "test_p6_mixed_chain",
+    "test_p7_div_then_mul",
+    "test_extra_return_type",
+    "test_extra_docstring_example_1",
+    "test_extra_docstring_example_2"
+   ],
+   "failed": [
+    {
+     "name": "test_p8_complex_nesting",
+     "plan_ids": [
+      "P8"
+     ],
+     "code": "from solution import shunting_yard\n\ndef test_p8_complex_nesting():\n    \"\"\"P8: lower-prec '+' before higher prec '*' and '/' chain.\n    \n    NOTE: The planner's expected value [1, 2, '+', 3, 4, '/', '*']\n    corresponds to '(1 + 2) * (3 / 4)'. However, the actual expression\n    '1 + 2 * 3 / 4' should produce '[1, 2, 3, '*', 4, '/', '+']'\n    because '*' and '/' bind tighter than '+'. We keep the planner's\n    expected value here so the reviewer can decide whether the test\n    or the code is wrong.\n    \"\"\"\n    result = shunting_yard([1, '+', 2, '*', 3, '/', 4])\n    assert result == [1, 2, '+', 3, 4, '/', '*']",
+     "oracle_reason": "Per the planner's expectation, this tests ordering when lower precedence operator precedes higher precedence sub-expressions.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n___________________________ test_p8_complex_nesting ____________________________\ntest_solution.py:14: in test_p8_complex_nesting\n    assert result == [1, 2, '+', 3, 4, '/', '*']\nE   AssertionError: assert [1, 2, 3, '*', 4, '/', ...] == [1, 2, '+', 3, 4, '/', ...]\nE     \nE     At index 2 diff: 3 != '+'\nE     Use -v to get more diff\n=========================== short test summary info ============================\nFAILED test_solution.py::test_p8_complex_nesting - AssertionError: assert [1,...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 14,
+   "turns": 8,
+   "final_text": "Results analysis:\n- `test_p7_div_then_mul` and `test_extra_return_type` accepted ✓\n- `test_p8_complex_nesting` failed as expected — the planner's expected value doesn't match the actual algorithm output. Per instructions, I must NOT change the expected value.\n- Two docstring example tests were rejected due to contract_quote format issues.\n\nLet me resubmit the failing/rejected ones with corrected contract_quotes:"
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 10,
+   "pytest": {
+    "passed": 10,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 1.0,
+   "missing_lines": [],
+   "mutation": {
+    "score": 0.3333333333333333,
+    "killed": 1,
+    "total": 3,
+    "survivors": [
+     {
+      "line": 26,
+      "description": "constant 1 -> 0"
+     },
+     {
+      "line": 33,
+      "description": "constant 1 -> 0"
+     }
+    ]
+   },
+   "plan_coverage": {
+    "cited": [
+     "P1",
+     "P2",
+     "P3",
+     "P4",
+     "P5",
+     "P6",
+     "P7",
+     "P8"
+    ],
+    "missing": [],
+    "ratio": 1.0
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "planner",
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "planner": {
+   "calls": 1,
+   "tokens": 7303
+  },
+  "testgen": {
+   "calls": 8,
+   "tokens": 53971
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/qb_shunting_yard/clean/no_reviewer/r2/input/solution.py"
+}

@@ -1,0 +1,92 @@
+{
+ "summary": "Performs a binary search on a sorted list of integers to locate the first occurrence of a target value, returning its zero-based index or -1 if the value is absent.",
+ "input_domain": "arr: a sorted list of integers; x: an integer value to search for",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Locates a target value appearing in the middle of the list",
+   "input": "arr=[10, 20, 30, 40, 50], x=30",
+   "expected": "2",
+   "rationale": "Specification states output is 'The lowest index i such that arr[i] == x'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Locates a target value at the very beginning of the list",
+   "input": "arr=[10, 20, 30], x=10",
+   "expected": "0",
+   "rationale": "Specification states output is 'The lowest index i such that arr[i] == x'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Locates a target value at the very end of the list",
+   "input": "arr=[10, 20, 30], x=30",
+   "expected": "2",
+   "rationale": "Specification states output is 'The lowest index i such that arr[i] == x'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Handles an empty input list",
+   "input": "arr=[], x=5",
+   "expected": "-1",
+   "rationale": "Specification states output is '-1 if x not in arr'",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Returns the first index among multiple consecutive duplicates of the target",
+   "input": "arr=[3, 4, 5, 5, 5, 5, 6], x=5",
+   "expected": "2",
+   "rationale": "Docstring example explicitly shows this case returning 2, consistent with 'lowest index i' requirement",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Returns -1 when target is strictly smaller than all elements",
+   "input": "arr=[10, 20, 30], x=5",
+   "expected": "-1",
+   "rationale": "Specification states output is '-1 if x not in arr'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Returns -1 when target is strictly larger than all elements",
+   "input": "arr=[10, 20, 30], x=40",
+   "expected": "-1",
+   "rationale": "Specification states output is '-1 if x not in arr'",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Correctly identifies presence in a single-element list",
+   "input": "arr=[7], x=7",
+   "expected": "0",
+   "rationale": "Specification states output is 'The lowest index i such that arr[i] == x'",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "property",
+   "behavior": "Correctly identifies absence in a single-element list",
+   "input": "arr=[7], x=2",
+   "expected": "-1",
+   "rationale": "Specification states output is '-1 if x not in arr'",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when arr is not actually sorted (spec assumes sorted but does not define validation or fallback)",
+  "Behavior when arr contains non-integer types (spec says 'list of ints' but does not specify type enforcement)",
+  "Behavior when x is not an integer (spec says 'value to find' without strict typing)"
+ ]
+}

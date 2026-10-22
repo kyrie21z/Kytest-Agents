@@ -1,0 +1,111 @@
+{
+ "status": "completed",
+ "next": "END",
+ "round": 1,
+ "config": {
+  "planner": false,
+  "reviewer": false,
+  "max_rounds": 2
+ },
+ "source": "class VendingMachine:\n    \"\"\"\n    This is a class to simulate a vending machine, including adding products, inserting coins, purchasing products, viewing balance, replenishing product inventory, and displaying product information.\n    \"\"\"\n\n    def __init__(self):\n        \"\"\"\n        Initializes the vending machine's inventory and balance.\n        \"\"\"\n        self.inventory = {}\n        self.balance = 0\n\n    def add_item(self, item_name, price, quantity):\n        \"\"\"\n        Adds a product to the vending machine's inventory.\n        :param item_name: The name of the product to be added, str.\n        :param price: The price of the product to be added, float.\n        :param quantity: The quantity of the product to be added, int.\n        :return: None\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.add_item('Coke', 1.25, 10)\n        >>> vendingMachine.inventory\n        {'Coke': {'price': 1.25, 'quantity': 10}}\n\n        \"\"\"\n        if not self.restock_item(item_name, quantity):\n            self.inventory[item_name] = {'price': price, 'quantity': quantity}\n\n    def insert_coin(self, amount):\n        \"\"\"\n        Inserts coins into the vending machine.\n        :param amount: The amount of coins to be inserted, float.\n        :return: The balance of the vending machine after the coins are inserted, float.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.insert_coin(1.25)\n        1.25\n\n        \"\"\"\n        self.balance += amount\n        return self.balance\n\n    def purchase_item(self, item_name):\n        \"\"\"\n        Purchases a product from the vending machine and returns the balance after the purchase and display purchase unsuccessful if the product is out of stock.\n        :param item_name: The name of the product to be purchased, str.\n        :return: If successful, returns the balance of the vending machine after the product is purchased, float,otherwise,returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.balance = 1.25\n        >>> vendingMachine.purchase_item('Coke')\n        0.0\n        >>> vendingMachine.purchase_item('Pizza')\n        False\n\n        \"\"\"\n        if item_name in self.inventory:\n            item = self.inventory[item_name]\n            if item['quantity'] > 0 and self.balance >= item['price']:\n                self.balance -= item['price']\n                item['quantity'] -= 1\n                return self.balance\n            else:\n                return False\n        else:\n            return False\n\n    def restock_item(self, item_name, quantity):\n        \"\"\"\n        Replenishes the inventory of a product already in the vending machine.\n        :param item_name: The name of the product to be replenished, str.\n        :param quantity: The quantity of the product to be replenished, int.\n        :return: If the product is already in the vending machine, returns True, otherwise, returns False.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10}}\n        >>> vendingMachine.restock_item('Coke', 10)\n        True\n        >>> vendingMachine.restock_item('Pizza', 10)\n        False\n\n        \"\"\"\n        self.inventory.setdefault(item_name, {'price': 0, 'quantity': 0})['quantity'] += quantity\n        return True\n\n    def display_items(self):\n        \"\"\"\n        Displays the products in the vending machine.\n        :return: If the vending machine is empty, returns False, otherwise, returns a list of the products in the vending machine, str.\n        >>> vendingMachine = VendingMachine()\n        >>> vendingMachine.display_items()\n        False\n        >>> vendingMachine.inventory = {'Coke': {'price': 1.25, 'quantity': 10} }\n        >>> vendingMachine.display_items()\n        'Coke - $1.25 [10]'\n\n        \"\"\"\n        if not self.inventory:\n            return False\n        else:\n            items = []\n            for item_name, item_info in self.inventory.items():\n                items.append(f\"{item_name} - ${item_info['price']} [{item_info['quantity']}]\")\n            return '\\n'.join(items)\n",
+ "workspace": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/single/r2/run/workspace",
+ "spec": null,
+ "plan": null,
+ "testgen": [
+  {
+   "round": 1,
+   "status": "max_turns",
+   "accepted": [
+    "test_init_empty",
+    "test_insert_coin_accumulates",
+    "test_purchase_success",
+    "test_purchase_insufficient_funds",
+    "test_display_empty",
+    "test_display_single_item",
+    "test_purchase_out_of_stock",
+    "test_insert_coin_zero",
+    "test_purchase_exact_balance"
+   ],
+   "failed": [
+    {
+     "name": "test_add_item_preserves_price",
+     "plan_ids": [],
+     "code": "from solution import VendingMachine\n\ndef test_add_item_preserves_price():\n    \"\"\"Verify add_item stores the correct price for a new item.\"\"\"\n    vm = VendingMachine()\n    vm.add_item('Coke', 1.25, 10)\n    assert vm.inventory['Coke']['price'] == 1.25\n    assert vm.inventory['Coke']['quantity'] == 10",
+     "oracle_reason": "The doctest example shows that after add_item('Coke', 1.25, 10), inventory['Coke'] must have price 1.25 and quantity 10. The contract requires both fields to be stored.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n________________________ test_add_item_preserves_price _________________________\ntest_solution.py:7: in test_add_item_preserves_price\n    assert vm.inventory['Coke']['price'] == 1.25\nE   assert 0 == 1.25\n=========================== short test summary info ============================\nFAILED test_solution.py::test_add_item_preserves_price - assert 0 == 1.25\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_restock_unknown_returns_false",
+     "plan_ids": [],
+     "code": "from solution import VendingMachine\n\ndef test_restock_unknown_returns_false():\n    \"\"\"Verify restock_item returns False for an item not in inventory.\"\"\"\n    vm = VendingMachine()\n    result = vm.restock_item('UnknownItem', 5)\n    assert result is False",
+     "oracle_reason": "The docstring explicitly states the method returns False when the product is not already in the vending machine. The doctest confirms restock_item('Pizza', 10) returns False.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n______________________ test_restock_unknown_returns_false ______________________\ntest_solution.py:7: in test_restock_unknown_returns_false\n    assert result is False\nE   assert True is False\n=========================== short test summary info ============================\nFAILED test_solution.py::test_restock_unknown_returns_false - assert True is ...\n1 failed in 0.01s\n"
+    },
+    {
+     "name": "test_display_multiple_items",
+     "plan_ids": [],
+     "code": "from solution import VendingMachine\n\ndef test_display_multiple_items():\n    \"\"\"Verify display_items joins multiple items with newline separators.\"\"\"\n    vm = VendingMachine()\n    vm.inventory = {\n        'Coke': {'price': 1.25, 'quantity': 10},\n        'Chips': {'price': 2.50, 'quantity': 5}\n    }\n    result = vm.display_items()\n    lines = result.split('\\n')\n    assert len(lines) == 2\n    assert 'Coke - $1.25 [10]' in lines\n    assert 'Chips - $2.50 [5]' in lines",
+     "oracle_reason": "display_items iterates all inventory entries, formats each as '{name} - ${price} [{quantity}]', and joins them with newlines. With two items, we expect exactly 2 lines containing the respective formatted strings.",
+     "diagnostic": "F                                                                        [100%]\n=================================== FAILURES ===================================\n_________________________ test_display_multiple_items __________________________\ntest_solution.py:14: in test_display_multiple_items\n    assert 'Chips - $2.50 [5]' in lines\nE   AssertionError: assert 'Chips - $2.50 [5]' in ['Coke - $1.25 [10]', 'Chips - $2.5 [5]']\n=========================== short test summary info ============================\nFAILED test_solution.py::test_display_multiple_items - AssertionError: assert...\n1 failed in 0.01s\n"
+    }
+   ],
+   "attempts": 20,
+   "turns": 8,
+   "final_text": "Good progress - 8 accepted total. The last 2 were rejected because I quoted implementation code instead of docstrings. Let me fix them:"
+  }
+ ],
+ "verification": [
+  {
+   "round": 1,
+   "tests": 9,
+   "pytest": {
+    "passed": 9,
+    "failed": 0,
+    "errors": 0,
+    "all_pass": true
+   },
+   "coverage": 0.8275862068965517,
+   "missing_lines": [
+    26,
+    27,
+    65,
+    81,
+    82
+   ],
+   "mutation": {
+    "score": 0.4,
+    "killed": 2,
+    "total": 5,
+    "survivors": [
+     {
+      "line": 58,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     },
+     {
+      "line": 81,
+      "description": "constant 0 -> 1"
+     }
+    ]
+   }
+  }
+ ],
+ "reviews": [],
+ "suspected_bugs": [],
+ "history": [
+  "testgen",
+  "verifier"
+ ],
+ "errors": [],
+ "degraded": [],
+ "usage": {
+  "testgen": {
+   "calls": 8,
+   "tokens": 66696
+  }
+ },
+ "target": "/home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_vending_machine/buggy/single/r2/input/solution.py"
+}

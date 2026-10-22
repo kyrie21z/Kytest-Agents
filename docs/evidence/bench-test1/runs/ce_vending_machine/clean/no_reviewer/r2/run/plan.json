@@ -1,0 +1,85 @@
+{
+ "summary": "Simulates a vending machine that manages product inventory, tracks customer balance, supports purchasing, restocking, and displaying items.",
+ "input_domain": "item_name (str), price (float), quantity (int), amount (float). Internal state includes inventory (dict mapping product names to dicts containing 'price' and 'quantity') and balance (float).",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Adds a new product to inventory",
+   "input": "add_item('Soda', 2.0, 5)",
+   "expected": "returns None; inventory['Soda'] == {'price': 2.0, 'quantity': 5}",
+   "rationale": "Docstring specifies that add_item stores the provided name, price, and quantity in the inventory dictionary.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Accumulates inserted coin value to balance",
+   "input": "insert_coin(0.50)",
+   "expected": "returns 0.50; balance == 0.50",
+   "rationale": "Docstring example shows inserting an amount updates the balance to that value.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "state",
+   "behavior": "Deducts price and decrements stock on successful purchase",
+   "input": "inventory={'Coke': {'price': 1.25, 'quantity': 10}}, balance=1.25 -> purchase_item('Coke')",
+   "expected": "returns 0.0; inventory['Coke']['quantity'] == 9",
+   "rationale": "Docstring example demonstrates successful purchase returns zero balance and implies stock reduction.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Returns false indicator when inventory is empty",
+   "input": "display_items() on fresh instance",
+   "expected": "returns False",
+   "rationale": "Docstring explicitly states returns False if the vending machine is empty.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Handles missing or out-of-stock products gracefully",
+   "input": "purchase_item('NonExistent')",
+   "expected": "returns False",
+   "rationale": "Docstring states returns False if purchase is unsuccessful or product is out of stock; example confirms.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Increases stock for existing items",
+   "input": "inventory={'Coke': {'price': 1.25, 'quantity': 5}} -> restock_item('Coke', 10)",
+   "expected": "returns True; inventory['Coke']['quantity'] == 15",
+   "rationale": "Docstring specifies replenishing an existing product returns True and adds the specified quantity.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Handles zero quantity addition",
+   "input": "add_item('Water', 1.0, 0)",
+   "expected": "returns None; inventory['Water']['quantity'] == 0",
+   "rationale": "Zero is a valid integer boundary for quantity; spec does not forbid it, so inventory should reflect zero stock.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Maintains correct balance across sequential transactions",
+   "input": "balance=2.50, inventory={'A': {'price': 1.0, 'quantity': 1}, 'B': {'price': 1.0, 'quantity': 1}} -> purchase_item('A') then purchase_item('B')",
+   "expected": "First call returns 1.50; second returns 0.50",
+   "rationale": "Tests invariant that balance decreases by item price per successful purchase without affecting other items.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "display_items() return type contradiction: docstring says 'returns a list... str' but example shows a formatted string. Behavior for multiple items is unspecified.",
+  "purchase_item() behavior with insufficient funds: spec only mentions returning False for out-of-stock/unsuccessful, but does not clarify if insufficient balance triggers False or another mechanism.",
+  "add_item() with duplicate item_name: unclear whether it overwrites the existing entry or increments the quantity.",
+  "insert_coin() with negative amount: spec allows float but does not define handling for negative values.",
+  "Initial state of balance and inventory in __init__: not explicitly stated, though examples imply {} and 0.0."
+ ]
+}

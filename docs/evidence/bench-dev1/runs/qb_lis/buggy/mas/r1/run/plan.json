@@ -1,0 +1,84 @@
+{
+ "summary": "Computes the length of the longest strictly increasing subsequence in a given sequence of unique integers.",
+ "input_domain": "Any Python sequence (e.g., list, tuple) containing unique integers.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "empty",
+   "behavior": "Return length for empty input",
+   "input": "[]",
+   "expected": "0",
+   "rationale": "The spec defines the output as 'The length of the longest monotonically increasing subsequence'. An empty sequence has no elements, so the length must be 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Return length for single-element input",
+   "input": "[42]",
+   "expected": "1",
+   "rationale": "A single element trivially satisfies the increasing condition. Per the output definition, the length is 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Return full length for already sorted input",
+   "input": "[1, 2, 3, 4, 5]",
+   "expected": "5",
+   "rationale": "The entire sequence is strictly increasing. By definition, the longest increasing subsequence is the sequence itself, yielding length 5.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Return minimal length for reverse-sorted input",
+   "input": "[5, 4, 3, 2, 1]",
+   "expected": "1",
+   "rationale": "No two elements form an increasing pair. The longest increasing subsequence consists of any single element, so the length is 1.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Match provided docstring example",
+   "input": "[4, 1, 5, 3, 7, 6, 2]",
+   "expected": "3",
+   "rationale": "Directly cited from the specification example: '>>> lis([4, 1, 5, 3, 7, 6, 2])\\n        3'. Valid subsequences include [1, 3, 7] or [1, 5, 7].",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Handle negative integers correctly",
+   "input": "[-10, -5, 0, 5]",
+   "expected": "4",
+   "rationale": "The spec accepts 'A sequence of ints' without range restrictions. Negative integers follow standard numeric ordering, making the full sequence increasing.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Accept tuple sequences",
+   "input": "(10, 20, 5, 30)",
+   "expected": "3",
+   "rationale": "The spec states 'Input: arr: A sequence of ints'. Tuples are standard Python sequences and should yield the same result as equivalent lists.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P8",
+   "category": "property",
+   "behavior": "Verify non-contiguous increasing patterns",
+   "input": "[1, 5, 2, 6, 3, 7]",
+   "expected": "4",
+   "rationale": "Tests interleaved elements. The longest increasing subsequence is [1, 2, 3, 7] (or [1, 2, 6, 7]), confirming the algorithm correctly skips non-increasing elements while maintaining order.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Precondition violation (non-unique elements): e.g., [1, 2, 2, 3]. The spec guarantees uniqueness but does not define behavior for duplicates. It is unclear whether equality breaks the increasing condition or should be handled differently.",
+  "Monotonic vs Strict semantics: With the uniqueness precondition, monotonic increasing implies strict increasing. If duplicates were permitted, it would be ambiguous whether equality counts as increasing.",
+  "Non-integer elements: e.g., [1, 'a', 3]. The spec specifies 'sequence of ints' but does not state whether type validation or a TypeError should occur on invalid types.",
+  "Unsupported sequence types: e.g., generators or numpy arrays. The spec says 'sequence', but it is undefined whether the implementation requires indexable iterables or supports arbitrary iterators."
+ ]
+}

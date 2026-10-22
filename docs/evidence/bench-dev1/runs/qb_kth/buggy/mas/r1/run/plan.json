@@ -1,0 +1,84 @@
+{
+ "summary": "Returns the k-th smallest integer from a list of integers, behaving identically to accessing the k-th index of the sorted list.",
+ "input_domain": "A list of integers `arr` and an integer `k` satisfying the precondition `0 <= k < len(arr)`.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns correct k-th smallest value for unsorted distinct positive integers",
+   "input": "arr=[7, 3, 8, 1, 5], k=2",
+   "expected": "3",
+   "rationale": "Spec states it is an 'efficient equivalent to sorted(arr)[k]'. Sorted version is [1,3,5,7,8]; index 2 yields 3.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Returns minimum element when k=0",
+   "input": "arr=[10, 20, 30], k=0",
+   "expected": "10",
+   "rationale": "Spec defines output as 'The kth-lowest element of arr (0-based)', equivalent to sorted(arr)[0].",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Returns maximum element when k=len(arr)-1",
+   "input": "arr=[10, 20, 30], k=2",
+   "expected": "30",
+   "rationale": "Equivalent to sorted(arr)[len(arr)-1], which corresponds to the highest value per 'kth-lowest' definition.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Handles duplicate values correctly by counting them in rank order",
+   "input": "arr=[4, 2, 4, 1, 2], k=1",
+   "expected": "2",
+   "rationale": "'equivalent to sorted(arr)[k]' implies duplicates are included in the sorted sequence; sorted is [1,2,2,4,4], index 1 is 2.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Correctly orders and selects from negative integers",
+   "input": "arr=[-5, -1, -3, 0], k=1",
+   "expected": "-3",
+   "rationale": "Spec requires 'The kth-lowest element of arr (0-based)' and equivalence to 'sorted(arr)[k]'. Sorting yields [-5,-3,-1,0], index 1 is -3.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Works correctly on a single-element list",
+   "input": "arr=[99], k=0",
+   "expected": "99",
+   "rationale": "Satisfies precondition `0 <= k < len(arr)` (0 <= 0 < 1). Must return the sole element.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "property",
+   "behavior": "Maintains equivalence to built-in sort regardless of initial order",
+   "input": "arr=[1, 2, 3, 4, 5], k=3",
+   "expected": "4",
+   "rationale": "Verifies the core contract 'efficient equivalent to sorted(arr)[k]' holds for pre-sorted inputs without incorrect indexing.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Handles larger k values near the upper bound",
+   "input": "arr=[15, 3, 12, 7, 9], k=4",
+   "expected": "15",
+   "rationale": "Sorted is [3,7,9,12,15]; index 4 is 15. Confirms correct behavior at the maximum valid k per precondition.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when arr is empty ([]): violates precondition `0 <= k < len(arr)` since no k satisfies it. Undefined behavior.",
+  "Behavior when k < 0 or k >= len(arr): violates explicit precondition. Undefined behavior.",
+  "Behavior when arr contains non-integer types or is not a list: spec specifies 'list of ints' and 'int', but does not define error handling for type mismatches.",
+  "Whether the function modifies the input list in-place: spec does not state mutability guarantees, though QuickSelect algorithms typically may mutate."
+ ]
+}

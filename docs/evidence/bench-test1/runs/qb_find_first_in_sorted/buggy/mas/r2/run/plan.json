@@ -1,0 +1,93 @@
+{
+ "summary": "Returns the index of the first occurrence of a target integer x in a sorted list of integers, or -1 if x is absent.",
+ "input_domain": "arr: a sorted list of integers; x: an integer",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Find unique existing element",
+   "input": "arr=[1, 2, 3], x=2",
+   "expected": "1",
+   "rationale": "Spec: 'The lowest index i such that arr[i] == x'",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Find first occurrence among duplicates",
+   "input": "arr=[3, 4, 5, 5, 5, 5, 6], x=5",
+   "expected": "2",
+   "rationale": "Spec example: '>>> find_first_in_sorted([3, 4, 5, 5, 5, 5, 6], 5)\\n2'",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Target not present in array",
+   "input": "arr=[1, 2, 3], x=4",
+   "expected": "-1",
+   "rationale": "Spec: 'or -1 if x not in arr'",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "empty",
+   "behavior": "Empty input array",
+   "input": "arr=[], x=1",
+   "expected": "-1",
+   "rationale": "Degenerate/empty input; logically consistent with 'x not in arr' returning -1",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Single element array, matches target",
+   "input": "arr=[5], x=5",
+   "expected": "0",
+   "rationale": "Boundary condition for list length 1; satisfies 'lowest index i such that arr[i] == x'",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "boundary",
+   "behavior": "Single element array, does not match target",
+   "input": "arr=[5], x=3",
+   "expected": "-1",
+   "rationale": "Boundary condition for list length 1; satisfies 'or -1 if x not in arr'",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "boundary",
+   "behavior": "Target smaller than all elements",
+   "input": "arr=[2, 3, 4], x=1",
+   "expected": "-1",
+   "rationale": "Boundary condition for value outside lower bound; x not in arr",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Target larger than all elements",
+   "input": "arr=[2, 3, 4], x=5",
+   "expected": "-1",
+   "rationale": "Boundary condition for value outside upper bound; x not in arr",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "boundary",
+   "behavior": "All elements identical and match target",
+   "input": "arr=[5, 5, 5], x=5",
+   "expected": "0",
+   "rationale": "Degenerate sorted list; spec requires 'lowest index i', which is 0",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when arr is not sorted (violates 'A sorted list of ints' precondition)",
+  "Behavior when arr contains non-integer types (spec restricts to 'list of ints')",
+  "Behavior when x is not an integer",
+  "Whether the function mutates arr or creates internal copies (side effects not documented)"
+ ]
+}

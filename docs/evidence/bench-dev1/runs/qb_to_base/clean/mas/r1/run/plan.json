@@ -1,0 +1,84 @@
+{
+ "summary": "Converts a positive base-10 integer into a string representation in a specified target base (2-36), using digits 0-9 and uppercase letters A-Z for values 10-35.",
+ "input_domain": "Positive integers for num (num > 0) and integers for b satisfying 2 <= b <= 36.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Convert a small odd integer to binary",
+   "input": "to_base(5, 2)",
+   "expected": "'101'",
+   "rationale": "Spec requires converting a base-10 integer to target base. 5 decimal equals 101 binary.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "normal",
+   "behavior": "Convert integer to same base",
+   "input": "to_base(123, 10)",
+   "expected": "'123'",
+   "rationale": "Spec states output is a string representing the value. Converting to base 10 should yield identical digit sequence.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Test minimum valid num",
+   "input": "to_base(1, 2)",
+   "expected": "'1'",
+   "rationale": "Precondition specifies num > 0. The smallest valid input (1) should map to '1' in any valid base.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "boundary",
+   "behavior": "Test minimum valid base",
+   "input": "to_base(10, 2)",
+   "expected": "'1010'",
+   "rationale": "Precondition specifies 2 <= b <= 36. Tests the lower bound of b with a multi-digit result.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "boundary",
+   "behavior": "Test maximum valid base",
+   "input": "to_base(35, 36)",
+   "expected": "'Z'",
+   "rationale": "Tests upper bound of b. Standard base-36 uses 0-9 and A-Z. Example uses uppercase 'F', implying uppercase letters.",
+   "confidence": "medium"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Verify against provided example",
+   "input": "to_base(31, 16)",
+   "expected": "'1F'",
+   "rationale": "Directly matches the example given in the specification docstring.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Test letter mapping for base 16",
+   "input": "to_base(255, 16)",
+   "expected": "'FF'",
+   "rationale": "Verifies correct uppercase letter substitution for values >= 10 in base 16, consistent with spec example.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "boundary",
+   "behavior": "Test num equals base",
+   "input": "to_base(8, 8)",
+   "expected": "'10'",
+   "rationale": "Positional notation dictates that any number equal to its base converts to '10'. Tests boundary condition where num == b.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Behavior when num <= 0 or b < 2 or b > 36 violates the precondition. Spec does not define exception type or error handling.",
+  "Case sensitivity of alphabetic digits: spec example uses 'F' but does not explicitly mandate uppercase vs lowercase.",
+  "Handling of non-integer inputs (e.g., floats, strings) despite docstring specifying 'integer'.",
+  "Whether output should include leading zeros or handle edge cases like num=0 (excluded by precondition)."
+ ]
+}

@@ -1,0 +1,83 @@
+{
+ "summary": "Converts a list of integer operands and binary arithmetic operators (+, -, *, /) from infix notation to equivalent Reverse Polish Notation (RPN) using Dijkstra's shunting-yard algorithm.",
+ "input_domain": "List of tokens where each token is an int or a string in '+-*/', forming a valid infix expression without parentheses or unary operators.",
+ "items": [
+  {
+   "id": "P1",
+   "category": "empty",
+   "behavior": "Returns an empty list for empty input",
+   "input": "[]",
+   "expected": "[]",
+   "rationale": "Precondition vacuously holds for empty lists; specification states output is 'The input tokens reordered', implying empty input yields empty output.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Returns single operand unchanged",
+   "input": "[42]",
+   "expected": "[42]",
+   "rationale": "Matches 'output: The input tokens reordered into Reverse Polish Notation'; a single token requires no reordering.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "normal",
+   "behavior": "Correctly converts two operands and one operator",
+   "input": "[1, '+', 2]",
+   "expected": "[1, 2, '+']",
+   "rationale": "Fundamental infix-to-RPN step; aligns with provided examples and standard algorithm behavior.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Preserves left associativity for equal precedence operators",
+   "input": "[10, '-', 5, '-', 2]",
+   "expected": "[10, 5, '-', 2, '-']",
+   "rationale": "Directly matches first example; demonstrates left-to-right evaluation order for '-' operators as specified.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Respects operator precedence (* and / over + and -)",
+   "input": "[34, '-', 12, '/', 5]",
+   "expected": "[34, 12, 5, '/', '-']",
+   "rationale": "Directly matches second example; confirms higher precedence operators are emitted before lower precedence ones in RPN.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Handles mixed precedence and associativity across multiple operators",
+   "input": "[4, '+', 9, '*', 9, '-', 10, '+', 13]",
+   "expected": "[4, 9, 9, '*', '+', 10, '-', 13, '+']",
+   "rationale": "Directly matches third example; validates correct sequencing of +, -, *, / according to shunting-yard rules.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Evaluates division before subtraction",
+   "input": "[10, '/', 2, '-', 3]",
+   "expected": "[10, 2, '/', 3, '-']",
+   "rationale": "Standard precedence rule implied by shunting-yard algorithm; division binds tighter than subtraction.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Evaluates multiplication before addition",
+   "input": "[2, '+', 3, '*', 4]",
+   "expected": "[2, 3, 4, '*', '+']",
+   "rationale": "Multiplication has higher precedence than addition, so '*' must appear before '+' in the RPN output per specification."
+  }
+ ],
+ "ambiguities": [
+  "Support for parentheses: The specification does not mention parentheses in the token set or algorithm steps.",
+  "Unary operators: The precondition only allows binary operators '+-*/' and integers; behavior for unary minus/plus is undefined.",
+  "Invalid infix structure: Inputs satisfying the precondition but containing consecutive operators (e.g., [1, '+', '+', 2]) or trailing operators violate standard infix grammar; the spec does not define behavior for such cases.",
+  "Negative number representation: It is unclear whether negative values are passed as single negative integers (e.g., [-5]) or as separate unary minus tokens (['-', 5])."
+ ]
+}

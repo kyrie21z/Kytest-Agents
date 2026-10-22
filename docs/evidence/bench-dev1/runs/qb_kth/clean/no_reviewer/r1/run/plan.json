@@ -1,0 +1,93 @@
+{
+ "summary": "Returns the k-th smallest integer from a list of integers using a selection algorithm that behaves identically to sorting the list and indexing at k.",
+ "input_domain": "arr: list of integers, k: integer satisfying 0 <= k < len(arr)",
+ "items": [
+  {
+   "id": "P1",
+   "category": "normal",
+   "behavior": "Returns the correct k-th smallest element for a standard unsorted list.",
+   "input": "arr=[4, 1, 7, 3, 9], k=2",
+   "expected": "4",
+   "rationale": "Specification states it is an 'efficient equivalent to sorted(arr)[k]'. Sorted version is [1, 3, 4, 7, 9]; index 2 yields 4.",
+   "confidence": "high"
+  },
+  {
+   "id": "P2",
+   "category": "boundary",
+   "behavior": "Returns the minimum element when k=0.",
+   "input": "arr=[10, 5, 8], k=0",
+   "expected": "5",
+   "rationale": "Output spec defines 'The kth-lowest element of arr (0-based)', so k=0 must return the smallest value.",
+   "confidence": "high"
+  },
+  {
+   "id": "P3",
+   "category": "boundary",
+   "behavior": "Returns the maximum element when k=len(arr)-1.",
+   "input": "arr=[10, 5, 8], k=2",
+   "expected": "10",
+   "rationale": "Output spec defines 'The kth-lowest element of arr (0-based)', so the last valid index must return the largest value.",
+   "confidence": "high"
+  },
+  {
+   "id": "P4",
+   "category": "normal",
+   "behavior": "Handles a single-element list correctly.",
+   "input": "arr=[42], k=0",
+   "expected": "42",
+   "rationale": "Satisfies precondition 0 <= k < len(arr). With only one element, it is trivially the 0th-lowest.",
+   "confidence": "high"
+  },
+  {
+   "id": "P5",
+   "category": "normal",
+   "behavior": "Correctly resolves duplicates according to sort order.",
+   "input": "arr=[3, 3, 1, 3], k=1",
+   "expected": "3",
+   "rationale": "Equivalent to sorted(arr)[k]. Sorted is [1, 3, 3, 3]; index 1 is 3.",
+   "confidence": "high"
+  },
+  {
+   "id": "P6",
+   "category": "normal",
+   "behavior": "Correctly handles negative integers.",
+   "input": "arr=[-2, -5, 0, 3], k=2",
+   "expected": "0",
+   "rationale": "Sorting semantics apply to all integers. Index 2 of [-5, -2, 0, 3] is 0.",
+   "confidence": "high"
+  },
+  {
+   "id": "P7",
+   "category": "normal",
+   "behavior": "Works on pre-sorted input.",
+   "input": "arr=[1, 2, 3, 4], k=3",
+   "expected": "4",
+   "rationale": "Verifies the selection logic does not depend on initial disorder.",
+   "confidence": "high"
+  },
+  {
+   "id": "P8",
+   "category": "normal",
+   "behavior": "Works on reverse-sorted input.",
+   "input": "arr=[4, 3, 2, 1], k=0",
+   "expected": "1",
+   "rationale": "Tests partitioning behavior on worst-case ordering for typical QuickSelect implementations.",
+   "confidence": "high"
+  },
+  {
+   "id": "P9",
+   "category": "boundary",
+   "behavior": "Handles minimal valid list length greater than one.",
+   "input": "arr=[9, 1], k=1",
+   "expected": "9",
+   "rationale": "Valid per precondition. Must return the larger of the two elements.",
+   "confidence": "high"
+  }
+ ],
+ "ambiguities": [
+  "Empty list (len(arr)==0): Violates precondition 0 <= k < len(arr). Behavior is undefined per spec.",
+  "k out of bounds (k < 0 or k >= len(arr)): Violates precondition. Spec states it is a precondition restriction, not a promise to raise, so behavior is undefined.",
+  "Non-integer elements in arr: Spec says 'list of ints', but does not define behavior for mixed types, floats, or strings. Type coercion or TypeError is unspecified.",
+  "Duplicate tie-breaking: While sorted(arr)[k] implies standard Python sort stability, QuickSelect is inherently unstable. The exact returned index among duplicates is unspecified, though the value is deterministic."
+ ]
+}

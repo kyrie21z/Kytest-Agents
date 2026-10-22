@@ -1,0 +1,4 @@
+status: failed   rounds: 0   path: planner -> testgen!
+plan: 12 items, 5 ambiguities
+usage: {"planner": {"calls": 1, "tokens": 7223}, "testgen": {"calls": 16, "tokens": 132231}}
+run dir: /home/kyrie/cxprojects/SWE_Homework/02 Multi-Agent/kytest-Agents/results/bench/test1/ce_warehouse/clean/mas/r1/run
