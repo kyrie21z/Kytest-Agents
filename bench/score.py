@@ -110,7 +110,7 @@ def summarise(rows) -> str:
         if rs:
             out.append(f"| {c} | {len(rs)} | {fmt([r['reported'] for r in rs])} | {fmt([r['fossilized'] for r in rs])} | "
                        f"{fmt([r['false_reports'] for r in rs], False)} |")
-    out += ["", "## Cost per job", "", "| config | seconds | tokens | LLM calls (roles) |", "|---|---|---|---|"]
+    out += ["", "## Cost per job", "", "| config | seconds | tokens | LLM calls (all roles) |", "|---|---|---|---|"]
     for c in configs:
         rs = [r for r in rows if r["config"] == c]
         out.append(f"| {c} | {fmt([r['seconds'] for r in rs], False)} | {fmt([r['tokens'] for r in rs], False)} | "
