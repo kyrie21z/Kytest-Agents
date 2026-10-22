@@ -115,3 +115,14 @@ def test_extract_json(reply, ok):
     else:
         with pytest.raises(ValueError):
             nodes.extract_json(reply)
+
+
+def test_real_run_without_model_config_fails_cleanly_before_creating_a_run(tmp_path, monkeypatch, capsys):
+    import kytest
+    for key in ("LLM_API_KEY", "LLM_BASE_URL", "LLM_MODEL"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setattr(kytest, "ROOT", tmp_path)  # no .env there
+    runs = tmp_path / "runs"
+    assert kytest.main([str(kytest.Path(__file__).parent.parent / "mas" / "demo" / "classify.py"), "--runs", str(runs)]) == 2
+    assert "--mock" in capsys.readouterr().err
+    assert not runs.exists()

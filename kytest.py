@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT))
 
 from code_agent.assembly import build_llm  # noqa: E402
 from code_agent.config import Settings  # noqa: E402
+from code_agent.errors import ConfigError  # noqa: E402
 from mas.engine import Context, new_state, run  # noqa: E402
 from mas.mock import SCENARIOS, Scenario  # noqa: E402
 
@@ -74,6 +75,13 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
 
     scenario = Scenario(a.mock) if a.mock else None
+    if not scenario and not a.resume:
+        try:  # fail before creating a run directory, with a hint that fits this tool
+            Settings.from_env(workspace=ROOT, env_file=ROOT / ".env").require_llm()
+        except ConfigError:
+            print("No model configured: copy .env.example to .env and set LLM_API_KEY, LLM_BASE_URL and "
+                  "LLM_MODEL, or run an offline scenario: python kytest.py --mock bug", file=sys.stderr)
+            return 2
     if a.resume:
         run_dir = a.resume.resolve()
         state = json.loads((run_dir / "state.json").read_text(encoding="utf-8"))
