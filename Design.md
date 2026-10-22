@@ -155,7 +155,11 @@ H1 的基准（MBPP 20 题、单函数、算子替换故障）针对单 Agent �
 
 ## 8. 结果
 
-见 [docs/evaluation-h2.md](docs/evaluation-h2.md)。
+测试集 9 题、144 次运行（详见 [docs/evaluation-h2.md](docs/evaluation-h2.md)）：
+
+- 被测实现有 bug 时，完整工作流 16/18 次报告出缺陷、0/18 次把 bug 写进预期值；单 Agent 0/18 报告、10/18 固化。
+- 去掉 Planner 后固化回升到 12/18：防污染主要来自 Planner 的信息隔离；去掉 Reviewer 后不再固化但也不再报告：报告能力来自 Reviewer。
+- 被测实现正确时四种配置的缺陷检出率相近（76%–81%），过度约束误报都存在（6%–22%）；代价约为单 Agent 的 2 倍。
 
 ## 9. 局限
 

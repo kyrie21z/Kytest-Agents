@@ -15,6 +15,7 @@ Writes scores.jsonl and summary.md next to the jobs.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import random
 import statistics
@@ -33,9 +34,21 @@ def _read(path: Path) -> str | None:
     return path.read_text(encoding="utf-8") if path.exists() else None
 
 
+PER_TEST_TIMEOUT = 10
+
+
 def _per_test(source: str, file: str, code: str) -> dict:
+    """Pass/fail per test. A hang is a failure: if the whole run times out (a
+    planted bug can loop forever), each test is rerun alone with a short timeout."""
     run = run_pytest(source, {file: code})
-    return {key.split("::", 1)[1]: ok for key, ok in run.outcomes.items()}, run
+    if not run.timed_out:
+        return {key.split("::", 1)[1]: ok for key, ok in run.outcomes.items()}, run
+    names = [n.name for n in ast.parse(code).body if isinstance(n, ast.FunctionDef) and n.name.startswith("test")]
+    outcomes = {}
+    for name in dict.fromkeys(names):
+        single = run_pytest(source, {file: code}, timeout=PER_TEST_TIMEOUT, select=f"{file}::{name}")
+        outcomes[name] = single.all_pass
+    return outcomes, run
 
 
 def score_job(task, condition: str, job: Path) -> dict:

@@ -23,6 +23,10 @@ flowchart LR
 
 完整流程图（含消融分支和错误恢复路径）、节点输入输出、共享状态与扩展方式见 [Design.md](Design.md)。
 
+**结果（9 题冻结测试集，144 次运行）：** 被测代码有 bug 时，完整工作流 16/18 次报告出缺陷、0/18 次把 bug 写进测试；
+接近 H1 的单 Agent 0/18 报告、10/18 把 bug 写进了预期值。被测代码正确时两者的缺陷检出率相近，代价约为单 Agent 的 2 倍。
+详见 [docs/evaluation-h2.md](docs/evaluation-h2.md)。
+
 ## 快速开始
 
 需要 Linux（Ubuntu / WSL）、Python ≥ 3.9 和 Bubblewrap（H1 的命令沙箱）。

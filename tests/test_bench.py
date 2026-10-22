@@ -63,3 +63,11 @@ def test_buggy_target_report_and_fossil_are_measured_against_the_reference(tmp_p
     row = score_job(task("qb_get_factors"), "buggy",
                     fake_job(tmp_path, "buggy", suite=fossil, suspected=correct + "\n" + wrong_report))
     assert (row["reported"], row["true_reports"], row["false_reports"], row["fossilized"]) == (True, 1, 1, True)
+
+
+def test_a_test_that_hangs_on_the_bug_counts_as_detecting_it(tmp_path):
+    # Upstream find_first_in_sorted bug loops forever when x is below every element.
+    hang = "from solution import find_first_in_sorted\ndef test_below():\n    assert find_first_in_sorted([3, 4], 1) == -1\n"
+    ok = "from solution import find_first_in_sorted\ndef test_hit():\n    assert find_first_in_sorted([3, 4, 4], 4) == 1\n"
+    row = score_job(task("qb_find_first_in_sorted"), "buggy", fake_job(tmp_path, "buggy", suite=ok, suspected=hang))
+    assert (row["reported"], row["true_reports"], row["false_reports"]) == (True, 1, 0)

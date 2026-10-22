@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Dict, List
 
 TASKS = Path(__file__).resolve().parent / "tasks"
-PYTEST_TIMEOUT = 60
+PYTEST_TIMEOUT = 30
 
 
 def apply_patch(source: str, patch: List[List[str]], label: str) -> str:
@@ -94,7 +94,7 @@ class PytestRun:
 
 
 def run_pytest(solution: str, tests: Dict[str, str], python: str = sys.executable,
-               timeout: int = PYTEST_TIMEOUT) -> PytestRun:
+               timeout: int = PYTEST_TIMEOUT, select: str | None = None) -> PytestRun:
     """Run test files against one implementation in a fresh directory."""
     with tempfile.TemporaryDirectory(prefix="kbench-") as tmp:
         root = Path(tmp)
@@ -103,6 +103,8 @@ def run_pytest(solution: str, tests: Dict[str, str], python: str = sys.executabl
             (root / name).write_text(text, encoding="utf-8")
         cmd = [python, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--tb=line",
                "--junitxml=report.xml", "-o", "junit_family=xunit1", *tests]
+        if select:  # one exact node id, e.g. "test_x.py::test_name"
+            cmd = cmd[:-len(tests)] + [select]
         try:
             proc = subprocess.run(cmd, cwd=root, capture_output=True, text=True, timeout=timeout)
         except subprocess.TimeoutExpired as exc:
