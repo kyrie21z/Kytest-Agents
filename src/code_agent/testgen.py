@@ -93,6 +93,9 @@ class TestGeneration:
         self.contracts = explicit_constraints(self.source)
         self.accepted: Dict[str, Dict[str, str]] = {}
         self.attempts: List[Dict[str, Any]] = []
+        # Candidates that failed on the SUT, kept out of model feedback. A failure may
+        # mean a wrong test or a faulty SUT; a downstream reviewer decides which.
+        self.failed: Dict[str, Dict[str, Any]] = {}
         self.subprocess_runs = 0
         self.validation_seconds = 0.0
         self.case_timeout = 2.0
@@ -318,6 +321,10 @@ class TestGeneration:
             except (ToolError, SyntaxError) as exc:
                 record.update(status="REJECTED", diagnostic=str(exc))
             self.attempts.append(record)
+            if record["status"] in ("FAIL", "TIMEOUT") and isinstance(candidate, dict):
+                self.failed[name] = {**candidate, "diagnostic": record.get("diagnostic", "")[-1500:]}
+            elif record["status"] == "ACCEPTED":
+                self.failed.pop(name, None)
             results.append(record)
         self.publish()
         # Keep a complete structured batch response inside the registry's 6000
@@ -330,6 +337,7 @@ class TestGeneration:
     def snapshot(self) -> Dict[str, Any]:
         return deepcopy({"schema": "testgen-v2", "sut_sha256": hashlib.sha256(self.source.encode()).hexdigest(),
                   "accepted": list(self.accepted.values()), "attempts": self.attempts,
+                  "failed": list(self.failed.values()),
                   "subprocess_runs": self.subprocess_runs, "validation_seconds": round(self.validation_seconds, 3),
                   "limits": {"case_seconds": self.case_timeout, "suite_seconds": self.suite_timeout, "attempts": self.max_attempts, "target_calls_per_test": self.max_target_calls},
                   "quality_actions": self.quality_actions, "sut_restorations": self.sut_restorations,

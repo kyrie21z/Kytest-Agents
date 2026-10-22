@@ -27,3 +27,6 @@ Thumbs.db
 # ---- 提交打包 ----
 *.zip
 *.rar
+
+# Kytest-Agents workflow runs
+runs/
