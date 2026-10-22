@@ -6,7 +6,7 @@ Homework 2。在 Homework 1 的单 Agent [Kytest-Agent](https://github.com/kyrie
 H1 的 Agent 作为 TestGen 节点复用，新增 Planner、Verifier、Reviewer 三个节点，用自己写的状态机编排（不依赖 LangGraph 等框架），
 并配套一个面向整个 MAS 的新基准。
 
-[Design](Design.md) · [评测结果](docs/evaluation-h2.md) · [范围](docs/SCOPE.md) · [H1 设计](docs/h1-design.md)
+[演示视频（48 秒）](docs/demo-h2.mp4) · [Design](Design.md) · [评测结果](docs/evaluation-h2.md) · [范围](docs/SCOPE.md) · [H1 设计](docs/h1-design.md)
 
 ## 解决什么问题
 
@@ -62,6 +62,9 @@ python board.py --runs docs/evidence/bench-test1/runs --port 8771   # 回放基�
 连线随状态转移流动，节点写入共享状态时对应格子闪烁。页面上的“Run mock”按钮可以直接启动离线场景，“Replay”按钮可以重放已完成的运行；点击任意方框会显示该节点的计划、裁决、验证报告或工具调用。
 
 ![实时架构看板](docs/board.png)
+
+[演示视频](docs/demo-h2.mp4)（48 秒）：一次真实模型运行在看板上逐个点亮各 Agent（5.9 倍速），Reviewer 依据规格报告植入的边界 bug；
+离线 `revise` 场景展示修订回路（1.5 倍速）；最后是测试集的关键结果。
 
 **真实模型。** 复制 `.env.example` 为 `.env`，填写 OpenAI 兼容接口的 `LLM_API_KEY`、`LLM_BASE_URL`、`LLM_MODEL`
 （本项目使用百炼 `qwen3.7-flash`），然后：
