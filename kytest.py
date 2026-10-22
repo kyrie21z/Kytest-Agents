@@ -70,6 +70,7 @@ def main(argv=None) -> int:
     ap.add_argument("--rounds", type=int, default=2, help="max TestGen rounds (revise loop cap)")
     ap.add_argument("--runs", type=Path, default=ROOT / "runs")
     ap.add_argument("--resume", type=Path, help="run directory to continue")
+    ap.add_argument("--run-dir", type=Path, help="exact run directory to create (default: runs/<timestamp>)")
     a = ap.parse_args(argv)
 
     scenario = Scenario(a.mock) if a.mock else None
@@ -86,6 +87,8 @@ def main(argv=None) -> int:
         run_dir = (a.runs / time.strftime("%Y%m%d-%H%M%S")).resolve()
         if a.mock:
             run_dir = run_dir.with_name(run_dir.name + "-" + a.mock)
+        if a.run_dir:
+            run_dir = a.run_dir.resolve()
         ws = run_dir / "workspace"
         ws.mkdir(parents=True)
         shutil.copyfile(target, ws / "solution.py")

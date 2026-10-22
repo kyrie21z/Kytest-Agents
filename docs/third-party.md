@@ -15,6 +15,18 @@
 
 HumanEval 回归数据的选取与字段说明见[原有来源记录](https://github.com/kyrie21z/Kytest-Agent/blob/development-archive-20261008/benchmarks/DATASET.md)。本阶段只补充许可与署名，未改写数据、示例源码、已有媒体或统计记录。
 
+## Homework 2 基准（`bench/tasks/`）
+
+| 任务 | 来源与处理 | 保留的授权与署名 |
+|---|---|---|
+| `qb_*`（6 题） | [QuixBugs](https://github.com/jkoppel/QuixBugs) 提交 `4257f44b0ff1`：docstring 取自 `python_programs/`，参考实现取自 `correct_python_programs/`，上游缺陷原样保存为 `bugs/upstream.py`，金标准由 `json_testcases/` 转写 | MIT，版权 James Koppel；原许可见 [QuixBugs-MIT.txt](licenses/QuixBugs-MIT.txt) |
+| `ce_*`（4 题） | [ClassEval](https://github.com/FudanSELab/ClassEval) 提交 `eaeac44d0d5d` 的 `ClassEval_8/75/94/95`：把 `skeleton` 的 docstring 合并进 `solution_code`，金标准为上游 unittest | 代码 MIT（[ClassEval-MIT.txt](licenses/ClassEval-MIT.txt)）；**数据 CC-BY-NC-4.0**，仅限非商业用途，本仓库为课程作业 |
+| `bcb_*`（2 题） | [BigCodeBench-Hard](https://huggingface.co/datasets/bigcode/bigcodebench-hard) v0.1.4 的 `BigCodeBench/854`、`928`：入口 `task_func` 改名为 `factorial_sums`、`bigram_counts` | Apache-2.0，BigCode 项目 |
+| `orig_*`（2 题） | 本项目原创 | Apache-2.0 |
+
+所有题的合成缺陷（`meta.json` 中 `origin: synthetic`）、合法替代实现与 `gold_extra_test.py` 均为本项目编写。
+导入脚本 `bench/import_sources.py` 只把上游文件当数据读取（JSON 与 `ast`），不执行其中代码。
+
 ## 上游依据
 
 - [Google Research 根许可证](https://github.com/google-research/google-research/blob/f82046ba5aabbbb427dbfd38a254d26bff08b533/LICENSE)与 [MBPP 说明](https://github.com/google-research/google-research/tree/f82046ba5aabbbb427dbfd38a254d26bff08b533/mbpp)。

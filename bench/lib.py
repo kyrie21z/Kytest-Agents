@@ -11,7 +11,8 @@ import re
 import subprocess
 import sys
 import tempfile
-from dataclasses import dataclass
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
 
@@ -81,6 +82,7 @@ class PytestRun:
     errors: int
     timed_out: bool
     output: str
+    outcomes: Dict[str, bool] = field(default_factory=dict)  # "file::test[param]" -> passed
 
     @property
     def all_pass(self) -> bool:
@@ -99,16 +101,22 @@ def run_pytest(solution: str, tests: Dict[str, str], python: str = sys.executabl
         (root / "solution.py").write_text(solution, encoding="utf-8")
         for name, text in tests.items():
             (root / name).write_text(text, encoding="utf-8")
-        cmd = [python, "-m", "pytest", "-q", "-p", "no:cacheprovider", "-p", "no:randomly", "--tb=line", *tests]
+        cmd = [python, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--tb=line",
+               "--junitxml=report.xml", "-o", "junit_family=xunit1", *tests]
         try:
             proc = subprocess.run(cmd, cwd=root, capture_output=True, text=True, timeout=timeout)
         except subprocess.TimeoutExpired as exc:
             return PytestRun(0, 0, 0, True, str(exc.stdout or "")[-1500:])
         out = proc.stdout + proc.stderr
+        outcomes = {}
+        if (root / "report.xml").exists():
+            for case in ET.parse(root / "report.xml").iter("testcase"):
+                key = f"{case.get('file') or case.get('classname')}::{case.get('name')}"
+                outcomes[key] = not any(child.tag in ("failure", "error") for child in case)
         def count(word):
             m = re.search(rf"(\d+) {word}", out.splitlines()[-1] if out.strip() else "")
             return int(m.group(1)) if m else 0
         errors = count("error")
         if proc.returncode not in (0, 1) and not errors:
             errors = 1  # collection/usage errors: nothing ran
-        return PytestRun(count("passed"), count("failed"), errors, False, out[-1500:])
+        return PytestRun(count("passed"), count("failed"), errors, False, out[-1500:], outcomes)

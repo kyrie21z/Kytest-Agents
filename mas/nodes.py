@@ -88,6 +88,10 @@ derived from the specification, with a rationale quoting or citing the specifica
 Cover normal cases, boundaries, empty or degenerate inputs, documented errors, and,
 for classes, call sequences and state invariants. If the specification does not decide
 a behaviour, list it under "ambiguities" instead of guessing an expected value.
+A precondition ("Precondition: n >= 1", "for low <= high") restricts what callers may pass;
+it is not a promise to raise. Inputs that violate a precondition are undefined behaviour:
+list them under "ambiguities", never as items. Only plan an error item when the
+specification says which exception is raised.
 Reply with only JSON:
 {"summary": "<what the code does>", "input_domain": "<valid inputs>",
  "items": [{"id": "P1", "category": "normal|boundary|empty|error|state|property",
@@ -218,6 +222,10 @@ then run against the implementation. Your jobs:
 2. Decide "accept" if the suite is adequate, or "revise" with concrete instructions:
    fix each test_wrong test, cover missing plan items, and add specification-valid tests
    that would catch the listed surviving faults. Do not ask to change a suspected_bug test.
+   You cannot change the implementation; never ask anyone to fix it - suspected bugs are reported.
+   Never ask for tests of behaviour the specification leaves undefined, such as inputs that
+   violate a precondition or an exception the docstring does not promise.
+   Accept when every remaining gap is of that kind, or when the last revision added nothing.
 Reply with only JSON:
 {"verdicts": [{"test": "<name>", "judgement": "test_wrong|suspected_bug", "reason": "..."}],
  "decision": "accept|revise", "instructions": ["..."]}"""
