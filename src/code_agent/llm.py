@@ -202,6 +202,9 @@ class OpenAICompatibleLLM(BaseLLM):
             content = "".join(
                 str(part.get("text", "")) if isinstance(part, dict) else str(part) for part in content
             )
+        if not content.strip() and not message.get("tool_calls") and choices[0].get("finish_reason") == "length":
+            # 推理模型（如 OpenRouter 上的 Nemotron）可能把输出上限全部花在推理上。
+            raise LLMError("回复在 max_tokens 处被截断且没有正文：推理模型可能用完了输出上限，请调大 LLM_MAX_TOKENS")
         calls: List[ToolCall] = []
         for item in message.get("tool_calls") or []:
             function = item.get("function") or {}

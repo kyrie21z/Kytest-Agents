@@ -14,6 +14,8 @@ htmlcov/
 
 # ---- 运行产物 ----
 .env
+.env.*
+!.env*.example
 .sessions/
 .agent_tmp/
 results/

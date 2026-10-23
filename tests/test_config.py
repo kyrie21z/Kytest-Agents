@@ -112,3 +112,36 @@ def test_masked_api_key_never_reveals_the_secret():
     assert "abcdefghijklmnop" not in masked
     assert masked.startswith("sk-a") and masked.endswith("mnop")
     assert Settings(api_key="").masked_api_key == "(未设置)"
+
+
+def test_api_key_can_live_in_a_file_outside_the_repo(tmp_path: Path, monkeypatch):
+    for key in ("LLM_API_KEY", "OPENAI_API_KEY", "LLM_API_KEY_FILE"):
+        monkeypatch.delenv(key, raising=False)
+    key_file = tmp_path / "api_key"
+    key_file.write_text("sk-or-fixture\n")
+    env = tmp_path / ".env.openrouter"
+    env.write_text(f"LLM_BASE_URL=https://openrouter.ai/api/v1\nLLM_MODEL=m:free\nLLM_API_KEY_FILE={key_file}\n")
+    assert Settings.from_env(workspace=tmp_path, env_file=env).api_key == "sk-or-fixture"
+    env.write_text(f"LLM_API_KEY=sk-inline\nLLM_API_KEY_FILE={key_file}\n")
+    assert Settings.from_env(workspace=tmp_path, env_file=env).api_key == "sk-inline"
+
+
+def test_missing_key_file_names_the_path(tmp_path: Path, monkeypatch):
+    import pytest
+    from code_agent.errors import ConfigError
+    for key in ("LLM_API_KEY", "OPENAI_API_KEY", "LLM_API_KEY_FILE"):
+        monkeypatch.delenv(key, raising=False)
+    env = tmp_path / ".env"
+    env.write_text(f"LLM_API_KEY_FILE={tmp_path / 'nope'}\n")
+    with pytest.raises(ConfigError, match="nope"):
+        Settings.from_env(workspace=tmp_path, env_file=env)
+
+
+def test_reasoning_model_reply_cut_off_without_content_is_an_error():
+    import pytest
+    from code_agent.errors import LLMError
+    from code_agent.llm import OpenAICompatibleLLM
+    llm = OpenAICompatibleLLM("k", "https://example.invalid/v1", "m")
+    with pytest.raises(LLMError, match="LLM_MAX_TOKENS"):
+        llm._parse({"choices": [{"message": {"content": None, "reasoning": "..."}, "finish_reason": "length"}]})
+    assert llm._parse({"choices": [{"message": {"content": "ok"}, "finish_reason": "length"}]}).content == "ok"

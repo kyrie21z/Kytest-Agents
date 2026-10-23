@@ -26,9 +26,9 @@ from mas.engine import Context, new_state, run  # noqa: E402
 from mas.mock import SCENARIOS, Scenario  # noqa: E402
 
 
-def real_context(run_dir: Path) -> Context:
+def real_context(run_dir: Path, env_file: Path) -> Context:
     def settings_for(ws: Path) -> Settings:
-        return Settings.from_env(workspace=ws, env_file=ROOT / ".env")
+        return Settings.from_env(workspace=ws, env_file=env_file)
     settings = settings_for(run_dir / "workspace")
     settings.require_llm()
     client, _ = build_llm(settings)
@@ -72,16 +72,20 @@ def main(argv=None) -> int:
     ap.add_argument("--rounds", type=int, default=2, help="max TestGen rounds (revise loop cap)")
     ap.add_argument("--runs", type=Path, default=ROOT / "runs")
     ap.add_argument("--resume", type=Path, help="run directory to continue")
+    ap.add_argument("--env", type=Path, default=ROOT / ".env",
+                    help="model config file (default .env; e.g. .env.openrouter)")
     ap.add_argument("--run-dir", type=Path, help="exact run directory to create (default: runs/<timestamp>)")
     a = ap.parse_args(argv)
 
     scenario = Scenario(a.mock) if a.mock else None
     if not scenario and not a.resume:
         try:  # fail before creating a run directory, with a hint that fits this tool
-            Settings.from_env(workspace=ROOT, env_file=ROOT / ".env").require_llm()
-        except ConfigError:
-            print("No model configured: copy .env.example to .env and set LLM_API_KEY, LLM_BASE_URL and "
-                  "LLM_MODEL, or run an offline scenario: python kytest.py --mock bug", file=sys.stderr)
+            Settings.from_env(workspace=ROOT, env_file=a.env).require_llm()
+        except ConfigError as exc:
+            detail = str(exc) if "LLM_API_KEY_FILE" in str(exc) else "LLM_API_KEY, LLM_BASE_URL or LLM_MODEL missing"
+            print(f"No model configured in {a.env}: {detail}. Copy .env.example to .env (or .env.openrouter.example "
+                  "to .env.openrouter and pass --env), or run an offline scenario: python kytest.py --mock bug",
+                  file=sys.stderr)
             return 2
     problem = sandbox_preflight(a.resume.resolve().parent if a.resume else a.runs.resolve())
     if problem:  # otherwise every test run fails inside the sandbox and the run ends with zero tests
@@ -108,7 +112,7 @@ def main(argv=None) -> int:
         state = new_state((ws / "solution.py").read_text(encoding="utf-8"), ws,
                           planner=not a.no_planner, reviewer=not a.no_reviewer, max_rounds=a.rounds)
         state["target"] = str(target)
-    ctx = mock_context(run_dir, scenario) if scenario else real_context(run_dir)
+    ctx = mock_context(run_dir, scenario) if scenario else real_context(run_dir, a.env)
     state = run(state, ctx)
     print(summary(state, run_dir))
     return 0 if state["status"] in ("accepted", "completed", "forced") else 1

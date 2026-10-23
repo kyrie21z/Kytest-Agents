@@ -37,6 +37,17 @@ def _to_bool(value: Any, default: bool) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
+def _read_key_file(value: str) -> str:
+    """LLM_API_KEY_FILE：把密钥留在仓库之外（如 ~/.config/openrouter/api_key）。"""
+    if not value:
+        return ""
+    path = Path(value).expanduser()
+    try:
+        return path.read_text(encoding="utf-8").strip()
+    except OSError as exc:
+        raise ConfigError(f"LLM_API_KEY_FILE 无法读取：{path}（{exc.strerror}）") from exc
+
+
 def _to_int(value: Any, default: int) -> int:
     try:
         return int(str(value).strip())
@@ -183,7 +194,7 @@ class Settings:
 
         workspace_value = workspace or get("CODE_AGENT_WORKSPACE") or Path.cwd()
         return cls(
-            api_key=get("LLM_API_KEY") or get("OPENAI_API_KEY"),
+            api_key=get("LLM_API_KEY") or get("OPENAI_API_KEY") or _read_key_file(get("LLM_API_KEY_FILE")),
             base_url=get("LLM_BASE_URL"),
             model=get("LLM_MODEL"),
             temperature=_to_float(get("LLM_TEMPERATURE"), 0.2),

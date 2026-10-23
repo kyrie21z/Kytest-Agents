@@ -55,9 +55,10 @@ python kytest.py --mock flaky      # Planner 模型持续出错 → 自动降级
 
 ```bash
 python board.py                                   # 打开 http://127.0.0.1:8770
-python board.py --runs docs/evidence/bench-test1/runs --port 8771   # 回放基准中的真实模型运行
+python board.py --runs docs/evidence --port 8771   # 回放已保存的 186 次真实模型运行（含基准与演示）
 ```
 
+回放不需要模型或网络：在下拉框里选一次运行（如 `buggy-classify-mas`，演示视频里那次规格裁决报告植入 bug 的完整工作流），点“Replay”即按记录的事件顺序重新点亮各节点。
 看板只读取引擎本来就会写的 `state.json` 与 `log.jsonl`：节点运行时显示蓝色，结束后标 ✓ 完成、↺ 已恢复或 ✕ 出错；
 连线随状态转移流动，节点写入共享状态时对应格子闪烁。页面上的“Run mock”按钮可以直接启动离线场景，“Replay”按钮可以重放已完成的运行；点击任意方框会显示该节点的计划、裁决、验证报告或工具调用。
 
@@ -74,6 +75,16 @@ python kytest.py mas/demo/classify_buggy.py              # 完整工作流
 python kytest.py mas/demo/classify_buggy.py --no-planner --no-reviewer   # 接近 H1 的单 Agent
 python kytest.py --resume runs/<id>                      # 从检查点继续中断的运行
 ```
+
+**OpenRouter。** 任何 OpenAI 兼容服务都可以用一个单独的配置文件切换，不必改 `.env`。密钥可以放在仓库之外，用 `LLM_API_KEY_FILE` 指向：
+
+```bash
+cp .env.openrouter.example .env.openrouter     # 默认 nvidia/nemotron-3-ultra-550b-a55b:free，密钥读 ~/.config/openrouter/api_key
+python kytest.py mas/demo/classify_buggy.py --env .env.openrouter
+python bench/run.py --name or1 --split dev --jobs 1 --env .env.openrouter
+```
+
+Nemotron 是推理模型，示例配置把 `LLM_MAX_TOKENS` 调到 16384；若推理用完输出上限而没有正文，客户端会报错提示调大。免费模型有每日请求上限（未充值账户 50 次/天，一次完整工作流约 10–15 次请求）。
 
 `mas/demo/classify_buggy.py` 植入了一个边界 bug：完整工作流报告出缺陷，单 Agent 把 bug 写进了预期值。
 两次运行的记录保存在 [docs/evidence/](docs/evidence/)。
