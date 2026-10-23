@@ -33,7 +33,7 @@ flowchart LR
 
 ```bash
 sudo apt-get install python3-venv bubblewrap
-git clone https://github.com/kyrie21z/kytest-Agents.git && cd kytest-Agents
+git clone https://github.com/kyrie21z/Kytest-Agents.git && cd Kytest-Agents
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -e .
 ```
